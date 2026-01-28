@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FPad", "FPad\FPad.csproj", "{20ED4DB1-94D9-4363-A36E-9B4A2B443E9B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helper", "Helper\Helper.csproj", "{065483C6-CA46-409C-B1E6-B93598539988}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{20ED4DB1-94D9-4363-A36E-9B4A2B443E9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20ED4DB1-94D9-4363-A36E-9B4A2B443E9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20ED4DB1-94D9-4363-A36E-9B4A2B443E9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20ED4DB1-94D9-4363-A36E-9B4A2B443E9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{065483C6-CA46-409C-B1E6-B93598539988}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{065483C6-CA46-409C-B1E6-B93598539988}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{065483C6-CA46-409C-B1E6-B93598539988}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{065483C6-CA46-409C-B1E6-B93598539988}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1BAD56A1-F32C-40DA-8EEA-FC2D207909D7}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Panlingo.LanguageIdentification.Whatlang" Version="0.7.2" />
+    <PackageReference Include="Ude.NET" Version="1.0.0" />
+  </ItemGroup>
+
+</Project>
