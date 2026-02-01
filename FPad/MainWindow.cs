@@ -418,10 +418,23 @@ namespace FPad
 
         private (bool proceed, byte[] encodedBytes) EncodeForSave(string allText)
         {
-            byte[] encodedBytes = currentEncoding.Encoding.GetBytes(allText);
+            // Implementation of Encoding sucks dick.
+            // Internally it can only work with char arrays and cannot into spans.
+            // Encoding.GetBytes(string): 2 waste extra char arrays created (1st for calculating
+            // result length, 2nd for conversion itself. I wanna call GetByteCount and then GetBytes,
+            // if I do it just like that - it uses 3 waste extra char arrays. What if my string is already 1 GB?
+            // Therefore here is 1 waste extra char array so it doesn't shit more.
+            char[] textAsArray = allText.ToCharArray();
+            int bytesCount = currentEncoding.Encoding.GetByteCount(textAsArray);
+            
+            byte[] result = new byte[bytesCount + currentEncoding.Encoding.Preamble.Length];
+            Span<byte> spanResult = result.AsSpan();
+            currentEncoding.Encoding.Preamble.CopyTo(spanResult);
+            currentEncoding.Encoding.GetBytes(textAsArray, spanResult[currentEncoding.Encoding.Preamble.Length..]);
+
             if (!currentEncoding.IsLossless)
             {
-                string decoded = currentEncoding.Encoding.GetString(encodedBytes);
+                string decoded = currentEncoding.Encoding.GetString(spanResult);
                 if (decoded != allText)
                 {
                     bool lossConfirmation = App.WarningQuestion($"Encoding {currentEncoding.DisplayName}"
@@ -432,7 +445,7 @@ namespace FPad
                 }
             }
 
-            return (true, encodedBytes);
+            return (true, result);
         }
 
         private static bool UnsafeSave(string destPath, byte[] bytes)
