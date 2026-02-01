@@ -11,4 +11,8 @@
     <PackageReference Include="Ude.NET" Version="1.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Tests.FPad" />
+  </ItemGroup>
+
 </Project>

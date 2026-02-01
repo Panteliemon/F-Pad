@@ -1,4 +1,5 @@
 using FPad.Encodings;
+using FPad.Interaction;
 using System;
 using System.Drawing;
 using System.IO;
@@ -26,6 +27,8 @@ namespace FPad
         bool enableSizingHandlers = false;
         bool enableTextChangeHandler = true;
 
+        FormWindowState prevWindowState = FormWindowState.Normal;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -42,9 +45,21 @@ namespace FPad
             {
                 newToolStripMenuItem_Click(this, EventArgs.Empty);
             }
+
+            Interactor.Activate = Interactor_ActivateReceived;
         }
 
         #region Event Handlers
+
+        private void Interactor_ActivateReceived()
+        {
+            Invoke(() =>
+            {
+                if (WindowState == FormWindowState.Minimized)
+                    WindowState = prevWindowState;
+                Activate();
+            });
+        }
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -85,7 +100,11 @@ namespace FPad
         private void MainWindow_Resize(object sender, EventArgs e)
         {
             if (enableSizingHandlers)
+            {
                 RememberNormalSize();
+                if (WindowState != FormWindowState.Minimized)
+                    prevWindowState = WindowState;
+            }
         }
 
         private void MainWindow_LocationChanged(object sender, EventArgs e)
@@ -123,6 +142,8 @@ namespace FPad
 
             currentEncoding = EncodingManager.DefaultEncoding;
             UpdateEncodingMenuCheckboxes();
+
+            Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -301,6 +322,8 @@ namespace FPad
                 isNew = false;
                 ResetSelection();
 
+                Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
+
                 return true;
             }
             catch (Exception ex)
@@ -357,6 +380,8 @@ namespace FPad
                     hasUnsavedChanges = false;
                     currentDocumentBytes = encodedBytes;
                     SetTitle();
+
+                    Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
 
                     return true;
                 }

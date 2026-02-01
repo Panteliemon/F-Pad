@@ -1,4 +1,5 @@
 ﻿using FPad.Encodings;
+using FPad.Interaction;
 using FPad.Xml;
 using System;
 using System.Globalization;
@@ -129,6 +130,8 @@ namespace FPad
         [STAThread]
         static void Main()
         {
+            Interactor.Startup();
+
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
@@ -137,6 +140,15 @@ namespace FPad
             if (cmdLineArgs.Length > 1) // The first is just full path to the app
             {
                 CmdLineFile = cmdLineArgs[^1];
+
+                if (!string.IsNullOrWhiteSpace(CmdLineFile))
+                {
+                    if (Interactor.FindAndActivateByCurrentDocumentPath(CmdLineFile))
+                    {
+                        Interactor.Shutdown();
+                        return;
+                    }
+                }
             }
 
             LoadSettings();
@@ -148,10 +160,18 @@ namespace FPad
             catch (Exception ex)
             {
                 ShowError(ex);
+                Interactor.Shutdown();
                 return;
             }
 
+            Application.ApplicationExit += OnApplicationExit;
             Application.Run(new MainWindow());
+        }
+
+        private static void OnApplicationExit(object sender, EventArgs e)
+        {
+            if (Interactor.IsInitialized)
+                Interactor.Shutdown();
         }
 
         #region Private: Settings
