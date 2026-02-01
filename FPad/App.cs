@@ -47,6 +47,12 @@ namespace FPad
             return (dlgResult == DialogResult.Yes) ? true : (dlgResult == DialogResult.No ? false : null);
         }
 
+        public static bool WarningQuestion(string msg)
+        {
+            DialogResult dlgResult = MessageBox.Show(msg, TITLE, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            return (dlgResult == DialogResult.Yes);
+        }
+
         public static bool YNQuestion(string msg)
         {
             DialogResult dlgResult = MessageBox.Show(msg, TITLE, MessageBoxButtons.YesNo, MessageBoxIcon.Question);

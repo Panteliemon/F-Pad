@@ -50,7 +50,7 @@ namespace FPad
         {
             if (e.CloseReason != CloseReason.WindowsShutDown)
             {
-                if (HandleUnsavedChanges() != true)
+                if (!HandleUnsavedChanges())
                 {
                     e.Cancel = true;
                 }
@@ -107,7 +107,7 @@ namespace FPad
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (HandleUnsavedChanges() != true)
+            if (!HandleUnsavedChanges())
                 return;
 
             text.Text = string.Empty;
@@ -127,7 +127,7 @@ namespace FPad
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (HandleUnsavedChanges() != true)
+            if (!HandleUnsavedChanges())
                 return;
 
             OpenFileDialog ofd = new();
@@ -344,7 +344,11 @@ namespace FPad
                         return null;
                 }
 
-                (bool saveResult, byte[] encodedBytes) = UnsafeSave(destPath);
+                (bool proceed, byte[] encodedBytes) = EncodeForSave(text.Text);
+                if (!proceed)
+                    return null;
+
+                bool saveResult = UnsafeSave(destPath, encodedBytes);
                 if (saveResult)
                 {
                     currentDocumentFullPath = destPath;
@@ -367,38 +371,63 @@ namespace FPad
             }
         }
 
-        private bool ExecuteSave()
+        /// <summary>
+        /// </summary>
+        /// <returns>True - saved, False - not saved, Null - canceled</returns>
+        private bool? ExecuteSave()
         {
-            (bool result, byte[] encodedBytes) = UnsafeSave(currentDocumentFullPath);
-            if (result)
+            (bool proceed, byte[] encodedBytes) = EncodeForSave(text.Text);
+            if (!proceed)
+                return null;
+
+            bool saveResult = UnsafeSave(currentDocumentFullPath, encodedBytes);
+            if (saveResult)
             {
                 isNew = false;
                 hasUnsavedChanges = false;
                 currentDocumentBytes = encodedBytes;
             }
 
-            return result;
+            return saveResult;
         }
 
-        private (bool, byte[]) UnsafeSave(string destPath)
+        private (bool proceed, byte[] encodedBytes) EncodeForSave(string allText)
+        {
+            byte[] encodedBytes = currentEncoding.Encoding.GetBytes(allText);
+            if (!currentEncoding.IsLossless)
+            {
+                string decoded = currentEncoding.Encoding.GetString(encodedBytes);
+                if (decoded != allText)
+                {
+                    bool lossConfirmation = App.WarningQuestion($"Encoding {currentEncoding.DisplayName}"
+                        + Environment.NewLine + "Some characters will be lost."
+                        + Environment.NewLine + "Save anyway?");
+                    if (!lossConfirmation)
+                        return (false, null);
+                }
+            }
+
+            return (true, encodedBytes);
+        }
+
+        private static bool UnsafeSave(string destPath, byte[] bytes)
         {
             try
             {
-                byte[] encodedBytes = currentEncoding.Encoding.GetBytes(text.Text);
-                File.WriteAllBytes(destPath, encodedBytes);
-                return (true, encodedBytes);
+                File.WriteAllBytes(destPath, bytes);
+                return true;
             }
             catch (Exception ex)
             {
                 App.ShowError(ex);
-                return (false, null);
+                return false;
             }
         }
 
         /// <summary>
         /// </summary>
-        /// <returns>True - saved, False - not saved, Null - canceled</returns>
-        private bool? HandleUnsavedChanges()
+        /// <returns>True - saved / not saved and we allow to proceed; Null - canceled</returns>
+        private bool HandleUnsavedChanges()
         {
             if (hasUnsavedChanges)
             {
@@ -406,18 +435,17 @@ namespace FPad
                 if (doSave == true)
                 {
                     if (isNew)
-                        return ExecuteSaveAs();
+                        return ExecuteSaveAs() == true;
                     else
-                        return ExecuteSave();
+                        return ExecuteSave() == true;
+
                 }
                 else if (!doSave.HasValue)
                 {
-                    return null;
+                    return false;
                 }
             }
 
-            // No changes - "saved"
-            // Answered "don't save" - "saved"
             return true;
         }
 

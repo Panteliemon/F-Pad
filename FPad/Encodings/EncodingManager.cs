@@ -63,10 +63,10 @@ public static class EncodingManager
         langDetector = new WhatlangDetector();
 
         // Root-level (multibyte, "loseless") encodings
-        vmUnicode = new EncodingVm(null, Encoding.Unicode, "Unicode");
-        EncodingVm vmUtf8 = new EncodingVm(null, Encoding.UTF8, "UTF-8");
-        EncodingVm vmUtf16Be = new EncodingVm(null, Encoding.BigEndianUnicode, "UTF 16 Big Endian");
-        EncodingVm vmAscii = new EncodingVm(null, Encoding.ASCII, "ASCII");
+        vmUnicode = new EncodingVm(Encoding.Unicode, "Unicode", true);
+        EncodingVm vmUtf8 = new EncodingVm(Encoding.UTF8, "UTF-8", true);
+        EncodingVm vmUtf16Be = new EncodingVm(Encoding.BigEndianUnicode, "UTF 16 Big Endian", true);
+        EncodingVm vmAscii = new EncodingVm(Encoding.ASCII, "ASCII", false);
 
         Alphabet cyrillic = new("Cyrillic");
         EncodingVm vmWin1251 = new EncodingVm(cyrillic, encWin1251, "Шindows 1251");
