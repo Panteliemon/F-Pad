@@ -1,3 +1,4 @@
+using FPad.Encodings;
 using System;
 using System.Drawing;
 using System.IO;
@@ -16,14 +17,21 @@ namespace FPad
         string currentDocumentFullPath = string.Empty;
         string currentDocumentFileName = string.Empty;
         string lastPathToFolder = string.Empty;
+        /// <summary>
+        /// Valid until first change
+        /// </summary>
+        byte[] currentDocumentBytes;
+        EncodingVm currentEncoding = null;
 
         bool enableSizingHandlers = false;
+        bool enableTextChangeHandler = true;
 
         public MainWindow()
         {
             InitializeComponent();
 
             ApplySettings();
+            ConstructEncodingMenu();
 
             if (!string.IsNullOrEmpty(App.CmdLineFile))
             {
@@ -88,7 +96,11 @@ namespace FPad
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            hasUnsavedChanges = true;
+            if (enableTextChangeHandler)
+            {
+                hasUnsavedChanges = true;
+                currentDocumentBytes = null;
+            }
         }
 
         #region Menu: File
@@ -99,13 +111,18 @@ namespace FPad
                 return;
 
             text.Text = string.Empty;
+
             currentDocumentFileName = "new.txt";
             currentDocumentFullPath = string.IsNullOrEmpty(lastPathToFolder)
                 ? Path.Combine(Environment.CurrentDirectory, currentDocumentFileName)
                 : Path.Combine(lastPathToFolder, currentDocumentFileName);
             isNew = true;
             hasUnsavedChanges = false;
+            currentDocumentBytes = null;
             SetTitle();
+
+            currentEncoding = EncodingManager.DefaultEncoding;
+            UpdateEncodingMenuCheckboxes();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -213,6 +230,41 @@ namespace FPad
             ApplySettings();
         }
 
+        private void encodingMenuItemSelected(EncodingVm encodingVm)
+        {
+            if ((encodingVm != currentEncoding) && (currentEncoding != null))
+            {
+                if (!isNew)
+                {
+                    EncodingSwitchMethod? switchMethod = EncodingSwitchDialog.ShowDialog(this, encodingVm);
+                    if (!switchMethod.HasValue) // Canceled
+                        return;
+
+                    if (switchMethod == EncodingSwitchMethod.Reinterpret)
+                    {
+                        byte[] bytes = currentDocumentBytes ?? currentEncoding.Encoding.GetBytes(text.Text);
+                        enableTextChangeHandler = false;
+                        text.Text = encodingVm.Encoding.GetString(bytes);
+                        enableTextChangeHandler = true;
+
+                        // Keep previous hasUnsavedChanges (reinterpretation != edit)
+                        // Keep previous currentDocumentBytes (reinterpreted, not changed)
+
+                        ResetSelection();
+                    }
+                    else // Use during save
+                    {
+                        // Consider this an edit, although the text doesn't change
+                        currentDocumentBytes = null;
+                        hasUnsavedChanges = true;
+                    }  
+                }
+
+                currentEncoding = encodingVm;
+                UpdateEncodingMenuCheckboxes();
+            }
+        }
+
         private void preferencesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (SettingsDialog.ShowDialog(App.Settings))
@@ -234,14 +286,18 @@ namespace FPad
             try
             {
                 string fullPath = Path.GetFullPath(fileName);
-                string allText = File.ReadAllText(fullPath);
-
+                byte[] allBytes = File.ReadAllBytes(fullPath);
+                
                 currentDocumentFullPath = fullPath;
                 currentDocumentFileName = Path.GetFileName(fullPath);
                 SetTitle();
+                currentEncoding = EncodingManager.DetectEncoding(allBytes);
+                UpdateEncodingMenuCheckboxes();
 
-                text.Text = allText;
-                hasUnsavedChanges = false; // after text is set
+                text.Text = currentEncoding.Encoding.GetString(allBytes);
+
+                currentDocumentBytes = allBytes; // after text change
+                hasUnsavedChanges = false; // after text change
                 isNew = false;
                 ResetSelection();
 
@@ -288,12 +344,14 @@ namespace FPad
                         return null;
                 }
 
-                if (UnsafeSave(destPath))
+                (bool saveResult, byte[] encodedBytes) = UnsafeSave(destPath);
+                if (saveResult)
                 {
                     currentDocumentFullPath = destPath;
                     currentDocumentFileName = Path.GetFileName(destPath);
                     isNew = false;
                     hasUnsavedChanges = false;
+                    currentDocumentBytes = encodedBytes;
                     SetTitle();
 
                     return true;
@@ -311,27 +369,29 @@ namespace FPad
 
         private bool ExecuteSave()
         {
-            bool result = UnsafeSave(currentDocumentFullPath);
+            (bool result, byte[] encodedBytes) = UnsafeSave(currentDocumentFullPath);
             if (result)
             {
                 isNew = false;
                 hasUnsavedChanges = false;
+                currentDocumentBytes = encodedBytes;
             }
 
             return result;
         }
 
-        private bool UnsafeSave(string destPath)
+        private (bool, byte[]) UnsafeSave(string destPath)
         {
             try
             {
-                File.WriteAllText(destPath, text.Text);
-                return true;
+                byte[] encodedBytes = currentEncoding.Encoding.GetBytes(text.Text);
+                File.WriteAllBytes(destPath, encodedBytes);
+                return (true, encodedBytes);
             }
             catch (Exception ex)
             {
                 App.ShowError(ex);
-                return false;
+                return (false, null);
             }
         }
 
@@ -391,6 +451,50 @@ namespace FPad
                 App.Settings.WindowHeight = Height;
                 App.Settings.WindowWidth = Width;
             }
+        }
+
+        private void ConstructEncodingMenu()
+        {
+            foreach (EncodingVm encodingVm in EncodingManager.Encodings)
+            {
+                if (encodingVm.Alphabet == null)
+                {
+                    ToolStripMenuItem menuItem = new(encodingVm.DisplayName, null,
+                        (_, _) => encodingMenuItemSelected(encodingVm));
+                    menuItem.Tag = encodingVm;
+                    encodingToolStripMenuItem.DropDownItems.Add(menuItem);
+                }
+            }
+
+            foreach (Alphabet alphabet in EncodingManager.Alphabets)
+            {
+                ToolStripMenuItem alphabetItem = new("ANSI " + alphabet.DisplayName);
+                encodingToolStripMenuItem.DropDownItems.Add(alphabetItem);
+
+                foreach (EncodingVm encodingVm in alphabet.Encodings)
+                {
+                    ToolStripMenuItem menuItem = new(encodingVm.DisplayName, null,
+                        (_, _) => encodingMenuItemSelected(encodingVm));
+                    menuItem.Tag = encodingVm;
+                    alphabetItem.DropDownItems.Add(menuItem);
+                }
+            }
+        }
+
+        private bool UpdateEncodingMenuCheckboxes(ToolStripMenuItem parentMenuItem = null)
+        {
+            parentMenuItem ??= encodingToolStripMenuItem;
+
+            bool anyChecked = false;
+            foreach (ToolStripMenuItem item in parentMenuItem.DropDownItems)
+            {
+                bool subItemsChecked = UpdateEncodingMenuCheckboxes(item);
+                item.Checked = subItemsChecked
+                    || ((item.Tag == currentEncoding) && (currentEncoding != null));
+                anyChecked = anyChecked || item.Checked;
+            }
+
+            return anyChecked;
         }
     }
 }

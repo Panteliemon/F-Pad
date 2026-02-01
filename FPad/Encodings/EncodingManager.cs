@@ -30,7 +30,7 @@ public static class EncodingManager
 
     public static IReadOnlyList<Alphabet> Alphabets { get; private set; }
     /// <summary>
-    /// Supported encodings (flattened list from <see cref="Alphabets"/>)
+    /// Supported encodings (flattened list from <see cref="Alphabets"/> + those which don't belong to an alphabet)
     /// </summary>
     public static IReadOnlyList<EncodingVm> Encodings { get; private set; }
 
@@ -81,7 +81,13 @@ public static class EncodingManager
         EncodingVm vmOem775 = new EncodingVm(latin, encOem775, "Baltics OEM 775 (DOS)");
 
         Alphabets = new List<Alphabet>() { cyrillic, latin };
-        Encodings = Alphabets.SelectMany(x => x.Encodings).ToList();
+        List<EncodingVm> encodings = new();
+        encodings.Add(vmUnicode);
+        encodings.Add(vmUtf8);
+        encodings.Add(vmUtf16Be);
+        encodings.Add(vmAscii);
+        encodings.AddRange(Alphabets.SelectMany(x => x.Encodings));
+        Encodings = encodings;
 
         detectionData = new List<EncodingDetectionData>()
         {
@@ -179,4 +185,6 @@ public static class EncodingManager
             return (bestCandidate != null) ? bestCandidate.Vm : vmDefaultAnsi;
         }
     }
+
+    public static EncodingVm DefaultEncoding => vmUnicode;
 }
