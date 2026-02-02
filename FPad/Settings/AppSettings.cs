@@ -14,12 +14,7 @@ public class AppSettings
     public bool IsItalic { get; set; }
     public bool Wrap { get; set; }
 
-    public bool WindowPositionHasValue { get; set; }
-    public int WindowTop { get; set; }
-    public int WindowLeft { get; set; }
-    public int WindowHeight { get; set; }
-    public int WindowWidth { get; set; }
-    public bool WindowMaximized { get; set; }
+    public WindowPositionSettings WindowPosition { get; set; }
 
     public static AppSettings Default()
     {

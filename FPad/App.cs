@@ -218,14 +218,7 @@ namespace FPad
                 {
                     Wrap = settings.Wrap ? "1" : null
                 },
-                WindowPosition = settings.WindowPositionHasValue ? new WindowPositionDto()
-                {
-                    Maximized = settings.WindowMaximized ? "1" : null,
-                    Top = settings.WindowTop,
-                    Left = settings.WindowLeft,
-                    Height = settings.WindowHeight,
-                    Width = settings.WindowWidth
-                } : null
+                WindowPosition = WindowPositionToDto(settings.WindowPosition)
             };
 
             return result;
@@ -253,16 +246,45 @@ namespace FPad
                 dest.Wrap = dto.Text.Wrap == "1";
             }
 
-            dest.WindowPositionHasValue = false;
-            if (dto.WindowPosition != null)
+            WindowPositionSettings windowPosSettings = DtoToWindowPositionSettings(dto.WindowPosition);
+            if (windowPosSettings != null)
             {
-                dest.WindowPositionHasValue = true;
-                dest.WindowMaximized = dto.WindowPosition.Maximized == "1";
-                dest.WindowTop = dto.WindowPosition.Top;
-                dest.WindowLeft = dto.WindowPosition.Left;
-                dest.WindowHeight = dto.WindowPosition.Height;
-                dest.WindowWidth = dto.WindowPosition.Width;
+                dest.WindowPosition = windowPosSettings;
             }
+        }
+
+        private static WindowPositionDto WindowPositionToDto(WindowPositionSettings windowPosition)
+        {
+            if (windowPosition != null)
+            {
+                return new WindowPositionDto()
+                {
+                    Top = windowPosition.Top,
+                    Left = windowPosition.Left,
+                    Height = windowPosition.Height,
+                    Width = windowPosition.Width,
+                    Maximized = windowPosition.IsMaximized ? "1" : null
+                };
+            }
+
+            return null;
+        }
+
+        private static WindowPositionSettings DtoToWindowPositionSettings(WindowPositionDto dto)
+        {
+            if (dto != null)
+            {
+                return new WindowPositionSettings()
+                {
+                    Top = dto.Top,
+                    Left = dto.Left,
+                    Height = dto.Height,
+                    Width = dto.Width,
+                    IsMaximized = dto.Maximized == "1"
+                };
+            }
+
+            return null;
         }
 
         #endregion

@@ -1,5 +1,6 @@
 using FPad.Encodings;
 using FPad.Interaction;
+using FPad.Settings;
 using System;
 using System.Drawing;
 using System.IO;
@@ -73,27 +74,15 @@ namespace FPad
 
             if (!e.Cancel)
             {
-                App.Settings.WindowMaximized = WindowState == FormWindowState.Maximized;
                 RememberNormalSize();
-                App.Settings.WindowPositionHasValue = true;
+                App.Settings.WindowPosition.IsMaximized = WindowState == FormWindowState.Maximized;
                 App.SaveSettings();
             }
         }
 
         private void MainWindow_Load(object sender, EventArgs e)
         {
-            if (App.Settings.WindowPositionHasValue)
-            {
-                Top = App.Settings.WindowTop;
-                Left = App.Settings.WindowLeft;
-                Height = App.Settings.WindowHeight;
-                Width = App.Settings.WindowWidth;
-                if (App.Settings.WindowMaximized)
-                {
-                    WindowState = FormWindowState.Maximized;
-                }
-            }
-
+            ApplyWindowPosition(App.Settings.WindowPosition);
             enableSizingHandlers = true;
         }
 
@@ -497,6 +486,21 @@ namespace FPad
             wrapLinesMenuItem.Checked = App.Settings.Wrap;
         }
 
+        private void ApplyWindowPosition(WindowPositionSettings windowPosSettings)
+        {
+            if (windowPosSettings != null)
+            {
+                Top = windowPosSettings.Top;
+                Left = windowPosSettings.Left;
+                Height = windowPosSettings.Height;
+                Width = windowPosSettings.Width;
+                if (windowPosSettings.IsMaximized)
+                {
+                    WindowState = FormWindowState.Maximized;
+                }
+            }
+        }
+
         private void ResetSelection()
         {
             text.SelectionStart = 0;
@@ -512,10 +516,11 @@ namespace FPad
         {
             if (WindowState == FormWindowState.Normal)
             {
-                App.Settings.WindowTop = Top;
-                App.Settings.WindowLeft = Left;
-                App.Settings.WindowHeight = Height;
-                App.Settings.WindowWidth = Width;
+                App.Settings.WindowPosition ??= new WindowPositionSettings();
+                App.Settings.WindowPosition.Top = Top;
+                App.Settings.WindowPosition.Left = Left;
+                App.Settings.WindowPosition.Height = Height;
+                App.Settings.WindowPosition.Width = Width;
             }
         }
 
