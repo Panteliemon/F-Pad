@@ -33,6 +33,9 @@ public static class Interactor
 
     public static void Startup()
     {
+        if (IsInitialized)
+            throw new InvalidOperationException();
+
         Pid = Process.GetCurrentProcess().Id;
 
         sharedMemoryMutex = new Mutex(false, "FPAD_interaction_mutex");
@@ -56,6 +59,9 @@ public static class Interactor
 
     public static void Shutdown()
     {
+        if (!IsInitialized)
+            throw new InvalidOperationException();
+
         // Remove ourselves
         CriticalSection(() =>
         {
@@ -77,6 +83,9 @@ public static class Interactor
 
     public static void UpdateCurrentDocumentFullPath(string documentFullPath)
     {
+        if (!IsInitialized)
+            throw new InvalidOperationException();
+
         CriticalSection(() =>
         {
             MemStruct ms = UnsafeReadSharedMemory();
@@ -91,6 +100,9 @@ public static class Interactor
     /// <returns>True: found and activated. False: didn't find.</returns>
     public static bool FindAndActivateByCurrentDocumentPath(string documentFullPath)
     {
+        if (!IsInitialized)
+            throw new InvalidOperationException();
+
         bool result = false;
         CriticalSection(() =>
         {
