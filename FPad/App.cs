@@ -1,7 +1,4 @@
-﻿using FPad.Encodings;
-using FPad.Interaction;
-using FPad.Xml;
-using System;
+﻿using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -9,6 +6,10 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Serialization;
+using FPad.Encodings;
+using FPad.Interaction;
+using FPad.Settings;
+using FPad.Xml;
 
 namespace FPad
 {
@@ -16,7 +17,7 @@ namespace FPad
     {
         public static string TITLE = "F-Pad";
         public static string SETTINGS_FOLDER = "F-Pad";
-        public static Settings Settings = Settings.Default();
+        public static AppSettings Settings = AppSettings.Default();
 
         public static int BUFFERSIZE = 512 << 10;
 
@@ -202,7 +203,7 @@ namespace FPad
             return Path.Combine(settingsFolderPath, "settings.xml");
         }
 
-        private static SettingsDto SettingsToDto(Settings settings)
+        private static SettingsDto SettingsToDto(AppSettings settings)
         {
             SettingsDto result = new()
             {
@@ -230,7 +231,7 @@ namespace FPad
             return result;
         }
 
-        private static void DtoToSettings(SettingsDto dto, Settings dest)
+        private static void DtoToSettings(SettingsDto dto, AppSettings dest)
         {
             if (dto == null)
                 return;

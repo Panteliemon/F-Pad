@@ -7,12 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FPad.Settings;
 
 namespace FPad;
 
 public partial class SettingsDialog : Form
 {
-    private Settings settings;
+    private AppSettings settings;
 
     private bool enableHandlers = false;
 
@@ -22,7 +23,7 @@ public partial class SettingsDialog : Form
 
     public bool Result { get; private set; }
 
-    private SettingsDialog(Settings settings)
+    private SettingsDialog(AppSettings settings)
     {
         InitializeComponent();
 
@@ -53,7 +54,7 @@ public partial class SettingsDialog : Form
         enableHandlers = true;
     }
 
-    public static bool ShowDialog(Settings settings)
+    public static bool ShowDialog(AppSettings settings)
     {
         SettingsDialog instance = new(settings);
         instance.ShowDialog();

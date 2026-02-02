@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FPad;
+namespace FPad.Settings;
 
-public class Settings
+public class AppSettings
 {
     public string FontFamily { get; set; }
     public int FontSize { get; set; }
@@ -21,9 +21,9 @@ public class Settings
     public int WindowWidth { get; set; }
     public bool WindowMaximized { get; set; }
 
-    public static Settings Default()
+    public static AppSettings Default()
     {
-        return new Settings()
+        return new AppSettings()
         {
             FontFamily = string.Empty,
             FontSize = 12
