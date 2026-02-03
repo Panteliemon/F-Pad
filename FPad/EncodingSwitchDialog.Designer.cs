@@ -48,7 +48,7 @@ partial class EncodingSwitchDialog
         bReinterpret.Name = "bReinterpret";
         bReinterpret.Size = new System.Drawing.Size(165, 37);
         bReinterpret.TabIndex = 1;
-        bReinterpret.Text = "Reinterpret Bytes";
+        bReinterpret.Text = "&Reinterpret Bytes";
         bReinterpret.UseVisualStyleBackColor = true;
         bReinterpret.Click += bReinterpret_Click;
         // 
@@ -58,7 +58,7 @@ partial class EncodingSwitchDialog
         bUseForSaving.Name = "bUseForSaving";
         bUseForSaving.Size = new System.Drawing.Size(165, 37);
         bUseForSaving.TabIndex = 2;
-        bUseForSaving.Text = "Use for Save";
+        bUseForSaving.Text = "Use for &Save";
         bUseForSaving.UseVisualStyleBackColor = true;
         bUseForSaving.Click += bUseForSaving_Click;
         // 
