@@ -17,9 +17,9 @@ public static class Interactor
 
     private static MemoryMappedFile sharedMemory;
     private static Mutex sharedMemoryMutex;
+
     private static string acceptMessageEventName;
     private static EventWaitHandle acceptMessageEvent;
-
     private static Thread acceptThread;
     private static CancellationTokenSource acceptThreadCts;
 
@@ -39,9 +39,9 @@ public static class Interactor
         Pid = Process.GetCurrentProcess().Id;
 
         sharedMemoryMutex = new Mutex(false, "FPAD_interaction_mutex");
+
         acceptMessageEventName = $"FPAD_{Pid}_accept_message_event";
         acceptMessageEvent = new EventWaitHandle(false, EventResetMode.AutoReset, acceptMessageEventName);
-
         acceptThreadCts = new();
         acceptThread = new Thread(() => AcceptMessageThreadProc(acceptThreadCts.Token));
         acceptThread.Start();

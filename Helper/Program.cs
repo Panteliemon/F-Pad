@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Helper;
 
@@ -10,12 +11,91 @@ public record ScoreCalcStrings(string GoodChars, string BadChars);
 
 public static class Program
 {
+    static Mutex mutex;
+    static EventWaitHandle eventHandle;
+    static object consoleSyncObj = new();
+
     public static void Main()
     {
-        Console.WriteLine("1");
+        Console.WriteLine("2");
 
-        string encodingManagerLines = string.Join(Environment.NewLine, GenerateScoreCalculatorLines());
+        //string encodingManagerLines = string.Join(Environment.NewLine, GenerateScoreCalculatorLines());
 
+        TestEvents();        
+    }
+
+    private static void TestEvents()
+    {
+        mutex = new Mutex(false);
+        eventHandle = new EventWaitHandle(false, EventResetMode.ManualReset, "test_named_event_1");
+
+        for (int i = 0; i < 8; i++)
+        {
+            string threadName = $"T{i + 1}"; // capture to local variable so each thread uses unique string
+            Thread thr = new Thread(() => ThreadProc(threadName));
+            thr.Start();
+        }
+
+        while (true)
+        {
+            ConsoleWriteLine("type S to send the event, exit for exit");
+            string input = Console.ReadLine().Trim().ToUpperInvariant();
+            if (input == "S")
+            {
+                mutex.WaitOne();
+
+                eventHandle.Set();
+                eventHandle.Reset();
+                Thread.Sleep(200);
+                eventHandle.Set();
+                eventHandle.Reset();
+
+                // Result: 1. waiting threads always register an event
+                // 2. some threads register 2 events, most of threads register 1 event
+
+                Thread.Sleep(1000);
+
+                mutex.ReleaseMutex();
+
+                ConsoleWriteLine("sent");
+            }
+            else if (input == "EXIT")
+            {
+                isCanceled = true;
+                eventHandle.Set();
+                eventHandle.Reset();
+                return;
+            }
+        }
+    }
+
+    static bool isCanceled = false;
+    private static void ThreadProc(string threadName)
+    {
+        ConsoleWriteLine($"{threadName} started");
+
+        while (true)
+        {
+            eventHandle.WaitOne();
+            if (isCanceled)
+                return;
+
+            mutex.WaitOne();
+            Thread.Sleep(50);
+
+            ConsoleWriteLine($"{threadName} received the event");
+
+            Thread.Sleep(50);
+            mutex.ReleaseMutex();
+        }
+    }
+
+    private static void ConsoleWriteLine(string str)
+    {
+        lock (consoleSyncObj)
+        {
+            Console.WriteLine(str);
+        }
     }
 
     private static List<string> GenerateScoreCalculatorLines()

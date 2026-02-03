@@ -74,6 +74,7 @@ namespace FPad
 
             if (!e.Cancel)
             {
+                App.Settings.WindowPosition ??= new WindowPositionSettings();
                 RememberNormalSize();
                 App.Settings.WindowPosition.IsMaximized = WindowState == FormWindowState.Maximized;
                 App.SaveSettings();
@@ -277,7 +278,7 @@ namespace FPad
 
         private void preferencesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (SettingsDialog.ShowDialog(App.Settings))
+            if (SettingsDialog.ShowADialog())
             {
                 App.SaveSettings();
 

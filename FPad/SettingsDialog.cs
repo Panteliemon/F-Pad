@@ -13,8 +13,6 @@ namespace FPad;
 
 public partial class SettingsDialog : Form
 {
-    private AppSettings settings;
-
     private bool enableHandlers = false;
 
     private FontFamily[] fontFamilies;
@@ -23,28 +21,26 @@ public partial class SettingsDialog : Form
 
     public bool Result { get; private set; }
 
-    private SettingsDialog(AppSettings settings)
+    private SettingsDialog()
     {
         InitializeComponent();
 
-        this.settings = settings;
-
-        selectedFontSize = settings.FontSize;
+        selectedFontSize = App.Settings.FontSize;
         SetSliderValue();
         tbFontSize.Value = selectedFontSize;
 
         fontFamilies = FontFamily.Families.OrderBy(x => x.Name).ToArray();
-        selectedFontFamily = FontUtils.GetFontFamilyByString(settings.FontFamily, fontFamilies);
+        selectedFontFamily = FontUtils.GetFontFamilyByString(App.Settings.FontFamily, fontFamilies);
 
         cbFonts.Items.AddRange(fontFamilies);
         cbFonts.DisplayMember = nameof(FontFamily.Name);
         cbFonts.SelectedIndex = Array.FindIndex(fontFamilies, x => x == selectedFontFamily);
 
-        chBold.Checked = settings.IsBold;
-        chItalic.Checked = settings.IsItalic;
+        chBold.Checked = App.Settings.IsBold;
+        chItalic.Checked = App.Settings.IsItalic;
 
-        chWrap.Checked = settings.Wrap;
-        exampleText.WordWrap = settings.Wrap;
+        chWrap.Checked = App.Settings.Wrap;
+        exampleText.WordWrap = App.Settings.Wrap;
 
         Text = "Settings - " + App.TITLE;
         exampleText.Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sit amet libero aliquet, vestibulum massa dignissim, facilisis lacus. Phasellus ligula ex, sodales eu suscipit non, dapibus sit amet ex."
@@ -54,9 +50,9 @@ public partial class SettingsDialog : Form
         enableHandlers = true;
     }
 
-    public static bool ShowDialog(AppSettings settings)
+    public static bool ShowADialog()
     {
-        SettingsDialog instance = new(settings);
+        SettingsDialog instance = new();
         instance.ShowDialog();
         return instance.Result;
     }
@@ -91,10 +87,10 @@ public partial class SettingsDialog : Form
     private void bSave_Click(object sender, EventArgs e)
     {
         Result = true;
-        settings.FontFamily = selectedFontFamily.Name;
-        settings.FontSize = selectedFontSize;
-        settings.IsBold = chBold.Checked;
-        settings.IsItalic = chItalic.Checked;
+        App.Settings.FontFamily = selectedFontFamily.Name;
+        App.Settings.FontSize = selectedFontSize;
+        App.Settings.IsBold = chBold.Checked;
+        App.Settings.IsItalic = chItalic.Checked;
         Close();
     }
 
