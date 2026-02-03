@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace FPad
         public const string TITLE = "F-Pad";
         public const int BUFFERSIZE = 512 << 10;
 
+        // We first collect all info into here,
+        // but when we save we only save those parts of settings which we consider actual.
         public static AppSettings Settings { get; private set; }
         public static string CmdLineFile { get; private set; }
 
@@ -45,23 +48,50 @@ namespace FPad
 
         #endregion
 
-        public static bool SaveSettings()
+        public static bool SaveSettings(SettingsFlags flags, string currentFileFullPath = null)
         {
             return SettingsManager.Modify(destSettings =>
             {
-                destSettings.FontFamily = Settings.FontFamily;
-                destSettings.FontSize = Settings.FontSize;
-                destSettings.IsBold = Settings.IsBold;
-                destSettings.IsItalic = Settings.IsItalic;
-                destSettings.Wrap = Settings.Wrap;
+                if ((flags & SettingsFlags.Font) != 0)
+                {
+                    destSettings.FontFamily = Settings.FontFamily;
+                    destSettings.FontSize = Settings.FontSize;
+                    destSettings.IsBold = Settings.IsBold;
+                    destSettings.IsItalic = Settings.IsItalic;
+                }
 
-                destSettings.WindowPosition ??= Settings.WindowPosition;
+                if ((flags & SettingsFlags.Wrap) != 0)
+                {
+                    destSettings.Wrap = Settings.Wrap;
+                }
+
+                if (((flags & SettingsFlags.WindowPosition) != 0) && (Settings.WindowPosition != null))
+                    destSettings.WindowPosition = Settings.WindowPosition.Clone();
+
+                if (((flags & SettingsFlags.FileWindowPosition) != 0)
+                    && !string.IsNullOrEmpty(currentFileFullPath))
+                {
+                    string hash = StringUtils.GetPathHash(currentFileFullPath);
+
+                    // Add/update this file with our root WindowPosition,
+                    // because we don't actualize per-file records that we hold.
+                    destSettings.Files ??= new List<FileSettings>();
+                    FileSettings fileSettings = destSettings.Files.FirstOrDefault(x => x.FullPathHash == hash);
+                    if (fileSettings == null)
+                    {
+                        fileSettings = new FileSettings()
+                        {
+                            FullPathHash = hash
+                        };
+                        destSettings.Files.Add(fileSettings);
+                    }
+
+                    fileSettings.LastChanged = DateOnly.FromDateTime(DateTime.Today);
+                    fileSettings.WindowPosition = Settings.WindowPosition?.Clone();
+                }
             });
         }
 
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {

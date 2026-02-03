@@ -39,12 +39,12 @@ namespace FPad
 
             if (!string.IsNullOrEmpty(App.CmdLineFile))
             {
-                if (!LoadFile(App.CmdLineFile))
-                    newToolStripMenuItem_Click(this, EventArgs.Empty);
+                if (!LoadFile(App.CmdLineFile, false))
+                    PrepareNew(false);
             }
             else
             {
-                newToolStripMenuItem_Click(this, EventArgs.Empty);
+                PrepareNew(false);
             }
 
             Interactor.Activate = Interactor_ActivateReceived;
@@ -74,10 +74,11 @@ namespace FPad
 
             if (!e.Cancel)
             {
-                App.Settings.WindowPosition ??= new WindowPositionSettings();
-                RememberNormalSize();
-                App.Settings.WindowPosition.IsMaximized = WindowState == FormWindowState.Maximized;
-                App.SaveSettings();
+                RememberWindowPosition();
+                SettingsFlags settingsToSave = SettingsFlags.WindowPosition;
+                if (!isNew)
+                    settingsToSave |= SettingsFlags.FileWindowPosition;
+                App.SaveSettings(settingsToSave, currentDocumentFullPath);
             }
         }
 
@@ -119,21 +120,7 @@ namespace FPad
             if (!HandleUnsavedChanges())
                 return;
 
-            text.Text = string.Empty;
-
-            currentDocumentFileName = "new.txt";
-            currentDocumentFullPath = string.IsNullOrEmpty(lastPathToFolder)
-                ? Path.Combine(Environment.CurrentDirectory, currentDocumentFileName)
-                : Path.Combine(lastPathToFolder, currentDocumentFileName);
-            isNew = true;
-            hasUnsavedChanges = false;
-            currentDocumentBytes = null;
-            SetTitle();
-
-            currentEncoding = EncodingManager.DefaultEncoding;
-            UpdateEncodingMenuCheckboxes();
-
-            Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
+            PrepareNew(true);
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -162,7 +149,7 @@ namespace FPad
             {
                 lastPathToFolder = Path.GetDirectoryName(ofd.FileName);
 
-                LoadFile(ofd.FileName);
+                LoadFile(ofd.FileName, true);
             }
         }
 
@@ -237,7 +224,7 @@ namespace FPad
         private void wrapLinesMenuItem_Click(object sender, EventArgs e)
         {
             App.Settings.Wrap = !App.Settings.Wrap;
-            App.SaveSettings();
+            App.SaveSettings(SettingsFlags.Wrap);
             ApplySettings();
         }
 
@@ -280,7 +267,7 @@ namespace FPad
         {
             if (SettingsDialog.ShowADialog())
             {
-                App.SaveSettings();
+                App.SaveSettings(SettingsFlags.Font);
 
                 ApplySettings();
             }
@@ -290,15 +277,46 @@ namespace FPad
 
         #endregion
 
-        #region Load and Save
+        #region New, Load, Save
 
-        private bool LoadFile(string fileName)
+        private void PrepareNew(bool savePreviousFileSettings)
+        {
+            if (savePreviousFileSettings && !isNew)
+            {
+                RememberWindowPosition();
+                App.SaveSettings(SettingsFlags.FileWindowPosition, currentDocumentFullPath);
+            }
+
+            text.Text = string.Empty;
+
+            currentDocumentFileName = "new.txt";
+            currentDocumentFullPath = string.IsNullOrEmpty(lastPathToFolder)
+                ? Path.Combine(Environment.CurrentDirectory, currentDocumentFileName)
+                : Path.Combine(lastPathToFolder, currentDocumentFileName);
+            isNew = true;
+            hasUnsavedChanges = false;
+            currentDocumentBytes = null;
+            SetTitle();
+
+            currentEncoding = EncodingManager.DefaultEncoding;
+            UpdateEncodingMenuCheckboxes();
+
+            Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
+        }
+
+        private bool LoadFile(string fileName, bool savePreviousFileSettings)
         {
             try
             {
                 string fullPath = Path.GetFullPath(fileName);
                 byte[] allBytes = File.ReadAllBytes(fullPath);
-                
+
+                if (savePreviousFileSettings && !isNew)
+                {
+                    RememberWindowPosition();
+                    App.SaveSettings(SettingsFlags.FileWindowPosition, currentDocumentFullPath);
+                }
+
                 currentDocumentFullPath = fullPath;
                 currentDocumentFileName = Path.GetFileName(fullPath);
                 SetTitle();
@@ -364,6 +382,12 @@ namespace FPad
                 bool saveResult = UnsafeSave(destPath, encodedBytes);
                 if (saveResult)
                 {
+                    if (!isNew)
+                    {
+                        RememberWindowPosition();
+                        App.SaveSettings(SettingsFlags.FileWindowPosition, currentDocumentFullPath);
+                    }
+
                     currentDocumentFullPath = destPath;
                     currentDocumentFileName = Path.GetFileName(destPath);
                     isNew = false;
@@ -463,10 +487,15 @@ namespace FPad
                 if (doSave == true)
                 {
                     if (isNew)
-                        return ExecuteSaveAs() == true;
+                    {
+                        if (ExecuteSaveAs() != true)
+                            return false;
+                    }
                     else
-                        return ExecuteSave() == true;
-
+                    {
+                        if (ExecuteSave() != true)
+                            return false;
+                    }
                 }
                 else if (!doSave.HasValue)
                 {
@@ -511,6 +540,13 @@ namespace FPad
         private void SetTitle()
         {
             Text = currentDocumentFileName + " - " + App.TITLE;
+        }
+
+        private void RememberWindowPosition()
+        {
+            App.Settings.WindowPosition ??= new WindowPositionSettings();
+            RememberNormalSize();
+            App.Settings.WindowPosition.IsMaximized = WindowState == FormWindowState.Maximized;
         }
 
         private void RememberNormalSize()
