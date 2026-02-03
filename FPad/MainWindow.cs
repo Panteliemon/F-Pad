@@ -84,7 +84,22 @@ namespace FPad
 
         private void MainWindow_Load(object sender, EventArgs e)
         {
-            ApplyWindowPosition(App.Settings.WindowPosition);
+            WindowPositionSettings windowPositionToRestore = App.Settings.WindowPosition;
+            if (!string.IsNullOrEmpty(App.CmdLineFile) && !isNew
+                && (App.Settings.Files != null))
+            {
+                // If successfully loaded some file from cmd line - apply this file's personal position
+                string hash = StringUtils.GetPathHash(currentDocumentFullPath);
+                WindowPositionSettings fileWindowPosition = App.Settings.Files
+                    .Where(x => string.Equals(x.FullPathHash, hash, StringComparison.Ordinal))
+                    .Select(x => x.WindowPosition)
+                    .FirstOrDefault();
+                if (fileWindowPosition != null)
+                    windowPositionToRestore = fileWindowPosition;
+            }
+
+            ApplyWindowPosition(windowPositionToRestore);
+
             enableSizingHandlers = true;
         }
 

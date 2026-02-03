@@ -10,7 +10,7 @@ namespace FPad.Xml;
 public class FileDto
 {
     [XmlAttribute]
-    public string Hash { get; set; }
+    public string Path { get; set; }
     [XmlAttribute]
     public int Date { get; set; }
 

@@ -269,7 +269,7 @@ public static class SettingsManager
     {
         return new FileDto()
         {
-            Hash = fileSettings.FullPathHash,
+            Path = fileSettings.FullPathHash,
             Date = fileSettings.LastChanged.DayNumber,
             WindowPosition = WindowPositionToDto(fileSettings.WindowPosition)
         };
@@ -277,14 +277,14 @@ public static class SettingsManager
 
     private static FileSettings DtoToFileSettings(FileDto dto)
     {
-        if (!string.IsNullOrEmpty(dto.Hash))
+        if (!string.IsNullOrEmpty(dto.Path))
         {
             try
             {
                 DateOnly lastChanged = DateOnly.FromDayNumber(dto.Date);
                 return new FileSettings()
                 {
-                    FullPathHash = dto.Hash,
+                    FullPathHash = dto.Path,
                     LastChanged = lastChanged,
                     WindowPosition = DtoToWindowPositionSettings(dto.WindowPosition)
                 };
