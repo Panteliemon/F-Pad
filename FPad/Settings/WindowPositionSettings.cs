@@ -13,4 +13,9 @@ public class WindowPositionSettings
     public int Height { get; set; }
     public int Width { get; set; }
     public bool IsMaximized { get; set; }
+
+    public WindowPositionSettings Clone()
+    {
+        return (WindowPositionSettings)MemberwiseClone();
+    }
 }

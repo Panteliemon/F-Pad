@@ -14,7 +14,12 @@ public class AppSettings
     public bool IsItalic { get; set; }
     public bool Wrap { get; set; }
 
+    /// <summary>
+    /// "Default" window position
+    /// </summary>
     public WindowPositionSettings WindowPosition { get; set; }
+
+    public List<FileSettings> Files { get; set; }
 
     public static AppSettings Default()
     {

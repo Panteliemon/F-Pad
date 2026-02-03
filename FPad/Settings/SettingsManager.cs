@@ -155,6 +155,8 @@ public static class SettingsManager
         return Path.Combine(settingsFolderPath, "settings.xml");
     }
 
+    #region Dto Conversion
+
     private static SettingsDto SettingsToDto(AppSettings settings)
     {
         SettingsDto result = new()
@@ -172,6 +174,11 @@ public static class SettingsManager
             },
             WindowPosition = WindowPositionToDto(settings.WindowPosition)
         };
+
+        if (settings.Files != null)
+        {
+            result.Files = settings.Files.Select(x => FileSettingsToDto(x)).ToList();
+        }
 
         return result;
     }
@@ -202,6 +209,25 @@ public static class SettingsManager
         if (windowPosSettings != null)
         {
             dest.WindowPosition = windowPosSettings;
+        }
+
+        if ((dto.Files != null) && (dto.Files.Count > 0))
+        {
+            dest.Files ??= new List<FileSettings>();
+            foreach (FileDto fileDto in dto.Files)
+            {
+                FileSettings fileSettings = DtoToFileSettings(fileDto);
+                if (fileSettings != null)
+                {
+                    int existingIndex = dest.Files.FindIndex(x => string.Equals(x.FullPathHash, fileSettings.FullPathHash, StringComparison.Ordinal));
+                    if (existingIndex >= 0)
+                        dest.Files[existingIndex] = fileSettings;
+                    else
+                        dest.Files.Add(fileSettings);
+                }
+            }
+
+            dest.Files.Sort((x, y) => string.CompareOrdinal(x.FullPathHash, y.FullPathHash));
         }
     }
 
@@ -238,6 +264,40 @@ public static class SettingsManager
 
         return null;
     }
+
+    private static FileDto FileSettingsToDto(FileSettings fileSettings)
+    {
+        return new FileDto()
+        {
+            Hash = fileSettings.FullPathHash,
+            Date = fileSettings.LastChanged.DayNumber,
+            WindowPosition = WindowPositionToDto(fileSettings.WindowPosition)
+        };
+    }
+
+    private static FileSettings DtoToFileSettings(FileDto dto)
+    {
+        if (!string.IsNullOrEmpty(dto.Hash))
+        {
+            try
+            {
+                DateOnly lastChanged = DateOnly.FromDayNumber(dto.Date);
+                return new FileSettings()
+                {
+                    FullPathHash = dto.Hash,
+                    LastChanged = lastChanged,
+                    WindowPosition = DtoToWindowPositionSettings(dto.WindowPosition)
+                };
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        return null;
+    }
+
+    #endregion
 
     #endregion
 }

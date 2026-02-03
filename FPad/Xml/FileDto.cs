@@ -7,11 +7,12 @@ using System.Xml.Serialization;
 
 namespace FPad.Xml;
 
-[XmlRoot("Settings")]
-public class SettingsDto
+public class FileDto
 {
-    public FontDto Font { get; set; }
-    public TextDto Text { get; set; }
+    [XmlAttribute]
+    public string Hash { get; set; }
+    [XmlAttribute]
+    public int Date { get; set; }
+
     public WindowPositionDto WindowPosition { get; set; }
-    public List<FileDto> Files { get; set; }
 }
