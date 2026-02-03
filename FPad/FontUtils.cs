@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FPad.Settings;
 
 namespace FPad;
 
@@ -62,7 +63,7 @@ public static class FontUtils
         return result;
     }
 
-    public static Font GetFontBySettings(Settings settings)
+    public static Font GetFontBySettings(AppSettings settings)
     {
         FontFamily fontFamily = GetFontFamilyByString(App.Settings.FontFamily, FontFamily.Families);
         return GetFontByParameters(fontFamily, settings.FontSize, settings.IsBold, settings.IsItalic);

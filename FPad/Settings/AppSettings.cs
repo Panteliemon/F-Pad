@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FPad;
+namespace FPad.Settings;
 
-public class Settings
+public class AppSettings
 {
     public string FontFamily { get; set; }
     public int FontSize { get; set; }
@@ -14,16 +14,16 @@ public class Settings
     public bool IsItalic { get; set; }
     public bool Wrap { get; set; }
 
-    public bool WindowPositionHasValue { get; set; }
-    public int WindowTop { get; set; }
-    public int WindowLeft { get; set; }
-    public int WindowHeight { get; set; }
-    public int WindowWidth { get; set; }
-    public bool WindowMaximized { get; set; }
+    /// <summary>
+    /// "Default" window position
+    /// </summary>
+    public WindowPositionSettings WindowPosition { get; set; }
 
-    public static Settings Default()
+    public List<FileSettings> Files { get; set; }
+
+    public static AppSettings Default()
     {
-        return new Settings()
+        return new AppSettings()
         {
             FontFamily = string.Empty,
             FontSize = 12
