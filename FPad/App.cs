@@ -1,13 +1,15 @@
-﻿using System;
+﻿using FPad.Encodings;
+using FPad.Interaction;
+using FPad.Settings;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
-using FPad.Encodings;
-using FPad.Interaction;
-using FPad.Settings;
 
 namespace FPad
 {
@@ -20,6 +22,8 @@ namespace FPad
         // but when we save we only save those parts of settings which we consider actual.
         public static AppSettings Settings { get; private set; }
         public static string CmdLineFile { get; private set; }
+
+        public static Icon Icon { get; private set; }
 
         #region Messageboxes
 
@@ -100,6 +104,16 @@ namespace FPad
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
+
+            // Load icon
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            using (Stream iconStream = assembly.GetManifestResourceStream("FPad.Resources.f-pad.ico"))
+            {
+                if (iconStream != null)
+                {
+                    Icon = new Icon(iconStream);
+                }
+            }
 
             string[] cmdLineArgs = Environment.GetCommandLineArgs();
             if (cmdLineArgs.Length > 1) // The first is just full path to the app

@@ -24,6 +24,7 @@ public partial class SettingsDialog : Form
     private SettingsDialog()
     {
         InitializeComponent();
+        Icon = App.Icon;
 
         selectedFontSize = App.Settings.FontSize;
         SetSliderValue();

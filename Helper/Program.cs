@@ -1,6 +1,7 @@
 ﻿using Panlingo.LanguageIdentification.Whatlang;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,11 +18,62 @@ public static class Program
 
     public static void Main()
     {
-        Console.WriteLine("2");
+        Console.WriteLine("3");
 
         //string encodingManagerLines = string.Join(Environment.NewLine, GenerateScoreCalculatorLines());
 
-        TestEvents();        
+        //TestEvents();
+        
+        MakeIcon();
+    }
+
+    private static void MakeIcon()
+    {
+        string folder = @"D:\Bn\Src\FPad\Local";
+        string[] srcFiles = ["fpad16_bilinear.png", "fpad32_.png", "fpad48_.png", "fpad64_.png"];
+        int[] sizes = srcFiles.Select(x => int.Parse(new string(x.ToCharArray().Where(c => char.IsAsciiDigit(c)).ToArray()))).ToArray();
+
+        List<byte[]> bytes = new();
+        foreach(string fileName in srcFiles)
+        {
+            string path = Path.Combine(folder, fileName);
+            bytes.Add(File.ReadAllBytes(path));
+        }
+
+        int[] offsets = new int[srcFiles.Length];
+        offsets[0] = 6 + srcFiles.Length * 16;
+        for (int i=1; i< srcFiles.Length; i++)
+        {
+            offsets[i] = offsets[i - 1] + bytes[i - 1].Length;
+        }
+
+        string outPath = Path.Combine(folder, "f-pad.ico");
+        using (FileStream fs = new FileStream(outPath, FileMode.Create, FileAccess.Write, FileShare.None, 262144))
+        {
+            using (BinaryWriter bw = new BinaryWriter(fs))
+            {
+                bw.Write((short)0);
+                bw.Write((short)1);
+                bw.Write((short)srcFiles.Length);
+
+                for (int i = 0; i < srcFiles.Length; i++)
+                {
+                    bw.Write((byte)sizes[i]);
+                    bw.Write((byte)sizes[i]);
+                    bw.Write((byte)0);
+                    bw.Write((byte)0);
+                    bw.Write((short)0); // wPlanes - no idea
+                    bw.Write((short)0); // bits per pixel - no idea
+                    bw.Write(bytes[i].Length);
+                    bw.Write(offsets[i]);
+                }
+
+                for (int i = 0; i < srcFiles.Length; i++)
+                {
+                    bw.Write(bytes[i]);
+                }
+            }
+        }
     }
 
     private static void TestEvents()

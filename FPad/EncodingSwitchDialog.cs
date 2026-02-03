@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FPad;
+
 public partial class EncodingSwitchDialog : Form
 {
     public EncodingSwitchMethod? Result { get; private set; }
@@ -17,6 +18,7 @@ public partial class EncodingSwitchDialog : Form
     private EncodingSwitchDialog(EncodingVm newEncoding)
     {
         InitializeComponent();
+        Icon = App.Icon;
 
         label1.Text = "Switch to " + newEncoding.DisplayName;
     }

@@ -33,6 +33,7 @@ namespace FPad
         public MainWindow()
         {
             InitializeComponent();
+            Icon = App.Icon;
 
             ApplySettings();
             ConstructEncodingMenu();
