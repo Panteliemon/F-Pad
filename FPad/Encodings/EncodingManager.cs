@@ -140,7 +140,7 @@ public static class EncodingManager
         charsetDetector.Feed(textFileBytes, 0, textFileBytes.Length);
         charsetDetector.DataEnd();
 
-        if (charsetDetector.Confidence > 0.6)
+        if (charsetDetector.Confidence > 0.5)
         {
             EncodingDetectionData result = detectionData.FirstOrDefault(x => x.UdeCode == charsetDetector.Charset);
             return (result != null) ? result.Vm : vmDefaultAnsi;
