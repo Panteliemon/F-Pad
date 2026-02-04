@@ -13,6 +13,8 @@ namespace FPad;
 
 public partial class EncodingSwitchDialog : Form
 {
+    private bool isFirstTimeActivated = true;
+
     public EncodingSwitchMethod? Result { get; private set; }
 
     private EncodingSwitchDialog(EncodingVm newEncoding)
@@ -40,5 +42,22 @@ public partial class EncodingSwitchDialog : Form
     {
         Result = EncodingSwitchMethod.UseForSave;
         Close();
+    }
+
+    private void EncodingSwitchDialog_KeyUp(object sender, KeyEventArgs e)
+    {
+        if (e.KeyCode == Keys.Escape)
+        {
+            Close();
+        }
+    }
+
+    private void EncodingSwitchDialog_Activated(object sender, EventArgs e)
+    {
+        if (isFirstTimeActivated)
+        {
+            bUseForSaving.Focus();
+            isFirstTimeActivated = false;
+        }
     }
 }

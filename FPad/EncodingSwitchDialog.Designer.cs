@@ -71,11 +71,14 @@ partial class EncodingSwitchDialog
         Controls.Add(bReinterpret);
         Controls.Add(label1);
         FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+        KeyPreview = true;
         MaximizeBox = false;
         MinimizeBox = false;
         Name = "EncodingSwitchDialog";
         StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
         Text = "Switch Encoding";
+        Activated += EncodingSwitchDialog_Activated;
+        KeyUp += EncodingSwitchDialog_KeyUp;
         ResumeLayout(false);
         PerformLayout();
     }
