@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FPad
@@ -34,6 +35,9 @@ namespace FPad
         {
             InitializeComponent();
             Icon = App.Icon;
+
+            SelectionChangedBehavior textSelectionChanged = new(text);
+            textSelectionChanged.SelectionChanged += Text_SelectionChanged;
 
             ApplySettings();
             ConstructEncodingMenu();
@@ -126,7 +130,14 @@ namespace FPad
             {
                 hasUnsavedChanges = true;
                 currentDocumentBytes = null;
+                UpdateTitle();
+                UpdateStatusBar();
             }
+        }
+
+        private void Text_SelectionChanged(object sender, EventArgs e)
+        {
+            UpdateStatusBar();
         }
 
         #region Menu: File
@@ -240,8 +251,14 @@ namespace FPad
         private void wrapLinesMenuItem_Click(object sender, EventArgs e)
         {
             App.Settings.Wrap = !App.Settings.Wrap;
-            App.SaveSettings(SettingsFlags.Wrap);
+
+            if (App.SaveSettings(SettingsFlags.Wrap))
+                StatusBarShowSecondOrderSuccessMessage("Settings Saved");
+            else
+                StatusBarShowSecondOrderErrorMessage("Error when saving settings. Settings not saved.");
+
             ApplySettings();
+            UpdateStatusBar();
         }
 
         private void encodingMenuItemSelected(EncodingVm encodingVm)
@@ -276,6 +293,8 @@ namespace FPad
 
                 currentEncoding = encodingVm;
                 UpdateEncodingMenuCheckboxes();
+                UpdateTitle();
+                UpdateStatusBar();
             }
         }
 
@@ -283,7 +302,10 @@ namespace FPad
         {
             if (SettingsDialog.ShowADialog())
             {
-                App.SaveSettings(SettingsFlags.Font);
+                if (App.SaveSettings(SettingsFlags.Font))
+                    StatusBarShowSecondOrderSuccessMessage("Settings Saved");
+                else
+                    StatusBarShowSecondOrderErrorMessage("Error when saving settings. Settings not saved.");
 
                 ApplySettings();
             }
@@ -312,10 +334,11 @@ namespace FPad
             isNew = true;
             hasUnsavedChanges = false;
             currentDocumentBytes = null;
-            SetTitle();
+            UpdateTitle();
 
             currentEncoding = EncodingManager.DefaultEncoding;
             UpdateEncodingMenuCheckboxes();
+            UpdateStatusBar();
 
             Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
         }
@@ -335,7 +358,6 @@ namespace FPad
 
                 currentDocumentFullPath = fullPath;
                 currentDocumentFileName = Path.GetFileName(fullPath);
-                SetTitle();
                 currentEncoding = EncodingManager.DetectEncoding(allBytes);
                 UpdateEncodingMenuCheckboxes();
 
@@ -345,6 +367,8 @@ namespace FPad
                 hasUnsavedChanges = false; // after text change
                 isNew = false;
                 ResetSelection();
+                UpdateTitle();
+                UpdateStatusBar();
 
                 Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
 
@@ -409,7 +433,8 @@ namespace FPad
                     isNew = false;
                     hasUnsavedChanges = false;
                     currentDocumentBytes = encodedBytes;
-                    SetTitle();
+                    UpdateTitle();
+                    UpdateStatusBar();
 
                     Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
 
@@ -443,6 +468,8 @@ namespace FPad
                 currentDocumentBytes = encodedBytes;
             }
 
+            UpdateTitle();
+            UpdateStatusBar();
             return saveResult;
         }
 
@@ -478,11 +505,12 @@ namespace FPad
             return (true, result);
         }
 
-        private static bool UnsafeSave(string destPath, byte[] bytes)
+        private bool UnsafeSave(string destPath, byte[] bytes)
         {
             try
             {
                 File.WriteAllBytes(destPath, bytes);
+                StatusBarShowSuccessMessage("SAVED");
                 return true;
             }
             catch (Exception ex)
@@ -553,9 +581,37 @@ namespace FPad
             text.SelectionLength = 0;
         }
 
-        private void SetTitle()
+        private void UpdateTitle()
         {
-            Text = currentDocumentFileName + " - " + App.TITLE;
+            if (hasUnsavedChanges)
+                Text = currentDocumentFileName + "* – " + App.TITLE; // Em dash
+            else
+                Text = currentDocumentFileName + " – " + App.TITLE;
+        }
+
+        private void UpdateStatusBar()
+        {
+            encodingLabel.Text = currentEncoding?.DisplayName ?? string.Empty;
+            wrapLabel.Visible = App.Settings.Wrap;
+            modifiedLabel.Visible = hasUnsavedChanges;
+
+            if (text.SelectionLength > 0)
+            {
+                (int lineStart, int charStart) = StringUtils.GetLineAndCol(text.Text, text.SelectionStart);
+                (int lineEnd, int charEnd) = StringUtils.GetLineAndCol(text.Text, text.SelectionStart, lineStart, charStart, text.SelectionStart + text.SelectionLength);
+                if (lineStart == lineEnd)
+                    lineAndColLabel.Text = $"Line {lineStart + 1}, Col {charStart + 1} - Col {charEnd + 1}";
+                else
+                    lineAndColLabel.Text = $"Line {lineStart + 1}, Col {charStart + 1} - Line {lineEnd + 1}, Col {charEnd + 1}";
+                labelSelection.Visible = true;
+                labelSelection.Text = $"Sel {text.SelectionLength}";
+            }
+            else
+            {
+                (int lineIndex, int charIndex) = StringUtils.GetLineAndCol(text.Text, text.SelectionStart);
+                lineAndColLabel.Text = $"Line {lineIndex + 1}, Col {charIndex + 1}";
+                labelSelection.Visible = false;
+            }
         }
 
         private void RememberWindowPosition()
@@ -620,5 +676,66 @@ namespace FPad
 
             return anyChecked;
         }
+
+        #region Status Bar Messages
+
+        int statusBarMessageId = 0;
+        static readonly Padding statusLabelMarginForBorders = new Padding(2, 3, 0, 2);
+        static readonly Padding statusLabelMarginBorderless = new Padding(2, 3, 2, 4);
+
+        private void StatusBarShowSuccessMessage(string msg)
+        {
+            msgLabel.ForeColor = Color.White;
+            msgLabel.BackColor = Color.FromArgb(0, 160, 0);
+            msgLabel.Font = msgLabel.Font.ToBold();
+            msgLabel.BorderSides = ToolStripStatusLabelBorderSides.None;
+            msgLabel.Margin = statusLabelMarginBorderless;
+            StatusBarShowMessage(msg);
+        }
+
+        private void StatusBarShowSecondOrderSuccessMessage(string msg)
+        {
+            msgLabel.ForeColor = Color.FromArgb(0, 160, 0);
+            msgLabel.BackColor = SystemColors.Control;
+            msgLabel.Font = msgLabel.Font.ToBold();
+            msgLabel.BorderSides = ToolStripStatusLabelBorderSides.All;
+            msgLabel.Margin = statusLabelMarginForBorders;
+            StatusBarShowMessage(msg);
+        }
+
+        private void StatusBarShowSecondOrderErrorMessage(string msg)
+        {
+            msgLabel.ForeColor = Color.Red;
+            msgLabel.BackColor = SystemColors.Control;
+            msgLabel.Font = msgLabel.Font.ToBold();
+            msgLabel.BorderSides = ToolStripStatusLabelBorderSides.All;
+            msgLabel.Margin = statusLabelMarginForBorders;
+            StatusBarShowMessage(msg);
+        }
+
+        private void StatusBarShowMessage(string msg)
+        {
+            msgLabel.Text = msg;
+            int currentMessageId = ++statusBarMessageId;
+
+            Task.Run(() =>
+            {
+                Task.Delay(3000).Wait();
+                Invoke(() =>
+                {
+                    if (statusBarMessageId == currentMessageId)
+                    {
+                        msgLabel.Text = string.Empty;
+                        msgLabel.ForeColor = SystemColors.ControlText;
+                        msgLabel.BackColor = SystemColors.Control;
+                        // msgLabel.Font = msgLabel.Font.Unbold(); Uncomment if we will ever use regular font
+                        msgLabel.BorderSides = ToolStripStatusLabelBorderSides.All;
+                        msgLabel.Margin = statusLabelMarginForBorders;
+                    }
+                });
+            });
+        }
+
+        #endregion
     }
 }
