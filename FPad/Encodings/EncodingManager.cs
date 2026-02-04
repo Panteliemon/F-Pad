@@ -121,7 +121,7 @@ public static class EncodingManager
         scoreCalculators = new Dictionary<WhatlangLanguage, LangScoreCalculator>();
         // Generated (Helper csproj)
         scoreCalculators.Add(WhatlangLanguage.Est, new LangScoreCalculator("äõöüÄÕÖÜ", "§÷³─šų▄„”ˇå™"));
-        scoreCalculators.Add(WhatlangLanguage.Lat, new LangScoreCalculator("āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ", "Ōń’“­¹■┬╚╠╬═ęą█▐Ń‰…éėÕ×Ų ¶•ź¾"));
+        scoreCalculators.Add(WhatlangLanguage.Lav, new LangScoreCalculator("āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ", "Ōń’“­¹■┬╚╠╬═ęą█▐Ń‰…éėÕ×Ų ¶•ź¾"));
         scoreCalculators.Add(WhatlangLanguage.Lit, new LangScoreCalculator("ąčėęįšūųžĄČĖĘĮŠŪŲŽ", "ÓĶļµß­¹°■└╚╦┴█▐ŃŅŌÕ×Ö¶ø·½¾ĒĻ"));
         scoreCalculators.Add(WhatlangLanguage.Ces, new LangScoreCalculator("áéíóúýčďěňřšťůžÁÉÍÓÚÝČĎĚŇŘŠŤŮŽ", "ßˇ˙Ŕ´˛°ÜŁ¨×┴╔═Ë┌Ţ╚¤╠ŐŹ┘Ä ‚˘źÔĺçś…§µÖŕ¬·üć›¦"));
         scoreCalculators.Add(WhatlangLanguage.Pol, new LangScoreCalculator("óąćęłńśźżÓĄĆĘŁŃŚŹŻ", "ˇ╣Šŕ│˝ťč┐ËĂ╩úĐî»˘†©ä«ľ¤¨ă—Ť"));

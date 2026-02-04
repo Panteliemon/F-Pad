@@ -160,7 +160,7 @@ public static class Program
 
         List<string> result = new();
         result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Est, "ÕÄÖÜ", [encWin1257, encOem775]));
-        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Lat, "āčēģīķļņšūž", [encWin1257, encOem775]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Lav, "āčēģīķļņšūž", [encWin1257, encOem775]));
         result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Lit, "ĄČĘĖĮŠŲŪŽ", [encWin1257, encOem775]));
 
         result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Ces, "áčďéěíňóřšťúůýž", [encWin1250, encOem852]));
