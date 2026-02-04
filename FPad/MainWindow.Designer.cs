@@ -35,6 +35,7 @@ namespace FPad
             msgLabel = new ToolStripStatusLabel();
             modifiedLabel = new ToolStripStatusLabel();
             lineAndColLabel = new ToolStripStatusLabel();
+            labelSelection = new ToolStripStatusLabel();
             wrapLabel = new ToolStripStatusLabel();
             encodingLabel = new ToolStripStatusLabel();
             mainMenu = new MenuStrip();
@@ -66,7 +67,7 @@ namespace FPad
             // 
             // statusBar
             // 
-            statusBar.Items.AddRange(new ToolStripItem[] { msgLabel, modifiedLabel, lineAndColLabel, wrapLabel, encodingLabel });
+            statusBar.Items.AddRange(new ToolStripItem[] { msgLabel, modifiedLabel, lineAndColLabel, labelSelection, wrapLabel, encodingLabel });
             statusBar.Location = new Point(0, 426);
             statusBar.Name = "statusBar";
             statusBar.Size = new Size(800, 24);
@@ -77,8 +78,9 @@ namespace FPad
             // 
             msgLabel.BorderSides = ToolStripStatusLabelBorderSides.Left | ToolStripStatusLabelBorderSides.Top | ToolStripStatusLabelBorderSides.Right | ToolStripStatusLabelBorderSides.Bottom;
             msgLabel.BorderStyle = Border3DStyle.SunkenOuter;
+            msgLabel.Margin = new Padding(2, 3, 0, 2);
             msgLabel.Name = "msgLabel";
-            msgLabel.Size = new Size(552, 19);
+            msgLabel.Size = new Size(528, 19);
             msgLabel.Spring = true;
             msgLabel.TextAlign = ContentAlignment.MiddleLeft;
             // 
@@ -86,6 +88,7 @@ namespace FPad
             // 
             modifiedLabel.BorderSides = ToolStripStatusLabelBorderSides.Left | ToolStripStatusLabelBorderSides.Top | ToolStripStatusLabelBorderSides.Right | ToolStripStatusLabelBorderSides.Bottom;
             modifiedLabel.BorderStyle = Border3DStyle.SunkenOuter;
+            modifiedLabel.ForeColor = Color.MediumBlue;
             modifiedLabel.Name = "modifiedLabel";
             modifiedLabel.Size = new Size(43, 19);
             modifiedLabel.Text = "Modif";
@@ -97,6 +100,14 @@ namespace FPad
             lineAndColLabel.Name = "lineAndColLabel";
             lineAndColLabel.Size = new Size(54, 19);
             lineAndColLabel.Text = "Line Col";
+            // 
+            // labelSelection
+            // 
+            labelSelection.BackColor = Color.MediumBlue;
+            labelSelection.ForeColor = Color.White;
+            labelSelection.Name = "labelSelection";
+            labelSelection.Size = new Size(22, 19);
+            labelSelection.Text = "Sel";
             // 
             // wrapLabel
             // 
@@ -335,5 +346,6 @@ namespace FPad
         private ToolStripStatusLabel lineAndColLabel;
         private ToolStripStatusLabel wrapLabel;
         private ToolStripStatusLabel modifiedLabel;
+        private ToolStripStatusLabel labelSelection;
     }
 }

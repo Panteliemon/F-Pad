@@ -31,8 +31,6 @@ namespace FPad
 
         FormWindowState prevWindowState = FormWindowState.Normal;
 
-        int statusBarMessageId = 0;
-
         public MainWindow()
         {
             InitializeComponent();
@@ -602,14 +600,17 @@ namespace FPad
                 (int lineStart, int charStart) = StringUtils.GetLineAndCol(text.Text, text.SelectionStart);
                 (int lineEnd, int charEnd) = StringUtils.GetLineAndCol(text.Text, text.SelectionStart, lineStart, charStart, text.SelectionStart + text.SelectionLength);
                 if (lineStart == lineEnd)
-                    lineAndColLabel.Text = $"Line {lineStart + 1}, Col {charStart + 1} - Col {charEnd + 1} ({text.SelectionLength} selected)";
+                    lineAndColLabel.Text = $"Line {lineStart + 1}, Col {charStart + 1} - Col {charEnd + 1}";
                 else
-                    lineAndColLabel.Text = $"Line {lineStart + 1}, Col {charStart + 1} - Line {lineEnd + 1}, Col {charEnd + 1} ({text.SelectionLength} selected)";
+                    lineAndColLabel.Text = $"Line {lineStart + 1}, Col {charStart + 1} - Line {lineEnd + 1}, Col {charEnd + 1}";
+                labelSelection.Visible = true;
+                labelSelection.Text = $"Sel {text.SelectionLength}";
             }
             else
             {
                 (int lineIndex, int charIndex) = StringUtils.GetLineAndCol(text.Text, text.SelectionStart);
                 lineAndColLabel.Text = $"Line {lineIndex + 1}, Col {charIndex + 1}";
+                labelSelection.Visible = false;
             }
         }
 
@@ -678,11 +679,17 @@ namespace FPad
 
         #region Status Bar Messages
 
+        int statusBarMessageId = 0;
+        static readonly Padding statusLabelMarginForBorders = new Padding(2, 3, 0, 2);
+        static readonly Padding statusLabelMarginBorderless = new Padding(2, 3, 2, 4);
+
         private void StatusBarShowSuccessMessage(string msg)
         {
-            msgLabel.BackColor = Color.FromArgb(0, 160, 0);
             msgLabel.ForeColor = Color.White;
+            msgLabel.BackColor = Color.FromArgb(0, 160, 0);
             msgLabel.Font = msgLabel.Font.ToBold();
+            msgLabel.BorderSides = ToolStripStatusLabelBorderSides.None;
+            msgLabel.Margin = statusLabelMarginBorderless;
             StatusBarShowMessage(msg);
         }
 
@@ -691,6 +698,8 @@ namespace FPad
             msgLabel.ForeColor = Color.FromArgb(0, 160, 0);
             msgLabel.BackColor = SystemColors.Control;
             msgLabel.Font = msgLabel.Font.ToBold();
+            msgLabel.BorderSides = ToolStripStatusLabelBorderSides.All;
+            msgLabel.Margin = statusLabelMarginForBorders;
             StatusBarShowMessage(msg);
         }
 
@@ -699,6 +708,8 @@ namespace FPad
             msgLabel.ForeColor = Color.Red;
             msgLabel.BackColor = SystemColors.Control;
             msgLabel.Font = msgLabel.Font.ToBold();
+            msgLabel.BorderSides = ToolStripStatusLabelBorderSides.All;
+            msgLabel.Margin = statusLabelMarginForBorders;
             StatusBarShowMessage(msg);
         }
 
@@ -718,6 +729,8 @@ namespace FPad
                         msgLabel.ForeColor = SystemColors.ControlText;
                         msgLabel.BackColor = SystemColors.Control;
                         // msgLabel.Font = msgLabel.Font.Unbold(); Uncomment if we will ever use regular font
+                        msgLabel.BorderSides = ToolStripStatusLabelBorderSides.All;
+                        msgLabel.Margin = statusLabelMarginForBorders;
                     }
                 });
             });
