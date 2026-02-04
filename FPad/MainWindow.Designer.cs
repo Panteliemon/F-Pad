@@ -60,9 +60,11 @@ namespace FPad
             preferencesToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
+            panel1 = new Panel();
             text = new TextBox();
             statusBar.SuspendLayout();
             mainMenu.SuspendLayout();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // statusBar
@@ -80,7 +82,7 @@ namespace FPad
             msgLabel.BorderStyle = Border3DStyle.SunkenOuter;
             msgLabel.Margin = new Padding(2, 3, 0, 2);
             msgLabel.Name = "msgLabel";
-            msgLabel.Size = new Size(528, 19);
+            msgLabel.Size = new Size(559, 19);
             msgLabel.Spring = true;
             msgLabel.TextAlign = ContentAlignment.MiddleLeft;
             // 
@@ -278,17 +280,29 @@ namespace FPad
             aboutToolStripMenuItem.Size = new Size(107, 22);
             aboutToolStripMenuItem.Text = "&About";
             // 
+            // panel1
+            // 
+            panel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            panel1.BorderStyle = BorderStyle.Fixed3D;
+            panel1.Controls.Add(text);
+            panel1.Location = new Point(3, 24);
+            panel1.Margin = new Padding(0);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(794, 399);
+            panel1.TabIndex = 3;
+            // 
             // text
             // 
             text.AcceptsReturn = true;
             text.AcceptsTab = true;
             text.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            text.Location = new Point(3, 27);
+            text.BorderStyle = BorderStyle.None;
+            text.Location = new Point(-2, 1);
             text.Multiline = true;
             text.Name = "text";
             text.ScrollBars = ScrollBars.Both;
-            text.Size = new Size(794, 398);
-            text.TabIndex = 2;
+            text.Size = new Size(794, 396);
+            text.TabIndex = 3;
             text.TextChanged += textBox1_TextChanged;
             // 
             // MainWindow
@@ -296,7 +310,7 @@ namespace FPad
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(text);
+            Controls.Add(panel1);
             Controls.Add(statusBar);
             Controls.Add(mainMenu);
             MainMenuStrip = mainMenu;
@@ -311,6 +325,8 @@ namespace FPad
             statusBar.PerformLayout();
             mainMenu.ResumeLayout(false);
             mainMenu.PerformLayout();
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -337,7 +353,6 @@ namespace FPad
         private ToolStripMenuItem replaceToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripMenuItem preferencesToolStripMenuItem;
-        private TextBox text;
         private ToolStripMenuItem encodingToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator4;
         private ToolStripMenuItem wrapLinesMenuItem;
@@ -347,5 +362,7 @@ namespace FPad
         private ToolStripStatusLabel wrapLabel;
         private ToolStripStatusLabel modifiedLabel;
         private ToolStripStatusLabel labelSelection;
+        private Panel panel1;
+        private TextBox text;
     }
 }
