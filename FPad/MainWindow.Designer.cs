@@ -33,6 +33,7 @@ namespace FPad
         {
             statusBar = new StatusStrip();
             msgLabel = new ToolStripStatusLabel();
+            modifiedLabel = new ToolStripStatusLabel();
             lineAndColLabel = new ToolStripStatusLabel();
             wrapLabel = new ToolStripStatusLabel();
             encodingLabel = new ToolStripStatusLabel();
@@ -59,7 +60,6 @@ namespace FPad
             helpToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
             text = new TextBox();
-            modifiedLabel = new ToolStripStatusLabel();
             statusBar.SuspendLayout();
             mainMenu.SuspendLayout();
             SuspendLayout();
@@ -80,6 +80,15 @@ namespace FPad
             msgLabel.Name = "msgLabel";
             msgLabel.Size = new Size(552, 19);
             msgLabel.Spring = true;
+            msgLabel.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // modifiedLabel
+            // 
+            modifiedLabel.BorderSides = ToolStripStatusLabelBorderSides.Left | ToolStripStatusLabelBorderSides.Top | ToolStripStatusLabelBorderSides.Right | ToolStripStatusLabelBorderSides.Bottom;
+            modifiedLabel.BorderStyle = Border3DStyle.SunkenOuter;
+            modifiedLabel.Name = "modifiedLabel";
+            modifiedLabel.Size = new Size(43, 19);
+            modifiedLabel.Text = "Modif";
             // 
             // lineAndColLabel
             // 
@@ -270,14 +279,6 @@ namespace FPad
             text.Size = new Size(794, 398);
             text.TabIndex = 2;
             text.TextChanged += textBox1_TextChanged;
-            // 
-            // modifiedLabel
-            // 
-            modifiedLabel.BorderSides = ToolStripStatusLabelBorderSides.Left | ToolStripStatusLabelBorderSides.Top | ToolStripStatusLabelBorderSides.Right | ToolStripStatusLabelBorderSides.Bottom;
-            modifiedLabel.BorderStyle = Border3DStyle.SunkenOuter;
-            modifiedLabel.Name = "modifiedLabel";
-            modifiedLabel.Size = new Size(43, 19);
-            modifiedLabel.Text = "Modif";
             // 
             // MainWindow
             // 

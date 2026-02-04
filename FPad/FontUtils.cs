@@ -68,4 +68,20 @@ public static class FontUtils
         FontFamily fontFamily = GetFontFamilyByString(App.Settings.FontFamily, FontFamily.Families);
         return GetFontByParameters(fontFamily, settings.FontSize, settings.IsBold, settings.IsItalic);
     }
+
+    public static Font ToBold(this Font font)
+    {
+        if (font.Bold)
+            return font;
+        else
+            return new Font(font.FontFamily, font.Size, font.Style | FontStyle.Bold, font.Unit);
+    }
+
+    public static Font Unbold(this Font font)
+    {
+        if (font.Bold)
+            return new Font(font.FontFamily, font.Size, font.Style & ~FontStyle.Bold, font.Unit);
+        else
+            return font;
+    }
 }

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FPad
@@ -29,6 +30,8 @@ namespace FPad
         bool enableTextChangeHandler = true;
 
         FormWindowState prevWindowState = FormWindowState.Normal;
+
+        int statusBarMessageId = 0;
 
         public MainWindow()
         {
@@ -250,7 +253,12 @@ namespace FPad
         private void wrapLinesMenuItem_Click(object sender, EventArgs e)
         {
             App.Settings.Wrap = !App.Settings.Wrap;
-            App.SaveSettings(SettingsFlags.Wrap);
+
+            if (App.SaveSettings(SettingsFlags.Wrap))
+                StatusBarShowSecondOrderSuccessMessage("Settings Saved");
+            else
+                StatusBarShowSecondOrderErrorMessage("Error when saving settings. Settings not saved.");
+
             ApplySettings();
             UpdateStatusBar();
         }
@@ -296,7 +304,10 @@ namespace FPad
         {
             if (SettingsDialog.ShowADialog())
             {
-                App.SaveSettings(SettingsFlags.Font);
+                if (App.SaveSettings(SettingsFlags.Font))
+                    StatusBarShowSecondOrderSuccessMessage("Settings Saved");
+                else
+                    StatusBarShowSecondOrderErrorMessage("Error when saving settings. Settings not saved.");
 
                 ApplySettings();
             }
@@ -496,11 +507,12 @@ namespace FPad
             return (true, result);
         }
 
-        private static bool UnsafeSave(string destPath, byte[] bytes)
+        private bool UnsafeSave(string destPath, byte[] bytes)
         {
             try
             {
                 File.WriteAllBytes(destPath, bytes);
+                StatusBarShowSuccessMessage("SAVED");
                 return true;
             }
             catch (Exception ex)
@@ -663,5 +675,54 @@ namespace FPad
 
             return anyChecked;
         }
+
+        #region Status Bar Messages
+
+        private void StatusBarShowSuccessMessage(string msg)
+        {
+            msgLabel.BackColor = Color.FromArgb(0, 160, 0);
+            msgLabel.ForeColor = Color.White;
+            msgLabel.Font = msgLabel.Font.ToBold();
+            StatusBarShowMessage(msg);
+        }
+
+        private void StatusBarShowSecondOrderSuccessMessage(string msg)
+        {
+            msgLabel.ForeColor = Color.FromArgb(0, 160, 0);
+            msgLabel.BackColor = SystemColors.Control;
+            msgLabel.Font = msgLabel.Font.ToBold();
+            StatusBarShowMessage(msg);
+        }
+
+        private void StatusBarShowSecondOrderErrorMessage(string msg)
+        {
+            msgLabel.ForeColor = Color.Red;
+            msgLabel.BackColor = SystemColors.Control;
+            msgLabel.Font = msgLabel.Font.ToBold();
+            StatusBarShowMessage(msg);
+        }
+
+        private void StatusBarShowMessage(string msg)
+        {
+            msgLabel.Text = msg;
+            int currentMessageId = ++statusBarMessageId;
+
+            Task.Run(() =>
+            {
+                Task.Delay(3000).Wait();
+                Invoke(() =>
+                {
+                    if (statusBarMessageId == currentMessageId)
+                    {
+                        msgLabel.Text = string.Empty;
+                        msgLabel.ForeColor = SystemColors.ControlText;
+                        msgLabel.BackColor = SystemColors.Control;
+                        // msgLabel.Font = msgLabel.Font.Unbold(); Uncomment if we will ever use regular font
+                    }
+                });
+            });
+        }
+
+        #endregion
     }
 }
