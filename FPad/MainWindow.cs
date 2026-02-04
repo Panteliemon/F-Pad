@@ -35,6 +35,9 @@ namespace FPad
             InitializeComponent();
             Icon = App.Icon;
 
+            SelectionChangedBehavior textSelectionChanged = new(text);
+            textSelectionChanged.SelectionChanged += Text_SelectionChanged;
+
             ApplySettings();
             ConstructEncodingMenu();
 
@@ -126,7 +129,14 @@ namespace FPad
             {
                 hasUnsavedChanges = true;
                 currentDocumentBytes = null;
+                UpdateTitle();
+                UpdateStatusBar();
             }
+        }
+
+        private void Text_SelectionChanged(object sender, EventArgs e)
+        {
+            UpdateStatusBar();
         }
 
         #region Menu: File
@@ -242,6 +252,7 @@ namespace FPad
             App.Settings.Wrap = !App.Settings.Wrap;
             App.SaveSettings(SettingsFlags.Wrap);
             ApplySettings();
+            UpdateStatusBar();
         }
 
         private void encodingMenuItemSelected(EncodingVm encodingVm)
@@ -276,6 +287,8 @@ namespace FPad
 
                 currentEncoding = encodingVm;
                 UpdateEncodingMenuCheckboxes();
+                UpdateTitle();
+                UpdateStatusBar();
             }
         }
 
@@ -312,10 +325,11 @@ namespace FPad
             isNew = true;
             hasUnsavedChanges = false;
             currentDocumentBytes = null;
-            SetTitle();
+            UpdateTitle();
 
             currentEncoding = EncodingManager.DefaultEncoding;
             UpdateEncodingMenuCheckboxes();
+            UpdateStatusBar();
 
             Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
         }
@@ -335,7 +349,6 @@ namespace FPad
 
                 currentDocumentFullPath = fullPath;
                 currentDocumentFileName = Path.GetFileName(fullPath);
-                SetTitle();
                 currentEncoding = EncodingManager.DetectEncoding(allBytes);
                 UpdateEncodingMenuCheckboxes();
 
@@ -345,6 +358,8 @@ namespace FPad
                 hasUnsavedChanges = false; // after text change
                 isNew = false;
                 ResetSelection();
+                UpdateTitle();
+                UpdateStatusBar();
 
                 Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
 
@@ -409,7 +424,8 @@ namespace FPad
                     isNew = false;
                     hasUnsavedChanges = false;
                     currentDocumentBytes = encodedBytes;
-                    SetTitle();
+                    UpdateTitle();
+                    UpdateStatusBar();
 
                     Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
 
@@ -443,6 +459,8 @@ namespace FPad
                 currentDocumentBytes = encodedBytes;
             }
 
+            UpdateTitle();
+            UpdateStatusBar();
             return saveResult;
         }
 
@@ -553,9 +571,34 @@ namespace FPad
             text.SelectionLength = 0;
         }
 
-        private void SetTitle()
+        private void UpdateTitle()
         {
-            Text = currentDocumentFileName + " - " + App.TITLE;
+            if (hasUnsavedChanges)
+                Text = currentDocumentFileName + "* – " + App.TITLE; // Em dash
+            else
+                Text = currentDocumentFileName + " – " + App.TITLE;
+        }
+
+        private void UpdateStatusBar()
+        {
+            encodingLabel.Text = currentEncoding?.DisplayName ?? string.Empty;
+            wrapLabel.Visible = App.Settings.Wrap;
+            modifiedLabel.Visible = hasUnsavedChanges;
+
+            if (text.SelectionLength > 0)
+            {
+                (int lineStart, int charStart) = StringUtils.GetLineAndCol(text.Text, text.SelectionStart);
+                (int lineEnd, int charEnd) = StringUtils.GetLineAndCol(text.Text, text.SelectionStart, lineStart, charStart, text.SelectionStart + text.SelectionLength);
+                if (lineStart == lineEnd)
+                    lineAndColLabel.Text = $"Line {lineStart + 1}, Col {charStart + 1} - Col {charEnd + 1} ({text.SelectionLength} selected)";
+                else
+                    lineAndColLabel.Text = $"Line {lineStart + 1}, Col {charStart + 1} - Line {lineEnd + 1}, Col {charEnd + 1} ({text.SelectionLength} selected)";
+            }
+            else
+            {
+                (int lineIndex, int charIndex) = StringUtils.GetLineAndCol(text.Text, text.SelectionStart);
+                lineAndColLabel.Text = $"Line {lineIndex + 1}, Col {charIndex + 1}";
+            }
         }
 
         private void RememberWindowPosition()

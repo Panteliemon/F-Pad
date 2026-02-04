@@ -18,4 +18,38 @@ public static class StringUtils
         byte[] hash = sha256.ComputeHash(bytes);
         return Convert.ToBase64String(hash);
     }
+
+    public static (int lineIndex, int charIndex) GetLineAndCol(string str, int position)
+    {
+        return GetLineAndCol(str, 0, 0, 0, position);
+    }
+
+    public static (int lineIndex, int charIndex) GetLineAndCol(string str,
+        int startFromIndex, int startLineIndex, int startCharIndex,
+        int targetPosition)
+    {
+        if ((str == null) || (targetPosition > str.Length)
+            || (startFromIndex < 0) || (startFromIndex > targetPosition))
+        {
+            return (startLineIndex, startCharIndex);
+        }
+
+        int lineIndex = startLineIndex;
+        int charIndex = startCharIndex;
+        for (int i = startFromIndex; i < targetPosition; i++)
+        {
+            char c = str[i];
+            if (c == 10)
+            {
+                lineIndex++;
+                charIndex = 0;
+            }
+            else
+            {
+                charIndex++;
+            }
+        }
+
+        return (lineIndex, charIndex);
+    }
 }

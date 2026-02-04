@@ -32,6 +32,10 @@ namespace FPad
         private void InitializeComponent()
         {
             statusBar = new StatusStrip();
+            msgLabel = new ToolStripStatusLabel();
+            lineAndColLabel = new ToolStripStatusLabel();
+            wrapLabel = new ToolStripStatusLabel();
+            encodingLabel = new ToolStripStatusLabel();
             mainMenu = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             newToolStripMenuItem = new ToolStripMenuItem();
@@ -55,16 +59,51 @@ namespace FPad
             helpToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
             text = new TextBox();
+            modifiedLabel = new ToolStripStatusLabel();
+            statusBar.SuspendLayout();
             mainMenu.SuspendLayout();
             SuspendLayout();
             // 
             // statusBar
             // 
-            statusBar.Location = new Point(0, 428);
+            statusBar.Items.AddRange(new ToolStripItem[] { msgLabel, modifiedLabel, lineAndColLabel, wrapLabel, encodingLabel });
+            statusBar.Location = new Point(0, 426);
             statusBar.Name = "statusBar";
-            statusBar.Size = new Size(800, 22);
+            statusBar.Size = new Size(800, 24);
             statusBar.TabIndex = 0;
             statusBar.Text = "statusStrip1";
+            // 
+            // msgLabel
+            // 
+            msgLabel.BorderSides = ToolStripStatusLabelBorderSides.Left | ToolStripStatusLabelBorderSides.Top | ToolStripStatusLabelBorderSides.Right | ToolStripStatusLabelBorderSides.Bottom;
+            msgLabel.BorderStyle = Border3DStyle.SunkenOuter;
+            msgLabel.Name = "msgLabel";
+            msgLabel.Size = new Size(552, 19);
+            msgLabel.Spring = true;
+            // 
+            // lineAndColLabel
+            // 
+            lineAndColLabel.BorderSides = ToolStripStatusLabelBorderSides.Left | ToolStripStatusLabelBorderSides.Top | ToolStripStatusLabelBorderSides.Right | ToolStripStatusLabelBorderSides.Bottom;
+            lineAndColLabel.BorderStyle = Border3DStyle.SunkenOuter;
+            lineAndColLabel.Name = "lineAndColLabel";
+            lineAndColLabel.Size = new Size(54, 19);
+            lineAndColLabel.Text = "Line Col";
+            // 
+            // wrapLabel
+            // 
+            wrapLabel.BorderSides = ToolStripStatusLabelBorderSides.Left | ToolStripStatusLabelBorderSides.Top | ToolStripStatusLabelBorderSides.Right | ToolStripStatusLabelBorderSides.Bottom;
+            wrapLabel.BorderStyle = Border3DStyle.SunkenOuter;
+            wrapLabel.Name = "wrapLabel";
+            wrapLabel.Size = new Size(44, 19);
+            wrapLabel.Text = "WRAP";
+            // 
+            // encodingLabel
+            // 
+            encodingLabel.BorderSides = ToolStripStatusLabelBorderSides.Left | ToolStripStatusLabelBorderSides.Top | ToolStripStatusLabelBorderSides.Right | ToolStripStatusLabelBorderSides.Bottom;
+            encodingLabel.BorderStyle = Border3DStyle.SunkenOuter;
+            encodingLabel.Name = "encodingLabel";
+            encodingLabel.Size = new Size(61, 19);
+            encodingLabel.Text = "Encoding";
             // 
             // mainMenu
             // 
@@ -137,7 +176,7 @@ namespace FPad
             // 
             cutToolStripMenuItem.Name = "cutToolStripMenuItem";
             cutToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.X;
-            cutToolStripMenuItem.Size = new Size(180, 22);
+            cutToolStripMenuItem.Size = new Size(158, 22);
             cutToolStripMenuItem.Text = "Cu&t";
             cutToolStripMenuItem.Click += cutToolStripMenuItem_Click;
             // 
@@ -145,7 +184,7 @@ namespace FPad
             // 
             copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             copyToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.C;
-            copyToolStripMenuItem.Size = new Size(180, 22);
+            copyToolStripMenuItem.Size = new Size(158, 22);
             copyToolStripMenuItem.Text = "&Copy";
             copyToolStripMenuItem.Click += copyToolStripMenuItem_Click;
             // 
@@ -153,56 +192,56 @@ namespace FPad
             // 
             pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
             pasteToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.V;
-            pasteToolStripMenuItem.Size = new Size(180, 22);
+            pasteToolStripMenuItem.Size = new Size(158, 22);
             pasteToolStripMenuItem.Text = "&Paste";
             pasteToolStripMenuItem.Click += pasteToolStripMenuItem_Click;
             // 
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(177, 6);
+            toolStripSeparator2.Size = new Size(155, 6);
             // 
             // findToolStripMenuItem
             // 
             findToolStripMenuItem.Name = "findToolStripMenuItem";
             findToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.F;
-            findToolStripMenuItem.Size = new Size(180, 22);
+            findToolStripMenuItem.Size = new Size(158, 22);
             findToolStripMenuItem.Text = "&Find";
             // 
             // replaceToolStripMenuItem
             // 
             replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
             replaceToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.H;
-            replaceToolStripMenuItem.Size = new Size(180, 22);
+            replaceToolStripMenuItem.Size = new Size(158, 22);
             replaceToolStripMenuItem.Text = "&Replace";
             // 
             // toolStripSeparator3
             // 
             toolStripSeparator3.Name = "toolStripSeparator3";
-            toolStripSeparator3.Size = new Size(177, 6);
+            toolStripSeparator3.Size = new Size(155, 6);
             // 
             // wrapLinesMenuItem
             // 
             wrapLinesMenuItem.Name = "wrapLinesMenuItem";
-            wrapLinesMenuItem.Size = new Size(180, 22);
+            wrapLinesMenuItem.Size = new Size(158, 22);
             wrapLinesMenuItem.Text = "&Wrap Lines";
             wrapLinesMenuItem.Click += wrapLinesMenuItem_Click;
             // 
             // encodingToolStripMenuItem
             // 
             encodingToolStripMenuItem.Name = "encodingToolStripMenuItem";
-            encodingToolStripMenuItem.Size = new Size(180, 22);
+            encodingToolStripMenuItem.Size = new Size(158, 22);
             encodingToolStripMenuItem.Text = "&Encoding";
             // 
             // toolStripSeparator4
             // 
             toolStripSeparator4.Name = "toolStripSeparator4";
-            toolStripSeparator4.Size = new Size(177, 6);
+            toolStripSeparator4.Size = new Size(155, 6);
             // 
             // preferencesToolStripMenuItem
             // 
             preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
-            preferencesToolStripMenuItem.Size = new Size(180, 22);
+            preferencesToolStripMenuItem.Size = new Size(158, 22);
             preferencesToolStripMenuItem.Text = "Preference&s";
             preferencesToolStripMenuItem.Click += preferencesToolStripMenuItem_Click;
             // 
@@ -232,6 +271,14 @@ namespace FPad
             text.TabIndex = 2;
             text.TextChanged += textBox1_TextChanged;
             // 
+            // modifiedLabel
+            // 
+            modifiedLabel.BorderSides = ToolStripStatusLabelBorderSides.Left | ToolStripStatusLabelBorderSides.Top | ToolStripStatusLabelBorderSides.Right | ToolStripStatusLabelBorderSides.Bottom;
+            modifiedLabel.BorderStyle = Border3DStyle.SunkenOuter;
+            modifiedLabel.Name = "modifiedLabel";
+            modifiedLabel.Size = new Size(43, 19);
+            modifiedLabel.Text = "Modif";
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -248,6 +295,8 @@ namespace FPad
             Load += MainWindow_Load;
             LocationChanged += MainWindow_LocationChanged;
             Resize += MainWindow_Resize;
+            statusBar.ResumeLayout(false);
+            statusBar.PerformLayout();
             mainMenu.ResumeLayout(false);
             mainMenu.PerformLayout();
             ResumeLayout(false);
@@ -280,5 +329,10 @@ namespace FPad
         private ToolStripMenuItem encodingToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator4;
         private ToolStripMenuItem wrapLinesMenuItem;
+        private ToolStripStatusLabel encodingLabel;
+        private ToolStripStatusLabel msgLabel;
+        private ToolStripStatusLabel lineAndColLabel;
+        private ToolStripStatusLabel wrapLabel;
+        private ToolStripStatusLabel modifiedLabel;
     }
 }
