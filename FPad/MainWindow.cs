@@ -248,6 +248,18 @@ namespace FPad
             }
         }
 
+        private void findToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ReplaceForm.HideIfShown();
+            FPad.FindForm.Show(this, GetTopRightForFindReplace());
+        }
+
+        private void replaceToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FPad.FindForm.HideIfShown();
+            ReplaceForm.Show(this, GetTopRightForFindReplace());
+        }
+
         private void wrapLinesMenuItem_Click(object sender, EventArgs e)
         {
             App.Settings.Wrap = !App.Settings.Wrap;
@@ -288,7 +300,7 @@ namespace FPad
                         // Consider this an edit, although the text doesn't change
                         currentDocumentBytes = null;
                         hasUnsavedChanges = true;
-                    }  
+                    }
                 }
 
                 currentEncoding = encodingVm;
@@ -483,7 +495,7 @@ namespace FPad
             // Therefore here is 1 waste extra char array so it doesn't shit more.
             char[] textAsArray = allText.ToCharArray();
             int bytesCount = currentEncoding.Encoding.GetByteCount(textAsArray);
-            
+
             byte[] result = new byte[bytesCount + currentEncoding.Encoding.Preamble.Length];
             Span<byte> spanResult = result.AsSpan();
             currentEncoding.Encoding.Preamble.CopyTo(spanResult);
@@ -737,5 +749,10 @@ namespace FPad
         }
 
         #endregion
+
+        private Point GetTopRightForFindReplace()
+        {
+            return text.PointToScreen(new Point(text.Width - 10, 0));
+        }
     }
 }
