@@ -71,9 +71,16 @@ namespace FPad
             text.ScrollToCaret();
         }
 
+        public event EventHandler SelectionChanged;
+
         public string GetText()
         {
             return text.Text;
+        }
+
+        public void SetText(string value)
+        {
+            text.Text = value;
         }
 
         public void ChangeSearchSettings(bool matchCase, bool wholeWords)
@@ -176,6 +183,7 @@ namespace FPad
         private void Text_SelectionChanged(object sender, EventArgs e)
         {
             UpdateStatusBar();
+            SelectionChanged?.Invoke(this, e);
         }
 
         #region Menu: File
