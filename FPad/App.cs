@@ -23,6 +23,8 @@ namespace FPad
         public static AppSettings Settings { get; private set; }
         public static string CmdLineFile { get; private set; }
 
+        public static string LastSearchStr { get; set; }
+
         public static Icon Icon { get; private set; }
 
         #region Messageboxes

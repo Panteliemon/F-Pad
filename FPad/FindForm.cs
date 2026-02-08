@@ -15,6 +15,7 @@ public partial class FindForm : Form
 {
     private const int WM_ENTERSIZEMOVE = 0x0231;
     private const int WM_EXITSIZEMOVE = 0x0232;
+    private const int REASONABLE_SELECTION_LENGTH = 100;
     private static FindForm instance;
 
     private Point topRight;
@@ -30,8 +31,17 @@ public partial class FindForm : Form
         InitializeComponent();
         this.topRight = topRight;
 
-        tbFind.Text = string.Empty;
-        tbFind_TextChanged(this, EventArgs.Empty);
+        (int selStart, int selLength) = owner.GetTextSelection();
+        if ((selLength == 0) && !string.IsNullOrEmpty(App.LastSearchStr))
+        {
+            tbFind.Text = App.LastSearchStr;
+            tbFind.SelectAll();
+        }
+        else
+        {
+            tbFind.Text = string.Empty;
+            tbFind_TextChanged(this, EventArgs.Empty);
+        }
 
         this.owner = owner;
         this.owner.KeyDown += FindForm_KeyDown;
@@ -47,6 +57,19 @@ public partial class FindForm : Form
         {
             instance = new FindForm(owner, topRight);
             instance.Show(owner);
+        }
+
+        // Auto-fill from current selection (on each Ctrl+F):
+        (int selStart, int selLength) = owner.GetTextSelection();
+        if ((selLength > 0) && (selLength <= REASONABLE_SELECTION_LENGTH))
+        {
+            string selectedText = owner.GetText().Substring(selStart, selLength);
+            if (!string.Equals(selectedText, instance.tbFind.Text,
+                instance.chMatchCase.Checked ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase))
+            {
+                instance.tbFind.Text = owner.GetText().Substring(selStart, selLength).Trim();
+                instance.tbFind.SelectAll();
+            }
         }
     }
 
@@ -126,6 +149,7 @@ public partial class FindForm : Form
             }
 
             DisplayResults(allMatches, 0);
+            App.LastSearchStr = tbFind.Text;
         }
     }
 
@@ -160,6 +184,7 @@ public partial class FindForm : Form
             }
 
             DisplayResults(allMatches, matchIndex);
+            App.LastSearchStr = tbFind.Text;
         }
     }
 
@@ -183,6 +208,7 @@ public partial class FindForm : Form
             }
 
             DisplayResults(allMatches, matchIndex);
+            App.LastSearchStr = tbFind.Text;
         }
     }
 
