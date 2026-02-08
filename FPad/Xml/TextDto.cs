@@ -11,4 +11,8 @@ public class TextDto
 {
     [XmlAttribute]
     public string Wrap { get; set; }
+    [XmlAttribute]
+    public string FindMatchCase { get; set; }
+    [XmlAttribute]
+    public string FindWholeWords { get; set; }
 }

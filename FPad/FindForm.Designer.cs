@@ -97,6 +97,7 @@ partial class FindForm
         chMatchCase.TabIndex = 5;
         chMatchCase.Text = "[Aa] Match Case";
         chMatchCase.UseVisualStyleBackColor = true;
+        chMatchCase.CheckedChanged += chMatchCase_CheckedChanged;
         // 
         // chWholeWords
         // 
@@ -107,6 +108,7 @@ partial class FindForm
         chWholeWords.TabIndex = 6;
         chWholeWords.Text = "[_W_] Whole Words";
         chWholeWords.UseVisualStyleBackColor = true;
+        chWholeWords.CheckedChanged += chWholeWords_CheckedChanged;
         // 
         // labelResults
         // 

@@ -170,7 +170,9 @@ public static class SettingsManager
             },
             Text = new TextDto()
             {
-                Wrap = settings.Wrap ? "1" : null
+                Wrap = settings.Wrap ? "1" : null,
+                FindMatchCase = settings.FindMatchCase ? "1" : null,
+                FindWholeWords = settings.FindWholeWords ? "1" : null
             },
             WindowPosition = WindowPositionToDto(settings.WindowPosition)
         };
@@ -203,6 +205,8 @@ public static class SettingsManager
         if (dto.Text != null)
         {
             dest.Wrap = dto.Text.Wrap == "1";
+            dest.FindMatchCase = dto.Text.FindMatchCase == "1";
+            dest.FindWholeWords = dto.Text.FindWholeWords == "1";
         }
 
         WindowPositionSettings windowPosSettings = DtoToWindowPositionSettings(dto.WindowPosition);

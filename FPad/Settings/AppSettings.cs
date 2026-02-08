@@ -13,6 +13,8 @@ public class AppSettings
     public bool IsBold { get; set; }
     public bool IsItalic { get; set; }
     public bool Wrap { get; set; }
+    public bool FindMatchCase { get; set; }
+    public bool FindWholeWords { get; set; }
 
     /// <summary>
     /// "Default" window position

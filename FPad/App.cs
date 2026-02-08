@@ -95,6 +95,12 @@ namespace FPad
                     fileSettings.LastChanged = DateOnly.FromDateTime(DateTime.Today);
                     fileSettings.WindowPosition = Settings.WindowPosition?.Clone();
                 }
+
+                if ((flags & SettingsFlags.SearchSettings) != 0)
+                {
+                    destSettings.FindMatchCase = Settings.FindMatchCase;
+                    destSettings.FindWholeWords = Settings.FindWholeWords;
+                }
             });
         }
 

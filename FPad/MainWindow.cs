@@ -76,6 +76,21 @@ namespace FPad
             return text.Text;
         }
 
+        public void ChangeSearchSettings(bool matchCase, bool wholeWords)
+        {
+            bool changed = (matchCase != App.Settings.FindMatchCase)
+                || (wholeWords != App.Settings.FindWholeWords);
+            if (changed)
+            {
+                App.Settings.FindMatchCase = matchCase;
+                App.Settings.FindWholeWords = wholeWords;
+                if (App.SaveSettings(SettingsFlags.SearchSettings))
+                    StatusBarShowSecondOrderSuccessMessage("Settings Saved");
+                else
+                    StatusBarShowSecondOrderErrorMessage("Error when saving settings. Settings not saved.");
+            }
+        }
+
         #endregion
 
         #region Event Handlers

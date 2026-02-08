@@ -22,6 +22,7 @@ public partial class FindForm : Form
     private MainWindow owner;
 
     private bool areButtonsAvailable;
+    private bool areCheckboxHandlersAvailable;
     private bool isShowingResults;
     private bool isBeingMoved;
     private bool isShowingReachedEnd;
@@ -45,6 +46,10 @@ public partial class FindForm : Form
 
         this.owner = owner;
         this.owner.KeyDown += FindForm_KeyDown;
+
+        chMatchCase.Checked = App.Settings.FindMatchCase;
+        chWholeWords.Checked = App.Settings.FindWholeWords;
+        areCheckboxHandlersAvailable = true;
     }
 
     public static void Show(MainWindow owner, Point topRight)
@@ -136,6 +141,18 @@ public partial class FindForm : Form
         UpdateButtonsAvailable();
         isShowingResults = false;
         labelResults.Text = "Search not started yet";
+    }
+
+    private void chMatchCase_CheckedChanged(object sender, EventArgs e)
+    {
+        if (areCheckboxHandlersAvailable)
+            owner.ChangeSearchSettings(chMatchCase.Checked, chWholeWords.Checked);
+    }
+
+    private void chWholeWords_CheckedChanged(object sender, EventArgs e)
+    {
+        if (areCheckboxHandlersAvailable)
+            owner.ChangeSearchSettings(chMatchCase.Checked, chWholeWords.Checked);
     }
 
     private void bFindFirst_Click(object sender, EventArgs e)
