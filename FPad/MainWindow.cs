@@ -55,6 +55,29 @@ namespace FPad
             Interactor.Activate = Interactor_ActivateReceived;
         }
 
+        #region Cross-Window communication
+
+        public (int Start, int Length) GetTextSelection()
+        {
+            return (text.SelectionStart, text.SelectionLength);
+        }
+
+        public void SetTextSelection(int selectionStart, int selectionLength)
+        {
+            Activate();
+            text.Focus();
+            text.SelectionStart = selectionStart;
+            text.SelectionLength = selectionLength;
+            text.ScrollToCaret();
+        }
+
+        public string GetText()
+        {
+            return text.Text;
+        }
+
+        #endregion
+
         #region Event Handlers
 
         private void Interactor_ActivateReceived()
@@ -733,7 +756,7 @@ namespace FPad
             Task.Run(() =>
             {
                 Task.Delay(3000).Wait();
-                Invoke(() =>
+                BeginInvoke(() =>
                 {
                     if (statusBarMessageId == currentMessageId)
                     {
