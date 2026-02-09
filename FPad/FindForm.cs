@@ -13,7 +13,6 @@ namespace FPad;
 
 public partial class FindForm : Form
 {
-    private const int WM_ENTERSIZEMOVE = 0x0231;
     private const int WM_EXITSIZEMOVE = 0x0232;
     private const int REASONABLE_SELECTION_LENGTH = 100;
     private static FindForm instance;
@@ -24,7 +23,6 @@ public partial class FindForm : Form
     private bool areButtonsAvailable;
     private bool areCheckboxHandlersAvailable;
     private bool isShowingResults;
-    private bool isBeingMoved;
     private bool isShowingReachedEnd;
 
     private FindForm(MainWindow owner, Point topRight)
@@ -86,14 +84,9 @@ public partial class FindForm : Form
     protected override void WndProc(ref Message m)
     {
         base.WndProc(ref m);
-        if (m.Msg == WM_ENTERSIZEMOVE)
+        if (m.Msg == WM_EXITSIZEMOVE)
         {
-            isBeingMoved = true;
-        }
-        else if (m.Msg == WM_EXITSIZEMOVE)
-        {
-            isBeingMoved = false;
-            DelayedUnfocus(true);
+            DelayedUnfocus();
         }
     }
 
@@ -126,16 +119,6 @@ public partial class FindForm : Form
         }
     }
 
-    private void FindForm_Activated(object sender, EventArgs e)
-    {
-        DelayedUnfocus();
-    }
-
-    private void tbFind_Leave(object sender, EventArgs e)
-    {
-        DelayedUnfocus();
-    }
-
     private void tbFind_TextChanged(object sender, EventArgs e)
     {
         UpdateButtonsAvailable();
@@ -146,13 +129,19 @@ public partial class FindForm : Form
     private void chMatchCase_CheckedChanged(object sender, EventArgs e)
     {
         if (areCheckboxHandlersAvailable)
+        {
+            DelayedUnfocus();
             owner.ChangeSearchSettings(chMatchCase.Checked, chWholeWords.Checked);
+        }
     }
 
     private void chWholeWords_CheckedChanged(object sender, EventArgs e)
     {
         if (areCheckboxHandlersAvailable)
+        {
+            DelayedUnfocus();
             owner.ChangeSearchSettings(chMatchCase.Checked, chWholeWords.Checked);
+        }
     }
 
     private void bFindFirst_Click(object sender, EventArgs e)
@@ -279,7 +268,7 @@ public partial class FindForm : Form
         return result;
     }
 
-    private void DelayedUnfocus(bool kickFromTbFind = false)
+    private void DelayedUnfocus()
     {
         Task.Run(() =>
         {
@@ -288,10 +277,9 @@ public partial class FindForm : Form
             {
                 BeginInvoke(() =>
                 {
-                    if (isShowingResults && (kickFromTbFind || !tbFind.Focused) && !isBeingMoved)
+                    if (isShowingResults && !owner.Focused)
                     {
-                        if (!owner.Focused)
-                            owner.Activate();
+                        owner.Activate();
                     }
                 });
             }

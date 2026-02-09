@@ -56,7 +56,6 @@ partial class FindForm
         tbFind.Size = new System.Drawing.Size(369, 23);
         tbFind.TabIndex = 1;
         tbFind.TextChanged += tbFind_TextChanged;
-        tbFind.Leave += tbFind_Leave;
         // 
         // bFindFirst
         // 
@@ -152,7 +151,6 @@ partial class FindForm
         Name = "FindForm";
         ShowInTaskbar = false;
         Text = "Find";
-        Activated += FindForm_Activated;
         FormClosed += FindForm_FormClosed;
         Load += FindForm_Load;
         KeyDown += FindForm_KeyDown;
