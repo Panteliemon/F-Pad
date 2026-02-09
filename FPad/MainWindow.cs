@@ -64,11 +64,16 @@ namespace FPad
 
         public void SetTextSelection(int selectionStart, int selectionLength)
         {
+            bool changed = (selectionStart != text.SelectionStart) || (selectionLength != text.SelectionLength);
+
             Activate();
             text.Focus();
             text.SelectionStart = selectionStart;
             text.SelectionLength = selectionLength;
             text.ScrollToCaret();
+
+            if (changed)
+                SelectionChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler SelectionChanged;

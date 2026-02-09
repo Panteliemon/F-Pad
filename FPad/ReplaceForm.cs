@@ -34,6 +34,8 @@ public partial class ReplaceForm : Form
         owner.KeyDown += ReplaceForm_KeyDown;
         owner.SelectionChanged += Owner_SelectionChanged;
 
+        // TODO set default text and make sure handler is called even if the text is empty
+
         chMatchCase.Checked = App.Settings.FindMatchCase;
         chWholeWords.Checked = App.Settings.FindWholeWords;
         areCheckboxHandlersEnabled = true;
@@ -261,7 +263,42 @@ public partial class ReplaceForm : Form
     {
         if (bReplaceAll.Enabled)
         {
-            
+            List<int> matches = FindAllMatches();
+            if (matches.Count > 0)
+            {
+                ReadOnlySpan<char> text = owner.GetText();
+                (int selStart, int selLength) = owner.GetTextSelection();
+                int selEnd = selStart + selLength;
+
+                StringBuilder sb = new();
+                int currentFragmentStart = 0;
+                foreach (int match in matches)
+                {
+                    sb.Append(text[currentFragmentStart..match]);
+                    sb.Append(tbReplaceWith.Text);
+                    currentFragmentStart = match + tbFind.Text.Length;
+                }
+
+                if (currentFragmentStart < text.Length)
+                    sb.Append(text[currentFragmentStart..]);
+
+                selStart = GetPositionAfterReplace(selStart, matches, tbFind.Text.Length, tbReplaceWith.Text.Length);
+                selEnd = GetPositionAfterReplace(selEnd, matches, tbFind.Text.Length, tbReplaceWith.Text.Length);
+
+                owner.SetText(sb.ToString());
+                owner.SetTextSelection(selStart, selEnd - selStart);
+
+                labelResult.Text = $"{matches.Count} occurences replaced within document";
+                isDisplayingFindResult = false;
+                wasSomethingFound = false;
+            }
+            else
+            {
+                labelResult.Text = "Nothing found";
+                SystemSounds.Beep.Play();
+                isDisplayingFindResult = false;
+                wasSomethingFound = false;
+            }
         }
     }
 
@@ -331,6 +368,40 @@ public partial class ReplaceForm : Form
         }
 
         return result;
+    }
+
+    private static int GetPositionAfterReplace(int positionBeforeReplace, List<int> matches, int findLength, int replaceLength)
+    {
+        if (findLength == replaceLength)
+            return positionBeforeReplace;
+
+        int fullMatchesBeforePosition = 0;
+        int correction = 0;
+        for (int i = 0; i < matches.Count; i++)
+        {
+            int match = matches[i];
+            if (match >= positionBeforeReplace) // matches are ordered, so no point of going past original position
+                break;
+
+            int relativePosition = positionBeforeReplace - match;
+            if (relativePosition >= findLength)
+            {
+                fullMatchesBeforePosition++;
+            }
+            else
+            {
+                // Position is within match.
+                if (relativePosition > replaceLength)
+                {
+                    // Set position to the end of replaced substring so it doesn't go out of range.
+                    correction = replaceLength - relativePosition;
+                }
+
+                break;
+            }
+        }
+
+        return positionBeforeReplace + fullMatchesBeforePosition * (replaceLength - findLength) + correction;
     }
 
     private void DelayedUnfocus()
