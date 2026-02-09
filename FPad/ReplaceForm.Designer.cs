@@ -42,6 +42,7 @@ partial class ReplaceForm
         bFindFirst = new System.Windows.Forms.Button();
         bReplaceAllInSelection = new System.Windows.Forms.Button();
         labelResult = new System.Windows.Forms.Label();
+        labelReachedEnd = new System.Windows.Forms.Label();
         SuspendLayout();
         // 
         // label1
@@ -184,12 +185,23 @@ partial class ReplaceForm
         labelResult.TabIndex = 13;
         labelResult.Text = "===";
         // 
+        // labelReachedEnd
+        // 
+        labelReachedEnd.Location = new System.Drawing.Point(265, 217);
+        labelReachedEnd.Name = "labelReachedEnd";
+        labelReachedEnd.Size = new System.Drawing.Size(181, 15);
+        labelReachedEnd.TabIndex = 14;
+        labelReachedEnd.Text = "===";
+        labelReachedEnd.TextAlign = System.Drawing.ContentAlignment.TopRight;
+        labelReachedEnd.Visible = false;
+        // 
         // ReplaceForm
         // 
-        AcceptButton = bReplaceAll;
+        AcceptButton = bFindFirst;
         AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         ClientSize = new System.Drawing.Size(458, 245);
+        Controls.Add(labelReachedEnd);
         Controls.Add(labelResult);
         Controls.Add(bReplaceAllInSelection);
         Controls.Add(bFindFirst);
@@ -234,4 +246,5 @@ partial class ReplaceForm
     private System.Windows.Forms.Button bFindFirst;
     private System.Windows.Forms.Button bReplaceAllInSelection;
     private System.Windows.Forms.Label labelResult;
+    private System.Windows.Forms.Label labelReachedEnd;
 }

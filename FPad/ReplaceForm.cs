@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,6 +13,7 @@ namespace FPad;
 
 public partial class ReplaceForm : Form
 {
+    private const int WM_EXITSIZEMOVE = 0x0232;
     private static ReplaceForm instance;
 
     private Point topRight;
@@ -19,6 +21,9 @@ public partial class ReplaceForm : Form
 
     private bool isSearchAllowed;
     private bool areCheckboxHandlersEnabled;
+    private bool isDisplayingFindResult;
+    private bool wasSomethingFound;
+    private bool isShowingReachedEnd;
 
     private ReplaceForm(MainWindow owner, Point topRight)
     {
@@ -52,6 +57,15 @@ public partial class ReplaceForm : Form
     public static void HideIfShown()
     {
         instance?.Close();
+    }
+
+    protected override void WndProc(ref Message m)
+    {
+        base.WndProc(ref m);
+        if (m.Msg == WM_EXITSIZEMOVE)
+        {
+            DelayedUnfocus();
+        }
     }
 
     #region Event Handlers
@@ -94,6 +108,9 @@ public partial class ReplaceForm : Form
 
     private void tbFind_TextChanged(object sender, EventArgs e)
     {
+        labelResult.Text = "Search not started yet";
+        isDisplayingFindResult = false;
+        wasSomethingFound = false;
         RefreshButtons();
     }
 
@@ -106,6 +123,7 @@ public partial class ReplaceForm : Form
     {
         if (areCheckboxHandlersEnabled)
         {
+            DelayedUnfocus();
             owner.ChangeSearchSettings(chMatchCase.Checked, chWholeWords.Checked);
         }
     }
@@ -114,6 +132,7 @@ public partial class ReplaceForm : Form
     {
         if (areCheckboxHandlersEnabled)
         {
+            DelayedUnfocus();
             owner.ChangeSearchSettings(chMatchCase.Checked, chWholeWords.Checked);
         }
     }
@@ -122,7 +141,19 @@ public partial class ReplaceForm : Form
     {
         if (isSearchAllowed)
         {
+            List<int> matches = FindAllMatches();
+            if (matches.Count > 0)
+            {
+                owner.SetTextSelection(matches[0], tbFind.Text.Length);
+            }
+            // Let know if cannot find due to everything being already replaced
+            else if (isDisplayingFindResult && wasSomethingFound && (matches.Count == 0))
+            {
+                ShowReachedEnd("Nothing left");
+                SystemSounds.Beep.Play();
+            }
 
+            DisplayFindResult(matches.Count, 0);
         }
     }
 
@@ -130,7 +161,43 @@ public partial class ReplaceForm : Form
     {
         if (isSearchAllowed)
         {
+            List<int> matches = FindAllMatches();
+            (int selStart, int selLength) = owner.GetTextSelection();
+            int matchIndex = matches.FindIndex(x => x >= selStart);
+            if (matchIndex >= 0)
+            {
+                // If some match is already selected - move to the next one
+                if ((selStart == matches[matchIndex])
+                    && ((selLength == tbFind.Text.Length)
+                        // If replace.StartsWith(find) and we have already replaced:
+                        || owner.GetText().AsSpan()[selStart..(selStart+selLength)].Equals(tbReplaceWith.Text, StringComparison.CurrentCulture))
+                   )
+                {
+                    if (matchIndex + 1 < matches.Count)
+                    {
+                        matchIndex++;
+                        owner.SetTextSelection(matches[matchIndex], tbFind.Text.Length);
+                    }
+                    else
+                    {
+                        // Last match has been reached, stay there.
+                        SystemSounds.Beep.Play();
+                        ShowReachedEnd("Reached Last");
+                    }
+                }
+                else
+                {
+                    owner.SetTextSelection(matches[matchIndex], tbFind.Text.Length);
+                }
+            }
+            // Let know if cannot find due to everything being already replaced
+            else if (isDisplayingFindResult && wasSomethingFound && (matches.Count == 0))
+            {
+                ShowReachedEnd("Nothing left");
+                SystemSounds.Beep.Play();
+            }
 
+            DisplayFindResult(matches.Count, matchIndex);
         }
     }
 
@@ -138,7 +205,28 @@ public partial class ReplaceForm : Form
     {
         if (isSearchAllowed)
         {
+            List<int> matches = FindAllMatches();
+            (int selStart, int selLength) = owner.GetTextSelection();
+            int matchIndex = matches.FindLastIndex(x => x < selStart);
+            if (matchIndex >= 0)
+            {
+                owner.SetTextSelection(matches[matchIndex], tbFind.Text.Length);
+            }
+            // If standing on the first match - beep
+            else if ((matches.Count > 0) && (selStart == matches[0]) && (selLength == tbFind.Text.Length))
+            {
+                matchIndex = 0;
+                SystemSounds.Beep.Play();
+                ShowReachedEnd("Reached First");
+            }
+            // Let know if cannot find due to everything being already replaced
+            else if (isDisplayingFindResult && wasSomethingFound && (matches.Count == 0))
+            {
+                ShowReachedEnd("Nothing left");
+                SystemSounds.Beep.Play();
+            }
 
+            DisplayFindResult(matches.Count, matchIndex);
         }
     }
 
@@ -200,5 +288,87 @@ public partial class ReplaceForm : Form
         bReplace.Enabled = selLength > 0;
 
         bReplaceAllInSelection.Enabled = isSearchAllowed && (selLength >= tbFind.Text.Length);
+    }
+
+    private void DisplayFindResult(int matchesCount, int selectedIndex)
+    {
+        if (matchesCount == 0)
+        {
+            labelResult.Text = "Nothing found";
+        }
+        else if (selectedIndex >= 0)
+        {
+            labelResult.Text = $"Found {selectedIndex + 1}/{matchesCount}";
+        }
+        else
+        {
+            labelResult.Text = $"Found {matchesCount}";
+        }
+
+        isDisplayingFindResult = true;
+        // wasSomethingFound can only go to false when isDisplayingFindResult goes to false
+        wasSomethingFound = wasSomethingFound || (matchesCount > 0);
+    }
+
+    private List<int> FindAllMatches()
+    {
+        List<int> result = new();
+        StringSearch engine = new(tbFind.Text, chMatchCase.Checked);
+        string text = owner.GetText();
+        int currentSearchStart = 0;
+        while (true)
+        {
+            int currentMatch = engine.FindFirstMatch(text, currentSearchStart, chWholeWords.Checked);
+            if (currentMatch >= 0)
+            {
+                result.Add(currentMatch);
+                currentSearchStart = currentMatch + 1;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    private void DelayedUnfocus()
+    {
+        Task.Run(() =>
+        {
+            Task.Delay(100).Wait();
+            if (!IsDisposed)
+            {
+                BeginInvoke(() =>
+                {
+                    if (isDisplayingFindResult && !owner.Focused)
+                        owner.Activate();
+                });
+            }
+        });
+    }
+
+    private void ShowReachedEnd(string text)
+    {
+        labelReachedEnd.Text = text;
+        if (!isShowingReachedEnd)
+        {
+            isShowingReachedEnd = true;
+            Task.Run(async () =>
+            {
+                BeginInvoke(() => labelReachedEnd.Visible = true);
+                await Task.Delay(100);
+                BeginInvoke(() => labelReachedEnd.Visible = false);
+                await Task.Delay(100);
+                BeginInvoke(() => labelReachedEnd.Visible = true);
+                await Task.Delay(500);
+                BeginInvoke(() =>
+                {
+                    labelReachedEnd.Visible = false;
+                    isShowingReachedEnd = false;
+                });
+            });
+        }
     }
 }
