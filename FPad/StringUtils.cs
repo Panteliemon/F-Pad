@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,5 +52,11 @@ public static class StringUtils
         }
 
         return (lineIndex, charIndex);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool IsPartOfWord(char c)
+    {
+        return (c == '_') || char.IsLetterOrDigit(c);
     }
 }

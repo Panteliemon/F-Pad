@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
+using FPad.Controls;
 
 namespace FPad
 {
@@ -61,7 +62,7 @@ namespace FPad
             helpToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
             panel1 = new Panel();
-            text = new TextBox();
+            text = new GoodTextBox();
             statusBar.SuspendLayout();
             mainMenu.SuspendLayout();
             panel1.SuspendLayout();
@@ -305,6 +306,7 @@ namespace FPad
             text.ScrollBars = ScrollBars.Both;
             text.Size = new Size(794, 396);
             text.TabIndex = 3;
+            text.SelectionChanged += Text_SelectionChanged;
             text.TextChanged += textBox1_TextChanged;
             // 
             // MainWindow
@@ -366,6 +368,6 @@ namespace FPad
         private ToolStripStatusLabel modifiedLabel;
         private ToolStripStatusLabel labelSelection;
         private Panel panel1;
-        private TextBox text;
+        private GoodTextBox text;
     }
 }

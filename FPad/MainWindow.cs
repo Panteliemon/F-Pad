@@ -36,9 +36,6 @@ namespace FPad
             InitializeComponent();
             Icon = App.Icon;
 
-            SelectionChangedBehavior textSelectionChanged = new(text);
-            textSelectionChanged.SelectionChanged += Text_SelectionChanged;
-
             ApplySettings();
             ConstructEncodingMenu();
 

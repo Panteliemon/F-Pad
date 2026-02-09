@@ -147,10 +147,10 @@ public class StringSearch
                 matchPos += currentStartPos; // We've cut the string before sub-search, so here we go
 
                 // Whole word?
-                if ((matchPos == 0) || !IsPartOfAWord(str[matchPos - 1]))
+                if ((matchPos == 0) || !StringUtils.IsPartOfWord(str[matchPos - 1]))
                 {
                     int matchEnd = matchPos + transformedSubStrToSearch.Length;
-                    if ((matchEnd == str.Length) || !IsPartOfAWord(str[matchEnd]))
+                    if ((matchEnd == str.Length) || !StringUtils.IsPartOfWord(str[matchEnd]))
                     {
                         return matchPos;
                     }
@@ -170,11 +170,6 @@ public class StringSearch
     }
 
     #region Private
-
-    private static bool IsPartOfAWord(char c)
-    {
-        return (c == '_') || char.IsLetterOrDigit(c);
-    }
 
     internal static int[] CalculateLongestPrefixSuffixArray(string str)
     {
