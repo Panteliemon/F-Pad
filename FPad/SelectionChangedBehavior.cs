@@ -7,6 +7,9 @@ using System.Windows.Forms;
 
 namespace FPad;
 
+/// <summary>
+/// Adds SelectionChanged event to a textbox
+/// </summary>
 public class SelectionChangedBehavior : IDisposable
 {
     private TextBox textBox;

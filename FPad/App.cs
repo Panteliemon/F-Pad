@@ -23,6 +23,9 @@ namespace FPad
         public static AppSettings Settings { get; private set; }
         public static string CmdLineFile { get; private set; }
 
+        public static string LastSearchStr { get; set; }
+        public static string LastReplaceToStr { get; set; }
+
         public static Icon Icon { get; private set; }
 
         #region Messageboxes
@@ -92,6 +95,12 @@ namespace FPad
 
                     fileSettings.LastChanged = DateOnly.FromDateTime(DateTime.Today);
                     fileSettings.WindowPosition = Settings.WindowPosition?.Clone();
+                }
+
+                if ((flags & SettingsFlags.SearchSettings) != 0)
+                {
+                    destSettings.FindMatchCase = Settings.FindMatchCase;
+                    destSettings.FindWholeWords = Settings.FindWholeWords;
                 }
             });
         }

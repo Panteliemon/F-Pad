@@ -55,6 +55,56 @@ namespace FPad
             Interactor.Activate = Interactor_ActivateReceived;
         }
 
+        #region Cross-Window communication
+
+        public (int Start, int Length) GetTextSelection()
+        {
+            return (text.SelectionStart, text.SelectionLength);
+        }
+
+        public void SetTextSelection(int selectionStart, int selectionLength)
+        {
+            bool changed = (selectionStart != text.SelectionStart) || (selectionLength != text.SelectionLength);
+
+            Activate();
+            text.Focus();
+            text.SelectionStart = selectionStart;
+            text.SelectionLength = selectionLength;
+            text.ScrollToCaret();
+
+            if (changed)
+                SelectionChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public event EventHandler SelectionChanged;
+
+        public string GetText()
+        {
+            return text.Text;
+        }
+
+        public void SetText(string value)
+        {
+            text.Text = value;
+        }
+
+        public void ChangeSearchSettings(bool matchCase, bool wholeWords)
+        {
+            bool changed = (matchCase != App.Settings.FindMatchCase)
+                || (wholeWords != App.Settings.FindWholeWords);
+            if (changed)
+            {
+                App.Settings.FindMatchCase = matchCase;
+                App.Settings.FindWholeWords = wholeWords;
+                if (App.SaveSettings(SettingsFlags.SearchSettings))
+                    StatusBarShowSecondOrderSuccessMessage("Settings Saved");
+                else
+                    StatusBarShowSecondOrderErrorMessage("Error when saving settings. Settings not saved.");
+            }
+        }
+
+        #endregion
+
         #region Event Handlers
 
         private void Interactor_ActivateReceived()
@@ -138,6 +188,7 @@ namespace FPad
         private void Text_SelectionChanged(object sender, EventArgs e)
         {
             UpdateStatusBar();
+            SelectionChanged?.Invoke(this, e);
         }
 
         #region Menu: File
@@ -248,6 +299,18 @@ namespace FPad
             }
         }
 
+        private void findToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ReplaceForm.HideIfShown();
+            FPad.FindForm.Show(this, GetTopRightForFindReplace());
+        }
+
+        private void replaceToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FPad.FindForm.HideIfShown();
+            ReplaceForm.Show(this, GetTopRightForFindReplace());
+        }
+
         private void wrapLinesMenuItem_Click(object sender, EventArgs e)
         {
             App.Settings.Wrap = !App.Settings.Wrap;
@@ -288,7 +351,7 @@ namespace FPad
                         // Consider this an edit, although the text doesn't change
                         currentDocumentBytes = null;
                         hasUnsavedChanges = true;
-                    }  
+                    }
                 }
 
                 currentEncoding = encodingVm;
@@ -483,7 +546,7 @@ namespace FPad
             // Therefore here is 1 waste extra char array so it doesn't shit more.
             char[] textAsArray = allText.ToCharArray();
             int bytesCount = currentEncoding.Encoding.GetByteCount(textAsArray);
-            
+
             byte[] result = new byte[bytesCount + currentEncoding.Encoding.Preamble.Length];
             Span<byte> spanResult = result.AsSpan();
             currentEncoding.Encoding.Preamble.CopyTo(spanResult);
@@ -721,7 +784,7 @@ namespace FPad
             Task.Run(() =>
             {
                 Task.Delay(3000).Wait();
-                Invoke(() =>
+                BeginInvoke(() =>
                 {
                     if (statusBarMessageId == currentMessageId)
                     {
@@ -737,5 +800,10 @@ namespace FPad
         }
 
         #endregion
+
+        private Point GetTopRightForFindReplace()
+        {
+            return text.PointToScreen(new Point(text.Width - 10, 0));
+        }
     }
 }

@@ -229,6 +229,7 @@ namespace FPad
             findToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.F;
             findToolStripMenuItem.Size = new Size(158, 22);
             findToolStripMenuItem.Text = "&Find";
+            findToolStripMenuItem.Click += findToolStripMenuItem_Click;
             // 
             // replaceToolStripMenuItem
             // 
@@ -236,6 +237,7 @@ namespace FPad
             replaceToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.H;
             replaceToolStripMenuItem.Size = new Size(158, 22);
             replaceToolStripMenuItem.Text = "&Replace";
+            replaceToolStripMenuItem.Click += replaceToolStripMenuItem_Click;
             // 
             // toolStripSeparator3
             // 
@@ -313,6 +315,7 @@ namespace FPad
             Controls.Add(panel1);
             Controls.Add(statusBar);
             Controls.Add(mainMenu);
+            KeyPreview = true;
             MainMenuStrip = mainMenu;
             Name = "MainWindow";
             StartPosition = FormStartPosition.CenterScreen;
