@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
-using FPad.Xml;
+using FPad.Settings.Xml;
 
 namespace FPad.Settings;
 

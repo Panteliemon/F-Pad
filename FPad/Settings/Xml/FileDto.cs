@@ -5,14 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace FPad.Xml;
+namespace FPad.Settings.Xml;
 
-public class TextDto
+public class FileDto
 {
     [XmlAttribute]
-    public string Wrap { get; set; }
+    public string Path { get; set; }
     [XmlAttribute]
-    public string FindMatchCase { get; set; }
-    [XmlAttribute]
-    public string FindWholeWords { get; set; }
+    public int Date { get; set; }
+
+    public WindowPositionDto WindowPosition { get; set; }
 }
