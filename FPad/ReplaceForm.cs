@@ -143,7 +143,7 @@ public partial class ReplaceForm : Form
     {
         if (isSearchAllowed)
         {
-            List<int> matches = FindAllMatches();
+            List<int> matches = FindAllMatches(owner.GetText());
             if (matches.Count > 0)
             {
                 owner.SetTextSelection(matches[0], tbFind.Text.Length);
@@ -163,7 +163,7 @@ public partial class ReplaceForm : Form
     {
         if (isSearchAllowed)
         {
-            List<int> matches = FindAllMatches();
+            List<int> matches = FindAllMatches(owner.GetText());
             (int selStart, int selLength) = owner.GetTextSelection();
             int matchIndex = matches.FindIndex(x => x >= selStart);
             if (matchIndex >= 0)
@@ -207,7 +207,7 @@ public partial class ReplaceForm : Form
     {
         if (isSearchAllowed)
         {
-            List<int> matches = FindAllMatches();
+            List<int> matches = FindAllMatches(owner.GetText());
             (int selStart, int selLength) = owner.GetTextSelection();
             int matchIndex = matches.FindLastIndex(x => x < selStart);
             if (matchIndex >= 0)
@@ -263,42 +263,7 @@ public partial class ReplaceForm : Form
     {
         if (bReplaceAll.Enabled)
         {
-            List<int> matches = FindAllMatches();
-            if (matches.Count > 0)
-            {
-                ReadOnlySpan<char> text = owner.GetText();
-                (int selStart, int selLength) = owner.GetTextSelection();
-                int selEnd = selStart + selLength;
-
-                StringBuilder sb = new();
-                int currentFragmentStart = 0;
-                foreach (int match in matches)
-                {
-                    sb.Append(text[currentFragmentStart..match]);
-                    sb.Append(tbReplaceWith.Text);
-                    currentFragmentStart = match + tbFind.Text.Length;
-                }
-
-                if (currentFragmentStart < text.Length)
-                    sb.Append(text[currentFragmentStart..]);
-
-                selStart = GetPositionAfterReplace(selStart, matches, tbFind.Text.Length, tbReplaceWith.Text.Length);
-                selEnd = GetPositionAfterReplace(selEnd, matches, tbFind.Text.Length, tbReplaceWith.Text.Length);
-
-                owner.SetText(sb.ToString());
-                owner.SetTextSelection(selStart, selEnd - selStart);
-
-                labelResult.Text = $"{matches.Count} occurences replaced within document";
-                isDisplayingFindResult = false;
-                wasSomethingFound = false;
-            }
-            else
-            {
-                labelResult.Text = "Nothing found";
-                SystemSounds.Beep.Play();
-                isDisplayingFindResult = false;
-                wasSomethingFound = false;
-            }
+            ExecuteReplaceAllMatches(false);
         }
     }
 
@@ -306,7 +271,7 @@ public partial class ReplaceForm : Form
     {
         if (bReplaceAllInSelection.Enabled)
         {
-
+            ExecuteReplaceAllMatches(true);
         }
     }
 
@@ -347,11 +312,10 @@ public partial class ReplaceForm : Form
         wasSomethingFound = wasSomethingFound || (matchesCount > 0);
     }
 
-    private List<int> FindAllMatches()
+    private List<int> FindAllMatches(ReadOnlySpan<char> text)
     {
         List<int> result = new();
         StringSearch engine = new(tbFind.Text, chMatchCase.Checked);
-        string text = owner.GetText();
         int currentSearchStart = 0;
         while (true)
         {
@@ -368,6 +332,76 @@ public partial class ReplaceForm : Form
         }
 
         return result;
+    }
+
+    private void ExecuteReplaceAllMatches(bool withinSelection)
+    {
+        ReadOnlySpan<char> text = owner.GetText();
+        (int selStart, int selLength) = owner.GetTextSelection();
+        int selEnd = selStart + selLength;
+
+        List<int> allMatches;
+        if (withinSelection)
+        {
+            // To make "whole words" option work correctly on borders we will cover broader range
+            int virtualSelStart = selStart > 0 ? selStart - 1 : selStart;
+            int virtualSelEnd = selEnd < text.Length ? selEnd + 1 : selEnd;
+            allMatches = FindAllMatches(text[virtualSelStart..virtualSelEnd])
+                .Select(x => x + virtualSelStart) // convert to absolute offsets
+                .Where(x => (x >= selStart) && (x + tbFind.Text.Length <= selEnd)) // filter because the search range was wider than the selection
+                .ToList();
+        }
+        else
+        {
+            allMatches = FindAllMatches(text);
+        }
+
+        // For this function we must get rid of overlapping matches
+        List<int> matches = new();
+        int lastMatch = -1;
+        for (int i = 0; i < allMatches.Count; i++)
+        {
+            int match = allMatches[i];
+            if ((i == 0) || (match >= lastMatch + tbFind.Text.Length))
+            {
+                matches.Add(match);
+                lastMatch = match;
+            }
+        }
+
+        if (matches.Count > 0)
+        {
+            StringBuilder sb = new();
+            int currentFragmentStart = 0;
+            foreach (int match in matches)
+            {
+                sb.Append(text[currentFragmentStart..match]);
+                sb.Append(tbReplaceWith.Text);
+                currentFragmentStart = match + tbFind.Text.Length;
+            }
+
+            if (currentFragmentStart < text.Length)
+                sb.Append(text[currentFragmentStart..]);
+
+            selStart = GetPositionAfterReplace(selStart, matches, tbFind.Text.Length, tbReplaceWith.Text.Length);
+            selEnd = GetPositionAfterReplace(selEnd, matches, tbFind.Text.Length, tbReplaceWith.Text.Length);
+
+            owner.SetText(sb.ToString());
+            owner.SetTextSelection(selStart, selEnd - selStart);
+
+            labelResult.Text = withinSelection
+                ? $"{matches.Count} occurences replaced within selection"
+                : $"{matches.Count} occurences replaced within document";
+            isDisplayingFindResult = false;
+            wasSomethingFound = false;
+        }
+        else
+        {
+            labelResult.Text = "Nothing found";
+            SystemSounds.Beep.Play();
+            isDisplayingFindResult = false;
+            wasSomethingFound = false;
+        }
     }
 
     private static int GetPositionAfterReplace(int positionBeforeReplace, List<int> matches, int findLength, int replaceLength)
