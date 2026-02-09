@@ -14,6 +14,7 @@ namespace FPad;
 public partial class ReplaceForm : Form
 {
     private const int WM_EXITSIZEMOVE = 0x0232;
+    private const int REASONABLE_SELECTION_LENGTH = 100;
     private static ReplaceForm instance;
 
     private Point topRight;
@@ -34,7 +35,25 @@ public partial class ReplaceForm : Form
         owner.KeyDown += ReplaceForm_KeyDown;
         owner.SelectionChanged += Owner_SelectionChanged;
 
-        // TODO set default text and make sure handler is called even if the text is empty
+        (int selStart, int selLength) = owner.GetTextSelection();
+        // Unlike in Find, here auto-fill from selection happens only on first Ctrl+H
+        if ((selLength > 0) && (selLength < REASONABLE_SELECTION_LENGTH))
+        {
+            tbFind.Text = owner.GetText().Substring(selStart, selLength);
+            tbFind.SelectAll();
+        }
+        else if (!string.IsNullOrEmpty(App.LastSearchStr))
+        {
+            tbFind.Text = App.LastSearchStr;
+            tbFind.SelectAll();
+            if (!string.IsNullOrEmpty(App.LastReplaceToStr))
+                tbReplaceWith.Text = App.LastReplaceToStr;
+        }
+        else
+        {
+            tbFind.Text = string.Empty;
+            tbFind_TextChanged(this, EventArgs.Empty);
+        }
 
         chMatchCase.Checked = App.Settings.FindMatchCase;
         chWholeWords.Checked = App.Settings.FindWholeWords;
@@ -116,11 +135,6 @@ public partial class ReplaceForm : Form
         RefreshButtons();
     }
 
-    private void tbReplaceWith_TextChanged(object sender, EventArgs e)
-    {
-
-    }
-
     private void chMatchCase_CheckedChanged(object sender, EventArgs e)
     {
         if (areCheckboxHandlersEnabled)
@@ -156,6 +170,7 @@ public partial class ReplaceForm : Form
             }
 
             DisplayFindResult(matches.Count, 0);
+            App.LastSearchStr = tbFind.Text;
         }
     }
 
@@ -200,6 +215,7 @@ public partial class ReplaceForm : Form
             }
 
             DisplayFindResult(matches.Count, matchIndex);
+            App.LastSearchStr = tbFind.Text;
         }
     }
 
@@ -229,6 +245,7 @@ public partial class ReplaceForm : Form
             }
 
             DisplayFindResult(matches.Count, matchIndex);
+            App.LastSearchStr = tbFind.Text;
         }
     }
 
@@ -255,6 +272,8 @@ public partial class ReplaceForm : Form
 
                 owner.SetText(sb.ToString());
                 owner.SetTextSelection(selStart, tbReplaceWith.Text.Length);
+
+                App.LastReplaceToStr = tbReplaceWith.Text;
             }
         }
     }
@@ -402,6 +421,9 @@ public partial class ReplaceForm : Form
             isDisplayingFindResult = false;
             wasSomethingFound = false;
         }
+
+        App.LastSearchStr = tbFind.Text;
+        App.LastReplaceToStr = tbReplaceWith.Text;
     }
 
     private static int GetPositionAfterReplace(int positionBeforeReplace, List<int> matches, int findLength, int replaceLength)

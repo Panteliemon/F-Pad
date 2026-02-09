@@ -79,7 +79,6 @@ partial class ReplaceForm
         tbReplaceWith.Name = "tbReplaceWith";
         tbReplaceWith.Size = new System.Drawing.Size(434, 23);
         tbReplaceWith.TabIndex = 2;
-        tbReplaceWith.TextChanged += tbReplaceWith_TextChanged;
         // 
         // bSwap
         // 
