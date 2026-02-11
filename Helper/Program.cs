@@ -30,7 +30,8 @@ public static class Program
     private static void MakeIcon()
     {
         string folder = @"D:\Bn\Src\FPad\Local";
-        string[] srcFiles = ["fpad16_bilinear.png", "fpad32_.png", "fpad48_.png", "fpad64_.png"];
+        //string[] srcFiles = ["fpad16_bilinear.png", "fpad32_.png", "fpad48_.png", "fpad64_.png"];
+        string[] srcFiles = ["new16.png", "new32.png", "new48.png", "new64.png"];
         int[] sizes = srcFiles.Select(x => int.Parse(new string(x.ToCharArray().Where(c => char.IsAsciiDigit(c)).ToArray()))).ToArray();
 
         List<byte[]> bytes = new();
@@ -47,7 +48,7 @@ public static class Program
             offsets[i] = offsets[i - 1] + bytes[i - 1].Length;
         }
 
-        string outPath = Path.Combine(folder, "f-pad.ico");
+        string outPath = Path.Combine(folder, "new.ico");
         using (FileStream fs = new FileStream(outPath, FileMode.Create, FileAccess.Write, FileShare.None, 262144))
         {
             using (BinaryWriter bw = new BinaryWriter(fs))
