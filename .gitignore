@@ -485,3 +485,4 @@ $RECYCLE.BIN/
 
 # Specific for this project
 /Local/
+*.g.cs

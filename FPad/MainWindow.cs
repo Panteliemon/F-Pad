@@ -373,6 +373,12 @@ namespace FPad
 
         #endregion
 
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AboutWindow dlg = new AboutWindow();
+            dlg.ShowDialog(this);
+        }
+
         #endregion
 
         #region New, Load, Save

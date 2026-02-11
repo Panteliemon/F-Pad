@@ -27,6 +27,8 @@ namespace FPad
         public static string LastReplaceToStr { get; set; }
 
         public static Icon Icon { get; private set; }
+        public static Version Version { get; set; }
+        public static DateTime BuildDate { get; set; }
 
         #region Messageboxes
 
@@ -114,15 +116,13 @@ namespace FPad
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
 
-            // Load icon
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            using (Stream iconStream = assembly.GetManifestResourceStream("FPad.Resources.f-pad.ico"))
-            {
-                if (iconStream != null)
-                {
-                    Icon = new Icon(iconStream);
-                }
-            }
+            Version = Assembly.GetExecutingAssembly().GetName().Version;
+            BuildDateAttribute buildDateAttr = Assembly.GetExecutingAssembly().GetCustomAttribute<BuildDateAttribute>();
+            if (buildDateAttr != null)
+                BuildDate = buildDateAttr.LocalValue;
+
+            
+            Icon = LoadIcon("FPad.Resources.f-pad.ico");
 
             string[] cmdLineArgs = Environment.GetCommandLineArgs();
             if (cmdLineArgs.Length > 1) // The first is just full path to the app
@@ -160,6 +160,32 @@ namespace FPad
         {
             if (Interactor.IsInitialized)
                 Interactor.Shutdown();
+        }
+
+        private static Icon LoadIcon(string identifier)
+        {
+            using (Stream iconStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("FPad.Resources.f-pad.ico"))
+            {
+                if (iconStream != null)
+                {
+                    return new Icon(iconStream);
+                }
+            }
+
+            return null;
+        }
+
+        public static Image LoadImage(string imgName)
+        {
+            using (Stream imageStream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"FPad.Resources.{imgName}"))
+            {
+                if (imageStream != null)
+                {
+                    return Image.FromStream(imageStream);
+                }
+            }
+
+            return null;
         }
     }
 }
