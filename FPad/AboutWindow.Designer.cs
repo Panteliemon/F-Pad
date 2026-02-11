@@ -33,6 +33,8 @@ partial class AboutWindow
         labelBuild = new System.Windows.Forms.Label();
         linkLabelGithub = new System.Windows.Forms.LinkLabel();
         label1 = new System.Windows.Forms.Label();
+        label2 = new System.Windows.Forms.Label();
+        linkLabelIcons8 = new System.Windows.Forms.LinkLabel();
         ((System.ComponentModel.ISupportInitialize)picLogo).BeginInit();
         SuspendLayout();
         // 
@@ -83,11 +85,33 @@ partial class AboutWindow
         label1.TabIndex = 4;
         label1.Text = "Source code:";
         // 
+        // label2
+        // 
+        label2.AutoSize = true;
+        label2.Location = new System.Drawing.Point(146, 125);
+        label2.Name = "label2";
+        label2.Size = new System.Drawing.Size(54, 15);
+        label2.TabIndex = 5;
+        label2.Text = "Icons by:";
+        // 
+        // linkLabelIcons8
+        // 
+        linkLabelIcons8.AutoSize = true;
+        linkLabelIcons8.Location = new System.Drawing.Point(203, 125);
+        linkLabelIcons8.Name = "linkLabelIcons8";
+        linkLabelIcons8.Size = new System.Drawing.Size(41, 15);
+        linkLabelIcons8.TabIndex = 6;
+        linkLabelIcons8.TabStop = true;
+        linkLabelIcons8.Text = "Icons8";
+        linkLabelIcons8.LinkClicked += linkLabelIcons8_LinkClicked;
+        // 
         // AboutWindow
         // 
         AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         ClientSize = new System.Drawing.Size(455, 200);
+        Controls.Add(linkLabelIcons8);
+        Controls.Add(label2);
         Controls.Add(label1);
         Controls.Add(linkLabelGithub);
         Controls.Add(labelBuild);
@@ -113,4 +137,6 @@ partial class AboutWindow
     private System.Windows.Forms.Label labelBuild;
     private System.Windows.Forms.LinkLabel linkLabelGithub;
     private System.Windows.Forms.Label label1;
+    private System.Windows.Forms.Label label2;
+    private System.Windows.Forms.LinkLabel linkLabelIcons8;
 }

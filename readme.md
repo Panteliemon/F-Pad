@@ -53,6 +53,7 @@ My thoughts on possible features and change requests:
 
 - [**Whatlang**](https://www.nuget.org/packages/Panlingo.LanguageIdentification.Whatlang) for language detection
 - [**Ude.NET**](https://www.nuget.org/packages/Ude.NET) for encoding detection
+- [**Icons8**](https://icons8.com) do amazing icons which make my every app look prettier
 - **Win 11 and its new Notepad** without which this project wouldn't have existed 
 
 ---

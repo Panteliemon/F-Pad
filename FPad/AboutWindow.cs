@@ -35,6 +35,11 @@ public partial class AboutWindow : Form
         OpenLink(linkLabelGithub.Text);
     }
 
+    private void linkLabelIcons8_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    {
+        OpenLink("https://icons8.com");
+    }
+
     private static void OpenLink(string url)
     {
         try

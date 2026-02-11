@@ -36,6 +36,19 @@ namespace FPad
             InitializeComponent();
             Icon = App.Icon;
 
+            // resized 48->16, bilinear
+            newToolStripMenuItem.Image = App.LoadImage("b16_new.png");
+            openToolStripMenuItem.Image = App.LoadImage("b16_open.png");
+            saveToolStripMenuItem.Image = App.LoadImage("b16_save.png");
+            saveAsToolStripMenuItem.Image = App.LoadImage("b16_saveas.png");
+            cutToolStripMenuItem.Image = App.LoadImage("b16_cut.png");
+            copyToolStripMenuItem.Image = App.LoadImage("b16_copy.png");
+            pasteToolStripMenuItem.Image = App.LoadImage("b16_paste.png");
+            findToolStripMenuItem.Image = App.LoadImage("b16_find.png");
+            encodingToolStripMenuItem.Image = App.LoadImage("b16_encoding.png");
+            preferencesToolStripMenuItem.Image = App.LoadImage("b16_settings.png");
+            aboutToolStripMenuItem.Image = App.LoadImage("b16_about.png");
+
             ApplySettings();
             ConstructEncodingMenu();
 
