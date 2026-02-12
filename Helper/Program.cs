@@ -1,6 +1,8 @@
-﻿using Panlingo.LanguageIdentification.Whatlang;
+﻿using FPad;
+using Panlingo.LanguageIdentification.Whatlang;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,13 +20,42 @@ public static class Program
 
     public static void Main()
     {
-        Console.WriteLine("3");
+        Console.WriteLine("4");
 
         //string encodingManagerLines = string.Join(Environment.NewLine, GenerateScoreCalculatorLines());
 
         //TestEvents();
-        
-        MakeIcon();
+
+        //MakeIcon();
+
+        WatchFiles();
+    }
+
+    private static void WatchFiles()
+    {
+        FileWatcher watcher = new FileWatcher(@"D:\Bn\Src\FPad\Local\watcher.txt");
+        watcher.FileModified += Watcher_FileModified;
+
+        Console.ReadLine();
+
+        Console.WriteLine($"Write start");
+        watcher.SaveWrapper(() =>
+        {
+            File.WriteAllText(@"D:\Bn\Src\FPad\Local\watcher.txt", "Overwritten!1", Encoding.Unicode);
+        });
+        Console.WriteLine($"Write end");
+
+        Console.ReadLine();
+
+        watcher.Dispose();
+        Console.WriteLine($"Disposed");
+
+        Console.ReadLine();
+    }
+
+    private static void Watcher_FileModified(object sender, EventArgs e)
+    {
+        Console.WriteLine($"Modified");
     }
 
     private static void MakeIcon()
