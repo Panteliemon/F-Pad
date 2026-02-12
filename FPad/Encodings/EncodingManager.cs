@@ -91,9 +91,9 @@ public static class EncodingManager
 
         detectionData = new List<EncodingDetectionData>()
         {
-            new EncodingDetectionData(vmUnicode, "UTF-16LE"),
-            new EncodingDetectionData(vmUtf8, "UTF-8"),
-            new EncodingDetectionData(vmUtf16Be, "UTF-16BE"),
+            new EncodingDetectionData(vmUnicode, "UTF-16LE", [255, 254]),
+            new EncodingDetectionData(vmUtf8, "UTF-8", [239, 187, 191]),
+            new EncodingDetectionData(vmUtf16Be, "UTF-16BE", [254, 255]),
             new EncodingDetectionData(vmAscii, "ASCII"),
             new EncodingDetectionData(vmWin1251, "windows-1251"),
             new EncodingDetectionData(vmOem866, "IBM866"),
@@ -136,10 +136,20 @@ public static class EncodingManager
 
     public static EncodingVm DetectEncoding(byte[] textFileBytes)
     {
+        // If the file only contains BOM - then it is this encoding, goddamnit!
+        foreach (EncodingDetectionData detectionData in detectionData.Where(x => x.BOM.Length > 0))
+        {
+            if (detectionData.IsBOM(textFileBytes))
+                return detectionData.Vm;
+        }
+
         charsetDetector.Reset();
         charsetDetector.Feed(textFileBytes, 0, textFileBytes.Length);
         charsetDetector.DataEnd();
 
+        // example_1251.txt: 0.52 for ANSI 1251 (correct)
+        // empty file with BOM only: 0.5 for ANSI 1252 (incorrect)
+        // Keep threshold at 0.5 for now, and strict inequality
         if (charsetDetector.Confidence > 0.5)
         {
             EncodingDetectionData result = detectionData.FirstOrDefault(x => x.UdeCode == charsetDetector.Charset);
