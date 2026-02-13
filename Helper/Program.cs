@@ -33,7 +33,8 @@ public static class Program
 
     private static void WatchFiles()
     {
-        FileWatcher watcher = new FileWatcher(@"D:\Bn\Src\FPad\Local\watcher.txt");
+        string path = @"D:\Bn\Src\FPad\Local\watcher.txt";
+        FileWatcher watcher = new FileWatcher(path);
         watcher.FileModified += Watcher_FileModified;
 
         Console.ReadLine();
@@ -41,7 +42,7 @@ public static class Program
         Console.WriteLine($"Write start");
         watcher.SaveWrapper(() =>
         {
-            File.WriteAllText(@"D:\Bn\Src\FPad\Local\watcher.txt", "Overwritten!1", Encoding.Unicode);
+            File.WriteAllText(path, "Overwritten!1", Encoding.Unicode);
         });
         Console.WriteLine($"Write end");
 

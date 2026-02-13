@@ -13,6 +13,8 @@ namespace FPad;
 /// </summary>
 public class FileWatcher : IDisposable
 {
+    #region Fields
+
     private const int DEBOUNCE_DELAY_MS = 200;
 
     private object eventLock = new();
@@ -25,6 +27,8 @@ public class FileWatcher : IDisposable
 
     private Thread eventThread;
     private CancellationTokenSource eventThreadCanceledTs;
+
+    #endregion
 
     public string PathToFile { get; private set; }
 

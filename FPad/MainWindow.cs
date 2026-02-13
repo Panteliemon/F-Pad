@@ -25,6 +25,7 @@ namespace FPad
         /// </summary>
         byte[] currentDocumentBytes;
         EncodingVm currentEncoding = null;
+        FileWatcher currentDocumentWatcher;
 
         bool enableSizingHandlers = false;
         bool enableTextChangeHandler = true;
@@ -124,6 +125,18 @@ namespace FPad
                 if (WindowState == FormWindowState.Minimized)
                     WindowState = prevWindowState;
                 Activate();
+            });
+        }
+
+        private void CurrentDocumentWatcher_FileModified(object sender, EventArgs e)
+        {
+            Invoke(() =>
+            {
+                // Check once we are inside the Invoke that the message is still relevant
+                if (sender == currentDocumentWatcher)
+                {
+                    // TODO
+                }
             });
         }
 
@@ -398,11 +411,7 @@ namespace FPad
 
         private void PrepareNew(bool savePreviousFileSettings)
         {
-            if (savePreviousFileSettings && !isNew)
-            {
-                RememberWindowPosition();
-                App.SaveSettings(SettingsFlags.FileWindowPosition, currentDocumentFullPath);
-            }
+            CloseCurrentDocument(savePreviousFileSettings);
 
             text.Text = string.Empty;
 
@@ -429,11 +438,7 @@ namespace FPad
                 string fullPath = Path.GetFullPath(fileName);
                 byte[] allBytes = File.ReadAllBytes(fullPath);
 
-                if (savePreviousFileSettings && !isNew)
-                {
-                    RememberWindowPosition();
-                    App.SaveSettings(SettingsFlags.FileWindowPosition, currentDocumentFullPath);
-                }
+                CloseCurrentDocument(savePreviousFileSettings);
 
                 currentDocumentFullPath = fullPath;
                 currentDocumentFileName = Path.GetFileName(fullPath);
@@ -450,6 +455,8 @@ namespace FPad
                 UpdateStatusBar();
 
                 Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
+                currentDocumentWatcher = new FileWatcher(currentDocumentFullPath);
+                currentDocumentWatcher.FileModified += CurrentDocumentWatcher_FileModified;
 
                 return true;
             }
@@ -494,34 +501,40 @@ namespace FPad
                         return null;
                 }
 
-                (bool proceed, byte[] encodedBytes) = EncodeForSave(text.Text);
-                if (!proceed)
-                    return null;
-
-                bool saveResult = UnsafeSave(destPath, encodedBytes);
-                if (saveResult)
+                if (!isNew && string.Equals(currentDocumentFullPath, destPath, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if (!isNew)
-                    {
-                        RememberWindowPosition();
-                        App.SaveSettings(SettingsFlags.FileWindowPosition, currentDocumentFullPath);
-                    }
-
-                    currentDocumentFullPath = destPath;
-                    currentDocumentFileName = Path.GetFileName(destPath);
-                    isNew = false;
-                    hasUnsavedChanges = false;
-                    currentDocumentBytes = encodedBytes;
-                    UpdateTitle();
-                    UpdateStatusBar();
-
-                    Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
-
-                    return true;
+                    // Save without closing current document
+                    return ExecuteSave();
                 }
                 else
                 {
-                    return false;
+                    (bool proceed, byte[] encodedBytes) = EncodeForSave(text.Text);
+                    if (!proceed)
+                        return null;
+
+                    bool saveResult = UnsafeSave(destPath, encodedBytes, false);
+                    if (saveResult)
+                    {
+                        CloseCurrentDocument(true);
+
+                        currentDocumentFullPath = destPath;
+                        currentDocumentFileName = Path.GetFileName(destPath);
+                        isNew = false;
+                        hasUnsavedChanges = false;
+                        currentDocumentBytes = encodedBytes;
+                        UpdateTitle();
+                        UpdateStatusBar();
+
+                        Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
+                        currentDocumentWatcher = new FileWatcher(currentDocumentFullPath);
+                        currentDocumentWatcher.FileModified += CurrentDocumentWatcher_FileModified;
+
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
             else
@@ -535,11 +548,14 @@ namespace FPad
         /// <returns>True - saved, False - not saved, Null - canceled</returns>
         private bool? ExecuteSave()
         {
+            if (isNew)
+                throw new InvalidOperationException();
+
             (bool proceed, byte[] encodedBytes) = EncodeForSave(text.Text);
             if (!proceed)
                 return null;
 
-            bool saveResult = UnsafeSave(currentDocumentFullPath, encodedBytes);
+            bool saveResult = UnsafeSave(currentDocumentFullPath, encodedBytes, true);
             if (saveResult)
             {
                 isNew = false;
@@ -584,11 +600,22 @@ namespace FPad
             return (true, result);
         }
 
-        private bool UnsafeSave(string destPath, byte[] bytes)
+        private bool UnsafeSave(string destPath, byte[] bytes, bool suspendDocumentWatcher)
         {
             try
             {
-                File.WriteAllBytes(destPath, bytes);
+                if (suspendDocumentWatcher)
+                {
+                    currentDocumentWatcher.SaveWrapper(() =>
+                    {
+                        SaveProc(destPath, bytes);
+                    });
+                }
+                else
+                {
+                    SaveProc(destPath, bytes);
+                }
+
                 StatusBarShowSuccessMessage("SAVED");
                 return true;
             }
@@ -596,6 +623,14 @@ namespace FPad
             {
                 App.ShowError(ex);
                 return false;
+            }
+
+            static void SaveProc(string destPath, byte[] bytes)
+            {
+                using (FileStream fs = new FileStream(destPath, FileMode.Create, FileAccess.Write, FileShare.None, App.BUFFERSIZE))
+                {
+                    fs.Write(bytes);
+                }
             }
         }
 
@@ -627,6 +662,21 @@ namespace FPad
             }
 
             return true;
+        }
+
+        private void CloseCurrentDocument(bool savePreviousFileSettings)
+        {
+            if (!isNew)
+            {
+                currentDocumentWatcher.Dispose(); // should be not null when not isNew, null reference crash here would reveal inconsistencies in code
+                currentDocumentWatcher = null;
+
+                if (savePreviousFileSettings)
+                {
+                    RememberWindowPosition();
+                    App.SaveSettings(SettingsFlags.FileWindowPosition, currentDocumentFullPath);
+                }
+            }
         }
 
         #endregion
