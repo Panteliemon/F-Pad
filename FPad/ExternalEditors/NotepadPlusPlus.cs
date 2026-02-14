@@ -11,9 +11,12 @@ namespace FPad.ExternalEditors;
 
 internal class NotepadPlusPlus : ExternalEditorBase, IExternalEditor
 {
-    private static string[] registryPaths = [
+    private static string[] registryPathsLocalMachine = [
         @"SOFTWARE\Notepad++",
         @"SOFTWARE\WOW6432Node\Notepad++" // exists but empty value on my machine
+    ];
+    private static string[] registryPathsCurrentUser = [
+        @"SOFTWARE\Notepad++"
     ];
 
     public string DisplayName => "Notepad++";
@@ -42,9 +45,9 @@ internal class NotepadPlusPlus : ExternalEditorBase, IExternalEditor
     public bool Detect(CancellationToken ct)
     {
         bool detected = true;
-        if (!DetectFromRegistry(Registry.LocalMachine, ct))
+        if (!DetectFromRegistry(Registry.LocalMachine, registryPathsLocalMachine, ct))
         {
-            if (!DetectFromRegistry(Registry.CurrentUser, ct))
+            if (!DetectFromRegistry(Registry.CurrentUser, registryPathsCurrentUser, ct))
             {
                 if (!DetectFromProgramFiles(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)))
                 {
@@ -65,9 +68,9 @@ internal class NotepadPlusPlus : ExternalEditorBase, IExternalEditor
         return detected;
     }
 
-    private bool DetectFromRegistry(RegistryKey regRoot, CancellationToken ct)
+    private bool DetectFromRegistry(RegistryKey regRoot, IEnumerable<string> paths, CancellationToken ct)
     {
-        foreach (string regPath in registryPaths)
+        foreach (string regPath in paths)
         {
             try
             {
