@@ -27,10 +27,12 @@ A minimalist text editor for Windows inspired by the classic Notepad.
 ```
 FPad/                  # The app
 ├── MainWindow.cs      # Primary UI and application logic
+├── Controls/          # Custom UI controls, if any
 ├── Encodings/         # Stuff related to encoding support
-├── Settings/          # Remembering state of the app
+├── ExternalEditors/   # Integration with popular text editors
 ├── Interaction/       # Inter-process communication between running instances of F-Pad within one PC (did someone say it was supposed to be minimalistic and dead simple text editor?)
-└── Controls/          # Custom UI controls, if any
+├── Resources/         # Media files which are packed into exe
+└── Settings/          # Remembering state of the app
 
 Helper/                # Serves for experiments with code and for one-time actions such as making icons out of png, etc.
 Tests.FPad/            # Unit tests
