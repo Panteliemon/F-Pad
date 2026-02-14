@@ -102,6 +102,27 @@ public static class StringUtils
         return (str.Length, currentLineIndex, currentCharIndex);
     }
 
+    /// <summary>
+    /// </summary>
+    /// <remarks>For empty strings returns 1</remarks>
+    public static int GetLinesCount(string str)
+    {
+        if (str == null)
+            return 0;
+
+        int lineIndex = 0;
+        for (int i = 0; i < str.Length; i++)
+        {
+            char c = str[i];
+            if (c == 10)
+            {
+                lineIndex++;
+            }
+        }
+
+        return lineIndex + 1;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool IsPartOfWord(char c)
     {

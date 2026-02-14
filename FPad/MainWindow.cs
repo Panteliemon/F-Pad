@@ -30,7 +30,7 @@ namespace FPad
 
         bool enableSizingHandlers = false;
         bool enableTextChangeHandler = true;
-        
+
         FormWindowState prevWindowState = FormWindowState.Normal;
 
         public MainWindow()
@@ -356,6 +356,20 @@ namespace FPad
         {
             FPad.FindForm.HideIfShown();
             ReplaceForm.Show(this, GetTopRightForFindReplace());
+        }
+
+        private void goToLineMenuItem_Click(object sender, EventArgs e)
+        {
+            (int currentLine, _) = StringUtils.GetLineAndCol(text.Text, text.SelectionStart);
+            int linesCount = StringUtils.GetLinesCount(text.Text);
+            int? targetLine = GoToLineDialog.ShowDialog(this, currentLine, linesCount);
+            if (targetLine.HasValue)
+            {
+                (int targetPosition, _, _) = StringUtils.GetPositionAdaptive(text.Text, targetLine.Value, 0);
+                text.SelectionStart = targetPosition;
+                text.SelectionLength = 0;
+                text.ScrollToCaret();
+            }
         }
 
         private void wrapLinesMenuItem_Click(object sender, EventArgs e)
