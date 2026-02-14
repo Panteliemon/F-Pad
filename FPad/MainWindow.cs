@@ -16,6 +16,7 @@ namespace FPad
     {
         bool isNew = false;
         bool hasUnsavedChanges = false;
+        bool isExternallyModified = false;
 
         string currentDocumentFullPath = string.Empty;
         string currentDocumentFileName = string.Empty;
@@ -29,7 +30,7 @@ namespace FPad
 
         bool enableSizingHandlers = false;
         bool enableTextChangeHandler = true;
-
+        
         FormWindowState prevWindowState = FormWindowState.Normal;
 
         public MainWindow()
@@ -135,7 +136,8 @@ namespace FPad
                 // Check once we are inside the Invoke that the message is still relevant
                 if (sender == currentDocumentWatcher)
                 {
-                    // TODO
+                    isExternallyModified = true;
+                    UpdateStatusBar();
                 }
             });
         }
@@ -152,6 +154,8 @@ namespace FPad
 
             if (!e.Cancel)
             {
+                currentDocumentWatcher?.Dispose();
+
                 RememberWindowPosition();
                 SettingsFlags settingsToSave = SettingsFlags.WindowPosition;
                 if (!isNew)
@@ -195,6 +199,23 @@ namespace FPad
         {
             if (enableSizingHandlers)
                 RememberNormalSize();
+        }
+
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F5)
+            {
+                toolStripButtonReload.IsPressed = true;
+            }
+        }
+
+        private void MainWindow_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F5)
+            {
+                toolStripButtonReload.IsPressed = false;
+                ReloadButtonClicked();
+            }
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -405,13 +426,33 @@ namespace FPad
             dlg.ShowDialog(this);
         }
 
+        private void toolStripButtonReload_MouseUp(object sender, MouseEventArgs e)
+        {
+            ReloadButtonClicked();
+        }
+
+        private void ReloadButtonClicked()
+        {
+
+        }
+
+        private void blinkingTimer_Tick(object sender, EventArgs e)
+        {
+            if (isExternallyModified)
+            {
+                isLabelExternallyModifiedLit = !isLabelExternallyModifiedLit;
+                UpdateLabelExternallyModifiedColor();
+            }
+        }
+
         #endregion
 
         #region New, Load, Save
 
-        private void PrepareNew(bool savePreviousFileSettings)
+        private void PrepareNew(bool isCurrentDocumentStateValid)
         {
-            CloseCurrentDocument(savePreviousFileSettings);
+            if (isCurrentDocumentStateValid)
+                CloseCurrentDocument();
 
             text.Text = string.Empty;
 
@@ -421,6 +462,7 @@ namespace FPad
                 : Path.Combine(lastPathToFolder, currentDocumentFileName);
             isNew = true;
             hasUnsavedChanges = false;
+            isExternallyModified = false;
             currentDocumentBytes = null;
             UpdateTitle();
 
@@ -431,14 +473,15 @@ namespace FPad
             Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
         }
 
-        private bool LoadFile(string fileName, bool savePreviousFileSettings)
+        private bool LoadFile(string fileName, bool isCurrentDocumentStateValid)
         {
             try
             {
                 string fullPath = Path.GetFullPath(fileName);
                 byte[] allBytes = File.ReadAllBytes(fullPath);
 
-                CloseCurrentDocument(savePreviousFileSettings);
+                if (isCurrentDocumentStateValid)
+                    CloseCurrentDocument();
 
                 currentDocumentFullPath = fullPath;
                 currentDocumentFileName = Path.GetFileName(fullPath);
@@ -450,6 +493,7 @@ namespace FPad
                 currentDocumentBytes = allBytes; // after text change
                 hasUnsavedChanges = false; // after text change
                 isNew = false;
+                isExternallyModified = false;
                 ResetSelection();
                 UpdateTitle();
                 UpdateStatusBar();
@@ -515,12 +559,13 @@ namespace FPad
                     bool saveResult = UnsafeSave(destPath, encodedBytes, false);
                     if (saveResult)
                     {
-                        CloseCurrentDocument(true);
+                        CloseCurrentDocument();
 
                         currentDocumentFullPath = destPath;
                         currentDocumentFileName = Path.GetFileName(destPath);
                         isNew = false;
                         hasUnsavedChanges = false;
+                        isExternallyModified = false;
                         currentDocumentBytes = encodedBytes;
                         UpdateTitle();
                         UpdateStatusBar();
@@ -560,6 +605,7 @@ namespace FPad
             {
                 isNew = false;
                 hasUnsavedChanges = false;
+                isExternallyModified = false;
                 currentDocumentBytes = encodedBytes;
             }
 
@@ -664,18 +710,15 @@ namespace FPad
             return true;
         }
 
-        private void CloseCurrentDocument(bool savePreviousFileSettings)
+        private void CloseCurrentDocument()
         {
             if (!isNew)
             {
                 currentDocumentWatcher.Dispose(); // should be not null when not isNew, null reference crash here would reveal inconsistencies in code
                 currentDocumentWatcher = null;
 
-                if (savePreviousFileSettings)
-                {
-                    RememberWindowPosition();
-                    App.SaveSettings(SettingsFlags.FileWindowPosition, currentDocumentFullPath);
-                }
+                RememberWindowPosition();
+                App.SaveSettings(SettingsFlags.FileWindowPosition, currentDocumentFullPath);
             }
         }
 
@@ -723,6 +766,23 @@ namespace FPad
             encodingLabel.Text = currentEncoding?.DisplayName ?? string.Empty;
             wrapLabel.Visible = App.Settings.Wrap;
             modifiedLabel.Visible = hasUnsavedChanges;
+
+            bool wasLabelExternallyModifiedVisible = labelExternallyModified.Visible;
+            labelExternallyModified.Visible = isExternallyModified;
+            toolStripButtonReload.Visible = isExternallyModified;
+            if (isExternallyModified != wasLabelExternallyModifiedVisible)
+            {
+                if (isExternallyModified)
+                {
+                    isLabelExternallyModifiedLit = true;
+                    UpdateLabelExternallyModifiedColor();
+                    blinkingTimer.Start();
+                }
+                else
+                {
+                    blinkingTimer.Stop();
+                }
+            }
 
             if (text.SelectionLength > 0)
             {
@@ -809,6 +869,7 @@ namespace FPad
         #region Status Bar Messages
 
         int statusBarMessageId = 0;
+        bool isLabelExternallyModifiedLit = false;
         static readonly Padding statusLabelMarginForBorders = new Padding(2, 3, 0, 2);
         static readonly Padding statusLabelMarginBorderless = new Padding(2, 3, 2, 4);
 
@@ -863,6 +924,24 @@ namespace FPad
                     }
                 });
             });
+        }
+
+        private void UpdateLabelExternallyModifiedColor()
+        {
+            if (isLabelExternallyModifiedLit)
+            {
+                labelExternallyModified.ForeColor = Color.White;
+                labelExternallyModified.BackColor = Color.Red;
+                labelExternallyModified.BorderSides = ToolStripStatusLabelBorderSides.None;
+                labelExternallyModified.Margin = statusLabelMarginBorderless;
+            }
+            else
+            {
+                labelExternallyModified.ForeColor = SystemColors.ControlText;
+                labelExternallyModified.BackColor = SystemColors.Control;
+                labelExternallyModified.BorderSides = ToolStripStatusLabelBorderSides.All;
+                labelExternallyModified.Margin = statusLabelMarginForBorders;
+            }
         }
 
         #endregion

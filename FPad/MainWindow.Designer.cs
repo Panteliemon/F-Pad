@@ -32,8 +32,11 @@ namespace FPad
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             statusBar = new StatusStrip();
             msgLabel = new ToolStripStatusLabel();
+            labelExternallyModified = new ToolStripStatusLabel();
+            toolStripButtonReload = new ToolStripStatusButton();
             modifiedLabel = new ToolStripStatusLabel();
             lineAndColLabel = new ToolStripStatusLabel();
             labelSelection = new ToolStripStatusLabel();
@@ -63,6 +66,7 @@ namespace FPad
             aboutToolStripMenuItem = new ToolStripMenuItem();
             panel1 = new Panel();
             text = new GoodTextBox();
+            blinkingTimer = new Timer(components);
             statusBar.SuspendLayout();
             mainMenu.SuspendLayout();
             panel1.SuspendLayout();
@@ -70,7 +74,7 @@ namespace FPad
             // 
             // statusBar
             // 
-            statusBar.Items.AddRange(new ToolStripItem[] { msgLabel, modifiedLabel, lineAndColLabel, labelSelection, wrapLabel, encodingLabel });
+            statusBar.Items.AddRange(new ToolStripItem[] { msgLabel, labelExternallyModified, toolStripButtonReload, modifiedLabel, lineAndColLabel, labelSelection, wrapLabel, encodingLabel });
             statusBar.Location = new Point(0, 426);
             statusBar.Name = "statusBar";
             statusBar.Size = new Size(800, 24);
@@ -83,9 +87,28 @@ namespace FPad
             msgLabel.BorderStyle = Border3DStyle.SunkenOuter;
             msgLabel.Margin = new Padding(2, 3, 0, 2);
             msgLabel.Name = "msgLabel";
-            msgLabel.Size = new Size(559, 19);
+            msgLabel.Size = new Size(321, 19);
             msgLabel.Spring = true;
             msgLabel.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // labelExternallyModified
+            // 
+            labelExternallyModified.BorderSides = ToolStripStatusLabelBorderSides.Left | ToolStripStatusLabelBorderSides.Top | ToolStripStatusLabelBorderSides.Right | ToolStripStatusLabelBorderSides.Bottom;
+            labelExternallyModified.BorderStyle = Border3DStyle.SunkenOuter;
+            labelExternallyModified.ForeColor = SystemColors.ControlText;
+            labelExternallyModified.Name = "labelExternallyModified";
+            labelExternallyModified.Size = new Size(168, 19);
+            labelExternallyModified.Text = "Changed by another program";
+            // 
+            // toolStripButtonReload
+            // 
+            toolStripButtonReload.BorderSides = ToolStripStatusLabelBorderSides.Left | ToolStripStatusLabelBorderSides.Top | ToolStripStatusLabelBorderSides.Right | ToolStripStatusLabelBorderSides.Bottom;
+            toolStripButtonReload.BorderStyle = Border3DStyle.RaisedOuter;
+            toolStripButtonReload.IsPressed = false;
+            toolStripButtonReload.Name = "toolStripButtonReload";
+            toolStripButtonReload.Size = new Size(70, 19);
+            toolStripButtonReload.Text = "Reload (F5)";
+            toolStripButtonReload.MouseUp += toolStripButtonReload_MouseUp;
             // 
             // modifiedLabel
             // 
@@ -280,7 +303,7 @@ namespace FPad
             // aboutToolStripMenuItem
             // 
             aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            aboutToolStripMenuItem.Size = new Size(180, 22);
+            aboutToolStripMenuItem.Size = new Size(107, 22);
             aboutToolStripMenuItem.Text = "&About";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
@@ -310,6 +333,11 @@ namespace FPad
             text.SelectionChanged += Text_SelectionChanged;
             text.TextChanged += textBox1_TextChanged;
             // 
+            // blinkingTimer
+            // 
+            blinkingTimer.Interval = 750;
+            blinkingTimer.Tick += blinkingTimer_Tick;
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -326,6 +354,8 @@ namespace FPad
             FormClosing += MainWindow_FormClosing;
             Load += MainWindow_Load;
             LocationChanged += MainWindow_LocationChanged;
+            KeyDown += MainWindow_KeyDown;
+            KeyUp += MainWindow_KeyUp;
             Resize += MainWindow_Resize;
             statusBar.ResumeLayout(false);
             statusBar.PerformLayout();
@@ -370,5 +400,8 @@ namespace FPad
         private ToolStripStatusLabel labelSelection;
         private Panel panel1;
         private GoodTextBox text;
+        private ToolStripStatusLabel labelExternallyModified;
+        private ToolStripStatusButton toolStripButtonReload;
+        private Timer blinkingTimer;
     }
 }
