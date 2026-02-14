@@ -8,6 +8,7 @@
     <Version>1.0.0</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
+    <AssemblyName>f-pad</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

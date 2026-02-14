@@ -57,6 +57,7 @@ namespace FPad
             toolStripSeparator2 = new ToolStripSeparator();
             findToolStripMenuItem = new ToolStripMenuItem();
             replaceToolStripMenuItem = new ToolStripMenuItem();
+            goToLineMenuItem = new ToolStripMenuItem();
             toolStripSeparator3 = new ToolStripSeparator();
             wrapLinesMenuItem = new ToolStripMenuItem();
             encodingToolStripMenuItem = new ToolStripMenuItem();
@@ -67,7 +68,6 @@ namespace FPad
             panel1 = new Panel();
             text = new GoodTextBox();
             blinkingTimer = new Timer(components);
-            goToLineMenuItem = new ToolStripMenuItem();
             statusBar.SuspendLayout();
             mainMenu.SuspendLayout();
             panel1.SuspendLayout();
@@ -264,6 +264,14 @@ namespace FPad
             replaceToolStripMenuItem.Text = "&Replace";
             replaceToolStripMenuItem.Click += replaceToolStripMenuItem_Click;
             // 
+            // goToLineMenuItem
+            // 
+            goToLineMenuItem.Name = "goToLineMenuItem";
+            goToLineMenuItem.ShortcutKeys = Keys.Control | Keys.G;
+            goToLineMenuItem.Size = new Size(180, 22);
+            goToLineMenuItem.Text = "Go to Line";
+            goToLineMenuItem.Click += goToLineMenuItem_Click;
+            // 
             // toolStripSeparator3
             // 
             toolStripSeparator3.Name = "toolStripSeparator3";
@@ -304,7 +312,8 @@ namespace FPad
             // aboutToolStripMenuItem
             // 
             aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            aboutToolStripMenuItem.Size = new Size(107, 22);
+            aboutToolStripMenuItem.ShortcutKeys = Keys.F1;
+            aboutToolStripMenuItem.Size = new Size(180, 22);
             aboutToolStripMenuItem.Text = "&About";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
@@ -338,14 +347,6 @@ namespace FPad
             // 
             blinkingTimer.Interval = 750;
             blinkingTimer.Tick += blinkingTimer_Tick;
-            // 
-            // goToLineMenuItem
-            // 
-            goToLineMenuItem.Name = "goToLineMenuItem";
-            goToLineMenuItem.ShortcutKeys = Keys.Control | Keys.G;
-            goToLineMenuItem.Size = new Size(180, 22);
-            goToLineMenuItem.Text = "Go to Line";
-            goToLineMenuItem.Click += goToLineMenuItem_Click;
             // 
             // MainWindow
             // 

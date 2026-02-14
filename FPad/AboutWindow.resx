@@ -117,4 +117,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="textBox1.Text" xml:space="preserve">
+    <value>f-pad [-nLineNumber] [-cColumnNumber] [filePath]
+
+-n: Set cursor position to the specified line
+-c: Set cursor position to the specified column
+filePath: Absolute or relative path to the file to open</value>
+  </data>
 </root>
