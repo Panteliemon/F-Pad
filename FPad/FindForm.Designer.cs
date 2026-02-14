@@ -62,7 +62,7 @@ partial class FindForm
         bFindFirst.Location = new System.Drawing.Point(12, 81);
         bFindFirst.Name = "bFindFirst";
         bFindFirst.Size = new System.Drawing.Size(113, 34);
-        bFindFirst.TabIndex = 2;
+        bFindFirst.TabIndex = 4;
         bFindFirst.Text = "Find First";
         bFindFirst.UseVisualStyleBackColor = true;
         bFindFirst.Click += bFindFirst_Click;
@@ -72,7 +72,7 @@ partial class FindForm
         bFindNext.Location = new System.Drawing.Point(131, 81);
         bFindNext.Name = "bFindNext";
         bFindNext.Size = new System.Drawing.Size(113, 34);
-        bFindNext.TabIndex = 3;
+        bFindNext.TabIndex = 5;
         bFindNext.Text = "Next (F3)";
         bFindNext.UseVisualStyleBackColor = true;
         bFindNext.Click += bFindNext_Click;
@@ -82,7 +82,7 @@ partial class FindForm
         bFindPrev.Location = new System.Drawing.Point(250, 81);
         bFindPrev.Name = "bFindPrev";
         bFindPrev.Size = new System.Drawing.Size(131, 34);
-        bFindPrev.TabIndex = 4;
+        bFindPrev.TabIndex = 6;
         bFindPrev.Text = "Previous (Shift+F3)";
         bFindPrev.UseVisualStyleBackColor = true;
         bFindPrev.Click += bFindPrev_Click;
@@ -93,7 +93,7 @@ partial class FindForm
         chMatchCase.Location = new System.Drawing.Point(12, 56);
         chMatchCase.Name = "chMatchCase";
         chMatchCase.Size = new System.Drawing.Size(113, 19);
-        chMatchCase.TabIndex = 5;
+        chMatchCase.TabIndex = 2;
         chMatchCase.Text = "[Aa] Match Case";
         chMatchCase.UseVisualStyleBackColor = true;
         chMatchCase.CheckedChanged += chMatchCase_CheckedChanged;
@@ -104,7 +104,7 @@ partial class FindForm
         chWholeWords.Location = new System.Drawing.Point(170, 56);
         chWholeWords.Name = "chWholeWords";
         chWholeWords.Size = new System.Drawing.Size(129, 19);
-        chWholeWords.TabIndex = 6;
+        chWholeWords.TabIndex = 3;
         chWholeWords.Text = "[_W_] Whole Words";
         chWholeWords.UseVisualStyleBackColor = true;
         chWholeWords.CheckedChanged += chWholeWords_CheckedChanged;

@@ -51,7 +51,7 @@ partial class SettingsDialog
         // 
         // groupBox1
         // 
-        groupBox1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        groupBox1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
         groupBox1.Controls.Add(chWrap);
         groupBox1.Controls.Add(chItalic);
         groupBox1.Controls.Add(chBold);
@@ -76,7 +76,7 @@ partial class SettingsDialog
         chWrap.Location = new System.Drawing.Point(6, 285);
         chWrap.Name = "chWrap";
         chWrap.Size = new System.Drawing.Size(202, 19);
-        chWrap.TabIndex = 9;
+        chWrap.TabIndex = 7;
         chWrap.Text = "Wrap Lines (for this preview only)";
         chWrap.UseVisualStyleBackColor = true;
         chWrap.CheckedChanged += chWrap_CheckedChanged;
@@ -88,7 +88,7 @@ partial class SettingsDialog
         chItalic.Location = new System.Drawing.Point(375, 39);
         chItalic.Name = "chItalic";
         chItalic.Size = new System.Drawing.Size(51, 19);
-        chItalic.TabIndex = 8;
+        chItalic.TabIndex = 3;
         chItalic.Text = "Italic";
         chItalic.UseVisualStyleBackColor = true;
         chItalic.CheckedChanged += chItalic_CheckedChanged;
@@ -100,7 +100,7 @@ partial class SettingsDialog
         chBold.Location = new System.Drawing.Point(287, 39);
         chBold.Name = "chBold";
         chBold.Size = new System.Drawing.Size(51, 19);
-        chBold.TabIndex = 7;
+        chBold.TabIndex = 2;
         chBold.Text = "Bold";
         chBold.UseVisualStyleBackColor = true;
         chBold.CheckedChanged += chBold_CheckedChanged;
@@ -112,7 +112,7 @@ partial class SettingsDialog
         tbFontSize.Minimum = new decimal(new int[] { 5, 0, 0, 0 });
         tbFontSize.Name = "tbFontSize";
         tbFontSize.Size = new System.Drawing.Size(73, 23);
-        tbFontSize.TabIndex = 6;
+        tbFontSize.TabIndex = 4;
         tbFontSize.Value = new decimal(new int[] { 5, 0, 0, 0 });
         tbFontSize.ValueChanged += tbFontSize_ValueChanged;
         // 
@@ -133,7 +133,7 @@ partial class SettingsDialog
         slFontSize.Minimum = 5;
         slFontSize.Name = "slFontSize";
         slFontSize.Size = new System.Drawing.Size(561, 45);
-        slFontSize.TabIndex = 4;
+        slFontSize.TabIndex = 5;
         slFontSize.Value = 5;
         slFontSize.Scroll += slFontSize_Scroll;
         // 
@@ -153,7 +153,7 @@ partial class SettingsDialog
         cbFonts.Location = new System.Drawing.Point(6, 37);
         cbFonts.Name = "cbFonts";
         cbFonts.Size = new System.Drawing.Size(265, 23);
-        cbFonts.TabIndex = 2;
+        cbFonts.TabIndex = 1;
         cbFonts.SelectedIndexChanged += cbFonts_SelectedIndexChanged;
         // 
         // label1
@@ -174,15 +174,15 @@ partial class SettingsDialog
         exampleText.Name = "exampleText";
         exampleText.ReadOnly = true;
         exampleText.Size = new System.Drawing.Size(561, 121);
-        exampleText.TabIndex = 0;
+        exampleText.TabIndex = 6;
         // 
         // bSave
         // 
         bSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-        bSave.Location = new System.Drawing.Point(387, 406);
+        bSave.Location = new System.Drawing.Point(387, 359);
         bSave.Name = "bSave";
         bSave.Size = new System.Drawing.Size(96, 32);
-        bSave.TabIndex = 1;
+        bSave.TabIndex = 9;
         bSave.Text = "OK";
         bSave.UseVisualStyleBackColor = true;
         bSave.Click += bSave_Click;
@@ -190,10 +190,10 @@ partial class SettingsDialog
         // bCancel
         // 
         bCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-        bCancel.Location = new System.Drawing.Point(489, 406);
+        bCancel.Location = new System.Drawing.Point(489, 359);
         bCancel.Name = "bCancel";
         bCancel.Size = new System.Drawing.Size(96, 32);
-        bCancel.TabIndex = 2;
+        bCancel.TabIndex = 10;
         bCancel.Text = "Cancel";
         bCancel.UseVisualStyleBackColor = true;
         bCancel.Click += bCancel_Click;
@@ -204,7 +204,7 @@ partial class SettingsDialog
         chAutoReload.Location = new System.Drawing.Point(12, 330);
         chAutoReload.Name = "chAutoReload";
         chAutoReload.Size = new System.Drawing.Size(121, 19);
-        chAutoReload.TabIndex = 3;
+        chAutoReload.TabIndex = 8;
         chAutoReload.Text = "Automatic Reload";
         toolTip.SetToolTip(chAutoReload, "Automatically reload opened file, if another program modifies it and there are no unsaved changes in current editor.");
         chAutoReload.UseVisualStyleBackColor = true;
@@ -215,7 +215,7 @@ partial class SettingsDialog
         AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         CancelButton = bCancel;
-        ClientSize = new System.Drawing.Size(597, 450);
+        ClientSize = new System.Drawing.Size(597, 403);
         Controls.Add(chAutoReload);
         Controls.Add(bCancel);
         Controls.Add(bSave);
