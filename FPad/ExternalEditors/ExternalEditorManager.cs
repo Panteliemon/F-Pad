@@ -12,23 +12,18 @@ internal class ExternalEditorManager
     private List<IExternalEditor> externalEditors = new();
 
     /// <summary>
-    /// Raised by <see cref="Load"/> on the thread on which <see cref="Load"/> executes
-    /// when another editor gets detected.
-    /// </summary>
-    public event EventHandler<IReadOnlyList<IExternalEditor>> ExternalEditorsChanged;
-
-    /// <summary>
     /// Detect all supported external editors. Raises <see cref="ExternalEditorsChanged"/> as it goes.
     /// </summary>
+    /// <param name="callback">Called when another editor gets detected</param>
     /// <param name="ct"></param>
     /// <exception cref="OperationCanceledException">Thrown if canceled</exception>
-    public void Load(CancellationToken ct)
+    public void Load(Action<IExternalEditor> callback, CancellationToken ct)
     {
-        TryAdd(new NotepadPlusPlus(), ct);
-        TryAdd(new VSCode(), ct);
+        TryAdd(new NotepadPlusPlus(), callback, ct);
+        TryAdd(new VSCode(), callback, ct);
     }
 
-    private void TryAdd(IExternalEditor editor, CancellationToken ct)
+    private void TryAdd(IExternalEditor editor, Action<IExternalEditor> callback, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
 
@@ -37,10 +32,9 @@ internal class ExternalEditorManager
             externalEditors.Add(editor);
             ct.ThrowIfCancellationRequested();
 
-            if (ExternalEditorsChanged != null)
+            if (callback != null)
             {
-                List<IExternalEditor> listCopy = externalEditors.ToList();
-                ExternalEditorsChanged.Invoke(this, listCopy);
+                callback(editor);
             }
         }
     }

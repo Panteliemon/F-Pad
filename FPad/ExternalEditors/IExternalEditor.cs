@@ -11,7 +11,7 @@ namespace FPad.ExternalEditors;
 public interface IExternalEditor
 {
     string DisplayName { get; }
-    Icon Icon { get; }
+    Bitmap Icon { get; }
     string PathToExe { get; }
     /// <summary>
     /// Returns parameters for command line

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -32,6 +33,8 @@ namespace FPad
         bool enableTextChangeHandler = true;
 
         FormWindowState prevWindowState = FormWindowState.Normal;
+
+        CancellationTokenSource externalEditorsLoadingCts;
 
         public MainWindow()
         {
@@ -73,6 +76,10 @@ namespace FPad
 
             Interactor.Activate = Interactor_ActivateReceived;
             Interactor.ActivateSetCaret = Interactor_ActivateSetCaretReceived;
+
+            // Start loading external editors (don't hold UI anymore)
+            externalEditorsLoadingCts = new CancellationTokenSource();
+            Task.Run(() => ExternalEditorsLoadingProc(externalEditorsLoadingCts.Token));
         }
 
         #region Cross-Window communication
@@ -178,6 +185,7 @@ namespace FPad
 
             if (!e.Cancel)
             {
+                externalEditorsLoadingCts.Cancel();
                 currentDocumentWatcher?.Dispose();
 
                 RememberWindowPosition();
@@ -803,6 +811,25 @@ namespace FPad
         }
 
         #endregion
+
+        private void ExternalEditorsLoadingProc(CancellationToken ct)
+        {
+            try
+            {
+                App.ExternalEditors.Load(editor => Invoke(() =>
+                {
+                     
+                }), externalEditorsLoadingCts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                if (!IsDisposed)
+                    BeginInvoke(() => App.ShowError(ex));
+            }
+        }
 
         private void ApplySettings()
         {
