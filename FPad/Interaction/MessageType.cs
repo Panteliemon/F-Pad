@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace FPad.Interaction;
 
-internal enum MessageType
+internal enum MessageType : byte
 {
-    Activate = 1
+    Activate = 1,
+    ActivateSetCaret = 2
 }

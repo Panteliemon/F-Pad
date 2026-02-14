@@ -21,16 +21,50 @@ internal class MemStruct
     /// <returns>True if new msg was added; false if such msg already exists.</returns>
     public bool AddSimpleMessage(int targetPid, MessageType messageType)
     {
-        Messages ??= new List<MessageRec>();
-        MessageRec existing = Messages.FirstOrDefault(x => x.TargetPid == targetPid && x.MessageType == messageType);
-        if (existing == null)
+        // Validate
+        if (messageType == MessageType.Activate)
         {
-            Messages.Add(new MessageRec()
+            Messages ??= new List<MessageRec>();
+            MessageRec existing = Messages.FirstOrDefault(x => x.TargetPid == targetPid
+                && x.MessageType == messageType);
+            if (existing == null)
             {
-                TargetPid = targetPid,
-                MessageType = messageType
-            });
-            return true;
+                Messages.Add(new MessageRec()
+                {
+                    TargetPid = targetPid,
+                    MessageType = messageType
+                });
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <returns>True if new msg was added; false if such msg already exists.</returns>
+    public bool Add2ParamMessage(int targetPid, MessageType messageType, int param1, int param2)
+    {
+        // Validate
+        if (messageType == MessageType.ActivateSetCaret)
+        {
+            Messages ??= new List<MessageRec>();
+            MessageRec existing = Messages.FirstOrDefault(x => x.TargetPid == targetPid
+                && x.MessageType == messageType
+                && x.Param1 == param1
+                && x.Param2 == param2);
+            if (existing == null)
+            {
+                Messages.Add(new MessageRec()
+                {
+                    TargetPid = targetPid,
+                    MessageType = messageType,
+                    Param1 = param1,
+                    Param2 = param2
+                });
+                return true;
+            }
         }
 
         return false;

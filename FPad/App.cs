@@ -21,7 +21,10 @@ namespace FPad
         // We first collect all info into here,
         // but when we save we only save those parts of settings which we consider actual.
         public static AppSettings Settings { get; private set; }
+
         public static string CmdLineFile { get; private set; }
+        public static int? CmdLineLineIndex { get; private set; }
+        public static int? CmdLineCharIndex { get; private set; }
 
         public static string LastSearchStr { get; set; }
         public static string LastReplaceToStr { get; set; }
@@ -90,7 +93,7 @@ namespace FPad
                     // Add/update this file with our root WindowPosition,
                     // because we don't actualize per-file records that we hold.
                     destSettings.Files ??= new List<FileSettings>();
-                    FileSettings fileSettings = destSettings.Files.FirstOrDefault(x => x.FullPathHash == hash);
+                    FileSettings fileSettings = destSettings.Files.FirstOrDefault(x => string.Equals(x.FullPathHash, hash, StringComparison.Ordinal));
                     if (fileSettings == null)
                     {
                         fileSettings = new FileSettings()
@@ -121,29 +124,22 @@ namespace FPad
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
 
+            ParseCommandLine();
+            if (!string.IsNullOrWhiteSpace(CmdLineFile))
+            {
+                if (Interactor.FindAndActivateByCurrentDocumentPath(Path.GetFullPath(CmdLineFile), CmdLineLineIndex, CmdLineCharIndex))
+                {
+                    Interactor.Shutdown();
+                    return;
+                }
+            }
+
             Version = Assembly.GetExecutingAssembly().GetName().Version;
             BuildDateAttribute buildDateAttr = Assembly.GetExecutingAssembly().GetCustomAttribute<BuildDateAttribute>();
             if (buildDateAttr != null)
                 BuildDate = buildDateAttr.LocalValue;
 
-            
             Icon = LoadIcon("FPad.Resources.f-pad.ico");
-
-            string[] cmdLineArgs = Environment.GetCommandLineArgs();
-            if (cmdLineArgs.Length > 1) // The first is just full path to the app
-            {
-                CmdLineFile = cmdLineArgs[^1];
-
-                if (!string.IsNullOrWhiteSpace(CmdLineFile))
-                {
-                    if (Interactor.FindAndActivateByCurrentDocumentPath(CmdLineFile))
-                    {
-                        Interactor.Shutdown();
-                        return;
-                    }
-                }
-            }
-
             Settings = SettingsManager.Read();
 
             try
@@ -191,6 +187,34 @@ namespace FPad
             }
 
             return null;
+        }
+
+        private static void ParseCommandLine()
+        {
+            string[] cmdLineArgs = Environment.GetCommandLineArgs();
+            
+            // Start from [1], [0]th is just full path to the app.
+            for (int i = 1; i < cmdLineArgs.Length; i++)
+            {
+                ReadOnlySpan<char> arg = cmdLineArgs[i];
+                if (arg.StartsWith("-n", StringComparison.InvariantCulture)
+                    && int.TryParse(arg[2..], CultureInfo.InvariantCulture, out int parsedLineNumber))
+                {
+                    if (parsedLineNumber >= 1)
+                        CmdLineLineIndex = parsedLineNumber - 1;
+                }
+                else if (arg.StartsWith("-c", StringComparison.InvariantCulture)
+                         && int.TryParse(arg[2..], CultureInfo.InvariantCulture, out int parsedCharNumber))
+                {
+                    if (parsedCharNumber >= 1)
+                        CmdLineCharIndex = parsedCharNumber - 1;
+                }
+                else
+                {
+                    // Interpret as filename
+                    CmdLineFile = cmdLineArgs[i];
+                }
+            }
         }
     }
 }

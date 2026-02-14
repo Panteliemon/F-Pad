@@ -30,6 +30,10 @@ public static class Interactor
     /// Called on message thread when we receive "Activate" message
     /// </summary>
     public static Action Activate { get; set; }
+    /// <summary>
+    /// Called on message thread when we receive "Activate and set caret" message
+    /// </summary>
+    public static Action<int, int> ActivateSetCaret { get; set; }
 
     public static void Startup()
     {
@@ -98,7 +102,7 @@ public static class Interactor
     /// <summary>
     /// </summary>
     /// <returns>True: found and activated. False: didn't find.</returns>
-    public static bool FindAndActivateByCurrentDocumentPath(string documentFullPath)
+    public static bool FindAndActivateByCurrentDocumentPath(string documentFullPath, int? lineIndex, int? charIndex)
     {
         if (!IsInitialized)
             throw new InvalidOperationException();
@@ -112,7 +116,7 @@ public static class Interactor
             {
                 result = true;
 
-                if (ms.AddSimpleMessage(targetRec.Pid, MessageType.Activate))
+                if (ms.Add2ParamMessage(targetRec.Pid, MessageType.ActivateSetCaret, lineIndex ?? 0, charIndex ?? 0))
                 {
                     UnsafeWriteSharedMemory(ms);
                     SetMessageReadyEvent(targetRec);
@@ -167,6 +171,10 @@ public static class Interactor
         if (msg.MessageType == MessageType.Activate)
         {
             Activate?.Invoke();
+        }
+        else if (msg.MessageType == MessageType.ActivateSetCaret)
+        {
+            ActivateSetCaret?.Invoke(msg.Param1, msg.Param2);
         }
     }
 

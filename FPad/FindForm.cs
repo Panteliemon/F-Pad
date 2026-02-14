@@ -151,7 +151,7 @@ public partial class FindForm : Form
             List<int> allMatches = FindAllMatches();
             if (allMatches.Count > 0)
             {
-                owner.SetTextSelection(allMatches[0], tbFind.Text.Length);
+                owner.ActivateAndSetTextSelection(allMatches[0], tbFind.Text.Length);
             }
 
             DisplayResults(allMatches, 0);
@@ -174,7 +174,7 @@ public partial class FindForm : Form
                     if (matchIndex + 1 < allMatches.Count)
                     {
                         matchIndex++;
-                        owner.SetTextSelection(allMatches[matchIndex], tbFind.Text.Length);
+                        owner.ActivateAndSetTextSelection(allMatches[matchIndex], tbFind.Text.Length);
                     }
                     else
                     {
@@ -185,7 +185,7 @@ public partial class FindForm : Form
                 }
                 else
                 {
-                    owner.SetTextSelection(allMatches[matchIndex], tbFind.Text.Length);
+                    owner.ActivateAndSetTextSelection(allMatches[matchIndex], tbFind.Text.Length);
                 }
             }
 
@@ -203,7 +203,7 @@ public partial class FindForm : Form
             int matchIndex = allMatches.FindLastIndex(x => x < selStart);
             if (matchIndex >= 0)
             {
-                owner.SetTextSelection(allMatches[matchIndex], tbFind.Text.Length);
+                owner.ActivateAndSetTextSelection(allMatches[matchIndex], tbFind.Text.Length);
             }
             // If standing on the first match - beep
             else if ((allMatches.Count > 0) && (selStart == allMatches[0]) && (selLength == tbFind.Text.Length))

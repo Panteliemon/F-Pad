@@ -160,7 +160,7 @@ public partial class ReplaceForm : Form
             List<int> matches = FindAllMatches(owner.GetText());
             if (matches.Count > 0)
             {
-                owner.SetTextSelection(matches[0], tbFind.Text.Length);
+                owner.ActivateAndSetTextSelection(matches[0], tbFind.Text.Length);
             }
             // Let know if cannot find due to everything being already replaced
             else if (isDisplayingFindResult && wasSomethingFound && (matches.Count == 0))
@@ -193,7 +193,7 @@ public partial class ReplaceForm : Form
                     if (matchIndex + 1 < matches.Count)
                     {
                         matchIndex++;
-                        owner.SetTextSelection(matches[matchIndex], tbFind.Text.Length);
+                        owner.ActivateAndSetTextSelection(matches[matchIndex], tbFind.Text.Length);
                     }
                     else
                     {
@@ -204,7 +204,7 @@ public partial class ReplaceForm : Form
                 }
                 else
                 {
-                    owner.SetTextSelection(matches[matchIndex], tbFind.Text.Length);
+                    owner.ActivateAndSetTextSelection(matches[matchIndex], tbFind.Text.Length);
                 }
             }
             // Let know if cannot find due to everything being already replaced
@@ -228,7 +228,7 @@ public partial class ReplaceForm : Form
             int matchIndex = matches.FindLastIndex(x => x < selStart);
             if (matchIndex >= 0)
             {
-                owner.SetTextSelection(matches[matchIndex], tbFind.Text.Length);
+                owner.ActivateAndSetTextSelection(matches[matchIndex], tbFind.Text.Length);
             }
             // If standing on the first match - beep
             else if ((matches.Count > 0) && (selStart == matches[0]) && (selLength == tbFind.Text.Length))
@@ -271,7 +271,7 @@ public partial class ReplaceForm : Form
                 sb.Append(textSpan[(selStart + selLength)..]);
 
                 owner.SetText(sb.ToString());
-                owner.SetTextSelection(selStart, tbReplaceWith.Text.Length);
+                owner.ActivateAndSetTextSelection(selStart, tbReplaceWith.Text.Length);
 
                 App.LastReplaceToStr = tbReplaceWith.Text;
             }
@@ -406,7 +406,7 @@ public partial class ReplaceForm : Form
             selEnd = GetPositionAfterReplace(selEnd, matches, tbFind.Text.Length, tbReplaceWith.Text.Length);
 
             owner.SetText(sb.ToString());
-            owner.SetTextSelection(selStart, selEnd - selStart);
+            owner.ActivateAndSetTextSelection(selStart, selEnd - selStart);
 
             labelResult.Text = withinSelection
                 ? $"{matches.Count} occurences replaced within selection"

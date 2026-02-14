@@ -56,8 +56,15 @@ namespace FPad
 
             if (!string.IsNullOrEmpty(App.CmdLineFile))
             {
-                if (!LoadFile(App.CmdLineFile, false))
+                if (LoadFile(App.CmdLineFile, false))
+                {
+                    (int position, _, _) = StringUtils.GetPositionAdaptive(text.Text, App.CmdLineLineIndex ?? 0, App.CmdLineCharIndex ?? 0);
+                    SetTextSelection(position, 0);
+                }
+                else
+                {
                     PrepareNew(false);
+                }
             }
             else
             {
@@ -65,6 +72,7 @@ namespace FPad
             }
 
             Interactor.Activate = Interactor_ActivateReceived;
+            Interactor.ActivateSetCaret = Interactor_ActivateSetCaretReceived;
         }
 
         #region Cross-Window communication
@@ -74,18 +82,12 @@ namespace FPad
             return (text.SelectionStart, text.SelectionLength);
         }
 
-        public void SetTextSelection(int selectionStart, int selectionLength)
+        public void ActivateAndSetTextSelection(int selectionStart, int selectionLength)
         {
-            bool changed = (selectionStart != text.SelectionStart) || (selectionLength != text.SelectionLength);
-
             Activate();
             text.Focus();
-            text.SelectionStart = selectionStart;
-            text.SelectionLength = selectionLength;
-            text.ScrollToCaret();
 
-            if (changed)
-                SelectionChanged?.Invoke(this, EventArgs.Empty);
+            SetTextSelection(selectionStart, selectionLength);
         }
 
         public event EventHandler SelectionChanged;
@@ -126,6 +128,18 @@ namespace FPad
                 if (WindowState == FormWindowState.Minimized)
                     WindowState = prevWindowState;
                 Activate();
+            });
+        }
+
+        private void Interactor_ActivateSetCaretReceived(int lineIndex, int charIndex)
+        {
+            Invoke(() =>
+            {
+                if (WindowState == FormWindowState.Minimized)
+                    WindowState = prevWindowState;
+
+                (int position, _, _) = StringUtils.GetPositionAdaptive(text.Text, lineIndex, charIndex);
+                ActivateAndSetTextSelection(position, 0);
             });
         }
 
@@ -313,9 +327,7 @@ namespace FPad
                 sb.Append(text.Text.Substring(text.SelectionStart + text.SelectionLength));
 
                 text.Text = sb.ToString();
-                text.SelectionStart = newCursorPosition;
-                text.SelectionLength = 0;
-                text.ScrollToCaret();
+                SetTextSelection(newCursorPosition, 0);
             }
         }
 
@@ -340,9 +352,7 @@ namespace FPad
                 sb.Append(text.Text.Substring(text.SelectionStart + text.SelectionLength));
 
                 text.Text = sb.ToString();
-                text.SelectionStart = newCursorPosition;
-                text.SelectionLength = 0;
-                text.ScrollToCaret();
+                SetTextSelection(newCursorPosition, 0);
             }
         }
 
@@ -366,9 +376,7 @@ namespace FPad
             if (targetLine.HasValue)
             {
                 (int targetPosition, _, _) = StringUtils.GetPositionAdaptive(text.Text, targetLine.Value, 0);
-                text.SelectionStart = targetPosition;
-                text.SelectionLength = 0;
-                text.ScrollToCaret();
+                SetTextSelection(targetPosition, 0);
             }
         }
 
@@ -466,9 +474,7 @@ namespace FPad
                 ReloadFile();
 
                 (int newSelStartPos, _, _) = StringUtils.GetPositionAdaptive(text.Text, selStartLine, selStartChar);
-                text.SelectionStart = newSelStartPos;
-                text.SelectionLength = 0;
-                text.ScrollToCaret();
+                SetTextSelection(newSelStartPos, 0);
             }
         }
 
@@ -812,6 +818,20 @@ namespace FPad
                     WindowState = FormWindowState.Maximized;
                 }
             }
+        }
+
+        private void SetTextSelection(int selectionStart, int selectionLength)
+        {
+            bool changed = (selectionStart != text.SelectionStart) || (selectionLength != text.SelectionLength);
+
+            text.SelectionStart = selectionStart;
+            text.SelectionLength = selectionLength;
+            text.ScrollToCaret();
+
+            UpdateStatusBar();
+
+            if (changed)
+                SelectionChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void ResetSelection()
