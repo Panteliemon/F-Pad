@@ -91,9 +91,9 @@ public static class EncodingManager
 
         detectionData = new List<EncodingDetectionData>()
         {
-            new EncodingDetectionData(vmUnicode, "UTF-16LE", [255, 254]),
-            new EncodingDetectionData(vmUtf8, "UTF-8", [239, 187, 191]),
-            new EncodingDetectionData(vmUtf16Be, "UTF-16BE", [254, 255]),
+            new EncodingDetectionData(vmUnicode, "UTF-16LE"),
+            new EncodingDetectionData(vmUtf8, "UTF-8"),
+            new EncodingDetectionData(vmUtf16Be, "UTF-16BE"),
             new EncodingDetectionData(vmAscii, "ASCII"),
             new EncodingDetectionData(vmWin1251, "windows-1251"),
             new EncodingDetectionData(vmOem866, "IBM866"),
@@ -136,11 +136,18 @@ public static class EncodingManager
 
     public static EncodingVm DetectEncoding(byte[] textFileBytes)
     {
-        // If the file only contains BOM - then it is this encoding, goddamnit!
-        foreach (EncodingDetectionData detectionData in detectionData.Where(x => x.BOM.Length > 0))
+        // Empty file is Unicode because I said so.
+        if (textFileBytes.Length == 0)
+            return DefaultEncoding;
+
+        // If the file only contains Preamble - then it is this encoding, goddamnit!
+        foreach (EncodingVm encoding in Encodings)
         {
-            if (detectionData.IsBOM(textFileBytes))
-                return detectionData.Vm;
+            if (encoding.StartsWithPreamble(textFileBytes)
+                && (textFileBytes.Length == encoding.Encoding.Preamble.Length))
+            {
+                return encoding;
+            }
         }
 
         charsetDetector.Reset();
@@ -148,7 +155,7 @@ public static class EncodingManager
         charsetDetector.DataEnd();
 
         // example_1251.txt: 0.52 for ANSI 1251 (correct)
-        // empty file with BOM only: 0.5 for ANSI 1252 (incorrect)
+        // empty file with Preamble only: 0.5 for ANSI 1252 (incorrect)
         // Keep threshold at 0.5 for now, and strict inequality
         if (charsetDetector.Confidence > 0.5)
         {
