@@ -33,7 +33,7 @@ public static class Interactor
     /// <summary>
     /// Called on message thread when we receive "Activate and set caret" message
     /// </summary>
-    public static Action<int, int> ActivateSetCaret { get; set; }
+    public static Action<int?, int?> ActivateSetCaret { get; set; }
 
     public static void Startup()
     {
@@ -116,7 +116,7 @@ public static class Interactor
             {
                 result = true;
 
-                if (ms.Add2ParamMessage(targetRec.Pid, MessageType.ActivateSetCaret, lineIndex ?? 0, charIndex ?? 0))
+                if (ms.Add2ParamMessage(targetRec.Pid, MessageType.ActivateSetCaret, lineIndex ?? -1, charIndex ?? -1))
                 {
                     UnsafeWriteSharedMemory(ms);
                     SetMessageReadyEvent(targetRec);
@@ -174,7 +174,7 @@ public static class Interactor
         }
         else if (msg.MessageType == MessageType.ActivateSetCaret)
         {
-            ActivateSetCaret?.Invoke(msg.Param1, msg.Param2);
+            ActivateSetCaret?.Invoke((msg.Param1 >= 0) ? msg.Param1 : null, (msg.Param2 >= 0) ? msg.Param2 : null);
         }
     }
 

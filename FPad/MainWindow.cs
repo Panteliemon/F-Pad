@@ -131,15 +131,22 @@ namespace FPad
             });
         }
 
-        private void Interactor_ActivateSetCaretReceived(int lineIndex, int charIndex)
+        private void Interactor_ActivateSetCaretReceived(int? lineIndex, int? charIndex)
         {
             Invoke(() =>
             {
                 if (WindowState == FormWindowState.Minimized)
                     WindowState = prevWindowState;
 
-                (int position, _, _) = StringUtils.GetPositionAdaptive(text.Text, lineIndex, charIndex);
-                ActivateAndSetTextSelection(position, 0);
+                if (lineIndex.HasValue || charIndex.HasValue)
+                {
+                    (int position, _, _) = StringUtils.GetPositionAdaptive(text.Text, lineIndex ?? 0, charIndex ?? 0);
+                    ActivateAndSetTextSelection(position, 0);
+                }
+                else
+                {
+                    Activate();
+                }
             });
         }
 
