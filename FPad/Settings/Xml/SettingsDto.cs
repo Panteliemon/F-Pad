@@ -10,6 +10,7 @@ namespace FPad.Settings.Xml;
 [XmlRoot("Settings")]
 public class SettingsDto
 {
+    public GeneralDto General { get; set; }
     public FontDto Font { get; set; }
     public TextDto Text { get; set; }
     public WindowPositionDto WindowPosition { get; set; }

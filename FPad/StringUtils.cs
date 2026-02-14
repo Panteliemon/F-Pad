@@ -54,6 +54,54 @@ public static class StringUtils
         return (lineIndex, charIndex);
     }
 
+    public static (int position, int positionLineIndex, int positionCharIndex) GetPositionAdaptive(string str, int lineIndex, int charIndex)
+    {
+        if ((str == null) || (lineIndex < 0) || (charIndex < 0))
+            return (0, 0, 0);
+
+        int currentLineIndex = 0;
+        int currentCharIndex = 0;
+        for (int i = 0; i < str.Length; i++)
+        {
+            if (currentLineIndex == lineIndex)
+            {
+                if (currentCharIndex == charIndex)
+                {
+                    return (i, currentLineIndex, currentCharIndex);
+                }
+                else
+                {
+                    char c = str[i];
+                    if (c == 10)
+                    {
+                        // Target line has ended and we haven't reached required col
+                        return (i, currentLineIndex, currentCharIndex);
+                    }
+                    else
+                    {
+                        currentCharIndex++;
+                    }
+                }
+            }
+            else
+            {
+                char c = str[i];
+                if (c == 10)
+                {
+                    currentLineIndex++;
+                    currentCharIndex = 0;
+                }
+                else
+                {
+                    currentCharIndex++;
+                }
+            }
+        }
+
+        // Text has ended and we haven't reached required line / required col within line
+        return (str.Length, currentLineIndex, currentCharIndex);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool IsPartOfWord(char c)
     {

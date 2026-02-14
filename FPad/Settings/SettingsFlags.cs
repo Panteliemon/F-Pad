@@ -9,9 +9,10 @@ namespace FPad.Settings;
 [Flags]
 public enum SettingsFlags
 {
-    Font = 1,
-    Wrap = 2,
-    WindowPosition = 4,
-    FileWindowPosition = 8,
-    SearchSettings = 16
+    General = 1,
+    Font = 2,
+    Wrap = 4,
+    WindowPosition = 8,
+    FileWindowPosition = 16,
+    SearchSettings = 32
 }

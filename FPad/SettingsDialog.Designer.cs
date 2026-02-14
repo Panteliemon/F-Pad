@@ -28,6 +28,7 @@ partial class SettingsDialog
     /// </summary>
     private void InitializeComponent()
     {
+        components = new System.ComponentModel.Container();
         groupBox1 = new System.Windows.Forms.GroupBox();
         chWrap = new System.Windows.Forms.CheckBox();
         chItalic = new System.Windows.Forms.CheckBox();
@@ -41,6 +42,8 @@ partial class SettingsDialog
         exampleText = new System.Windows.Forms.TextBox();
         bSave = new System.Windows.Forms.Button();
         bCancel = new System.Windows.Forms.Button();
+        chAutoReload = new System.Windows.Forms.CheckBox();
+        toolTip = new System.Windows.Forms.ToolTip(components);
         groupBox1.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)tbFontSize).BeginInit();
         ((System.ComponentModel.ISupportInitialize)slFontSize).BeginInit();
@@ -195,6 +198,17 @@ partial class SettingsDialog
         bCancel.UseVisualStyleBackColor = true;
         bCancel.Click += bCancel_Click;
         // 
+        // chAutoReload
+        // 
+        chAutoReload.AutoSize = true;
+        chAutoReload.Location = new System.Drawing.Point(12, 330);
+        chAutoReload.Name = "chAutoReload";
+        chAutoReload.Size = new System.Drawing.Size(121, 19);
+        chAutoReload.TabIndex = 3;
+        chAutoReload.Text = "Automatic Reload";
+        toolTip.SetToolTip(chAutoReload, "Automatically reload opened file, if another program modifies it and there are no unsaved changes in current editor.");
+        chAutoReload.UseVisualStyleBackColor = true;
+        // 
         // SettingsDialog
         // 
         AcceptButton = bSave;
@@ -202,6 +216,7 @@ partial class SettingsDialog
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         CancelButton = bCancel;
         ClientSize = new System.Drawing.Size(597, 450);
+        Controls.Add(chAutoReload);
         Controls.Add(bCancel);
         Controls.Add(bSave);
         Controls.Add(groupBox1);
@@ -214,6 +229,7 @@ partial class SettingsDialog
         ((System.ComponentModel.ISupportInitialize)tbFontSize).EndInit();
         ((System.ComponentModel.ISupportInitialize)slFontSize).EndInit();
         ResumeLayout(false);
+        PerformLayout();
     }
 
     #endregion
@@ -231,4 +247,6 @@ partial class SettingsDialog
     private System.Windows.Forms.CheckBox chItalic;
     private System.Windows.Forms.CheckBox chBold;
     private System.Windows.Forms.CheckBox chWrap;
+    private System.Windows.Forms.CheckBox chAutoReload;
+    private System.Windows.Forms.ToolTip toolTip;
 }

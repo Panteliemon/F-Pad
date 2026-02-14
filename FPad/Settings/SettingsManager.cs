@@ -161,6 +161,10 @@ public static class SettingsManager
     {
         SettingsDto result = new()
         {
+            General = new GeneralDto()
+            {
+                AutoReload = settings.AutoReload ? "1" : null
+            },
             Font = new FontDto()
             {
                 Name = settings.FontFamily,
@@ -189,6 +193,11 @@ public static class SettingsManager
     {
         if (dto == null)
             return;
+
+        if (dto.General != null)
+        {
+            dest.AutoReload = dto.General.AutoReload == "1";
+        }
 
         if (dto.Font != null)
         {

@@ -138,6 +138,9 @@ namespace FPad
                 {
                     isExternallyModified = true;
                     UpdateStatusBar();
+
+                    if (!isNew && !hasUnsavedChanges && App.Settings.AutoReload)
+                        ReloadButtonClicked();
                 }
             });
         }
@@ -409,7 +412,7 @@ namespace FPad
         {
             if (SettingsDialog.ShowADialog())
             {
-                if (App.SaveSettings(SettingsFlags.Font))
+                if (App.SaveSettings(SettingsFlags.General | SettingsFlags.Font))
                     StatusBarShowSecondOrderSuccessMessage("Settings Saved");
                 else
                     StatusBarShowSecondOrderErrorMessage("Error when saving settings. Settings not saved.");
@@ -433,7 +436,26 @@ namespace FPad
 
         private void ReloadButtonClicked()
         {
+            if (!isNew && isExternallyModified)
+            {
+                if (hasUnsavedChanges)
+                {
+                    if (!App.WarningQuestion("Your changes will be lost." + Environment.NewLine + "Continue?"))
+                        return;
+                }
 
+                // Keep cursor at the same line/pos,
+                // however if there is a selection - it would be misleading to keep selection at place
+                // while its contents might have changed, so we reset the selection in order for user to know.
+                (int selStartLine, int selStartChar) = StringUtils.GetLineAndCol(text.Text, text.SelectionStart);
+
+                ReloadFile();
+
+                (int newSelStartPos, _, _) = StringUtils.GetPositionAdaptive(text.Text, selStartLine, selStartChar);
+                text.SelectionStart = newSelStartPos;
+                text.SelectionLength = 0;
+                text.ScrollToCaret();
+            }
         }
 
         private void blinkingTimer_Tick(object sender, EventArgs e)
@@ -502,6 +524,37 @@ namespace FPad
                 currentDocumentWatcher = new FileWatcher(currentDocumentFullPath);
                 currentDocumentWatcher.FileModified += CurrentDocumentWatcher_FileModified;
 
+                return true;
+            }
+            catch (Exception ex)
+            {
+                App.ShowError(ex);
+                return false;
+            }
+        }
+
+        private bool ReloadFile()
+        {
+            if (isNew)
+                throw new InvalidOperationException();
+
+            try
+            {
+                byte[] allBytes = File.ReadAllBytes(currentDocumentFullPath);
+
+                currentEncoding = EncodingManager.DetectEncoding(allBytes);
+                UpdateEncodingMenuCheckboxes();
+
+                text.Text = currentEncoding.Encoding.GetString(allBytes);
+
+                currentDocumentBytes = allBytes; // after text change
+                hasUnsavedChanges = false; // after text change
+                isNew = false;
+                isExternallyModified = false;
+                UpdateTitle();
+                UpdateStatusBar();
+
+                StatusBarShowSecondOrderSuccessMessage("Reloaded");
                 return true;
             }
             catch (Exception ex)

@@ -15,6 +15,7 @@ public class AppSettings
     public bool Wrap { get; set; }
     public bool FindMatchCase { get; set; }
     public bool FindWholeWords { get; set; }
+    public bool AutoReload { get; set; }
 
     /// <summary>
     /// "Default" window position
@@ -28,7 +29,8 @@ public class AppSettings
         return new AppSettings()
         {
             FontFamily = string.Empty,
-            FontSize = 12
+            FontSize = 12,
+            AutoReload = true
         };
     }
 }

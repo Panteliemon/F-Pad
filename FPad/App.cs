@@ -61,6 +61,11 @@ namespace FPad
         {
             return SettingsManager.Modify(destSettings =>
             {
+                if ((flags & SettingsFlags.General) != 0)
+                {
+                    destSettings.AutoReload = Settings.AutoReload;
+                }
+
                 if ((flags & SettingsFlags.Font) != 0)
                 {
                     destSettings.FontFamily = Settings.FontFamily;

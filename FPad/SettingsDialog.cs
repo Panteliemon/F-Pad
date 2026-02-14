@@ -39,6 +39,7 @@ public partial class SettingsDialog : Form
 
         chBold.Checked = App.Settings.IsBold;
         chItalic.Checked = App.Settings.IsItalic;
+        chAutoReload.Checked = App.Settings.AutoReload;
 
         chWrap.Checked = App.Settings.Wrap;
         exampleText.WordWrap = App.Settings.Wrap;
@@ -92,6 +93,7 @@ public partial class SettingsDialog : Form
         App.Settings.FontSize = selectedFontSize;
         App.Settings.IsBold = chBold.Checked;
         App.Settings.IsItalic = chItalic.Checked;
+        App.Settings.AutoReload = chAutoReload.Checked;
         Close();
     }
 
