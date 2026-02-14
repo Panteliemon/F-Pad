@@ -1,12 +1,14 @@
 using FPad.Encodings;
+using FPad.ExternalEditors;
 using FPad.Interaction;
 using FPad.Settings;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -32,6 +34,8 @@ namespace FPad
         bool enableTextChangeHandler = true;
 
         FormWindowState prevWindowState = FormWindowState.Normal;
+
+        CancellationTokenSource externalEditorsLoadingCts;
 
         public MainWindow()
         {
@@ -73,6 +77,10 @@ namespace FPad
 
             Interactor.Activate = Interactor_ActivateReceived;
             Interactor.ActivateSetCaret = Interactor_ActivateSetCaretReceived;
+
+            // Start loading external editors (don't hold UI anymore)
+            externalEditorsLoadingCts = new CancellationTokenSource();
+            Task.Run(() => ExternalEditorsLoadingProc(externalEditorsLoadingCts.Token));
         }
 
         #region Cross-Window communication
@@ -178,6 +186,7 @@ namespace FPad
 
             if (!e.Cancel)
             {
+                externalEditorsLoadingCts.Cancel();
                 currentDocumentWatcher?.Dispose();
 
                 RememberWindowPosition();
@@ -310,6 +319,31 @@ namespace FPad
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ExecuteSaveAs();
+        }
+
+        private void openInExternalEditorMenuItem_Click(object sender, EventArgs e)
+        {
+            if ((!isNew)
+                && (sender is ToolStripItem menuItem)
+                && (menuItem.Tag is IExternalEditor externalEditor))
+            {
+                if (HandleUnsavedChanges())
+                {
+                    (int lineIndex, int charIndex) = StringUtils.GetLineAndCol(text.Text, text.SelectionStart);
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = externalEditor.PathToExe,
+                            Arguments = externalEditor.CreateCommandLineArgs(currentDocumentFullPath, lineIndex, charIndex)
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        App.ShowError(ex);
+                    }
+                }
+            }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -514,6 +548,7 @@ namespace FPad
             isExternallyModified = false;
             currentDocumentBytes = null;
             UpdateTitle();
+            UpdateMenu();
 
             currentEncoding = EncodingManager.DefaultEncoding;
             UpdateEncodingMenuCheckboxes();
@@ -545,6 +580,7 @@ namespace FPad
                 isExternallyModified = false;
                 ResetSelection();
                 UpdateTitle();
+                UpdateMenu();
                 UpdateStatusBar();
 
                 Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
@@ -579,6 +615,7 @@ namespace FPad
                 isNew = false;
                 isExternallyModified = false;
                 UpdateTitle();
+                UpdateMenu();
                 UpdateStatusBar();
 
                 StatusBarShowSecondOrderSuccessMessage("Reloaded");
@@ -648,6 +685,7 @@ namespace FPad
                         isExternallyModified = false;
                         currentDocumentBytes = encodedBytes;
                         UpdateTitle();
+                        UpdateMenu();
                         UpdateStatusBar();
 
                         Interactor.UpdateCurrentDocumentFullPath(currentDocumentFullPath);
@@ -690,6 +728,7 @@ namespace FPad
             }
 
             UpdateTitle();
+            UpdateMenu();
             UpdateStatusBar();
             return saveResult;
         }
@@ -804,6 +843,36 @@ namespace FPad
 
         #endregion
 
+        private void ExternalEditorsLoadingProc(CancellationToken ct)
+        {
+            try
+            {
+                App.ExternalEditors.Load(editor => Invoke(() =>
+                {
+                    // Add menu item which will call this external editor
+                    ToolStripMenuItem menuItem = new($"Edit in {editor.DisplayName}",
+                        editor.Icon, openInExternalEditorMenuItem_Click);
+                    menuItem.Tag = editor;
+
+                    int separatorIndex = fileToolStripMenuItem.DropDownItems.IndexOf(externalEditorsSeparator);
+                    fileToolStripMenuItem.DropDownItems.Insert(separatorIndex, menuItem);
+                    
+                    if (!externalEditorsSeparator.Visible)
+                        externalEditorsSeparator.Visible = true;
+
+                    UpdateMenu();
+                }), externalEditorsLoadingCts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                if (!IsDisposed)
+                    BeginInvoke(() => App.ShowError(ex));
+            }
+        }
+
         private void ApplySettings()
         {
             text.Font = FontUtils.GetFontBySettings(App.Settings);
@@ -853,6 +922,17 @@ namespace FPad
                 Text = currentDocumentFileName + "* – " + App.TITLE; // Em dash
             else
                 Text = currentDocumentFileName + " – " + App.TITLE;
+        }
+
+        private void UpdateMenu()
+        {
+            foreach (ToolStripItem fileItem in fileToolStripMenuItem.DropDownItems)
+            {
+                if (fileItem.Tag is IExternalEditor)
+                {
+                    fileItem.Enabled = !isNew;
+                }
+            }
         }
 
         private void UpdateStatusBar()

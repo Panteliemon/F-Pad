@@ -1,4 +1,5 @@
 ﻿using FPad.Encodings;
+using FPad.ExternalEditors;
 using FPad.Interaction;
 using FPad.Settings;
 using System;
@@ -32,6 +33,8 @@ namespace FPad
         public static Icon Icon { get; private set; }
         public static Version Version { get; set; }
         public static DateTime BuildDate { get; set; }
+
+        public static ExternalEditorManager ExternalEditors { get; private set; }
 
         #region Messageboxes
 
@@ -152,6 +155,8 @@ namespace FPad
                 Interactor.Shutdown();
                 return;
             }
+
+            ExternalEditors = new ExternalEditorManager();
 
             Application.ApplicationExit += OnApplicationExit;
             Application.Run(new MainWindow());

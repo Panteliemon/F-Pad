@@ -123,6 +123,30 @@ public static class StringUtils
         return lineIndex + 1;
     }
 
+    public static string WrapIntoQuotes(string str)
+    {
+        if (string.IsNullOrEmpty(str))
+            return "\"\"";
+
+        if (str.Length == 1)
+            return $"\"{str}\"";
+
+        if (str[0] == '\"')
+        {
+            if (str[^1] == '\"')
+                return str;
+            else
+                return str + "\"";
+        }
+        else
+        {
+            if (str[^1] == '\"')
+                return $"\"{str}";
+            else
+                return $"\"{str}\"";
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool IsPartOfWord(char c)
     {
