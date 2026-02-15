@@ -21,6 +21,9 @@ jobs:
   build:
     runs-on: windows-latest
 
+    env:
+      ZIP_NAME: f-pad-${{github.event.inputs.version}}-${{github.event.inputs.platform}}.zip
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,11 +43,11 @@ jobs:
         run: dotnet publish FPad/FPad.csproj -c Release -o ./publish -f net8.0-windows -r ${{github.event.inputs.platform}} --no-self-contained
 
       - name: Create ZIP package
-        run: Compress-Archive -Path ./publish/* -DestinationPath app-${{github.event.inputs.version}}.zip
+        run: Compress-Archive -Path ./publish/* -DestinationPath ${{env.ZIP_NAME}}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{github.event.inputs.version}}-${{github.event.inputs.platform}}
           name: Release v${{github.event.inputs.version}} ${{github.event.inputs.platform}} (zip archive)
-          files: app-${{github.event.inputs.version}}-${{github.event.inputs.platform}}.zip
+          files: ${{env.ZIP_NAME}}
