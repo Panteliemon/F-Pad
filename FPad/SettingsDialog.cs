@@ -44,7 +44,7 @@ public partial class SettingsDialog : Form
         chWrap.Checked = App.Settings.Wrap;
         exampleText.WordWrap = App.Settings.Wrap;
 
-        Text = "Settings - " + App.TITLE;
+        Text = "Settings – " + App.TITLE; // Em Dash
         exampleText.Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sit amet libero aliquet, vestibulum massa dignissim, facilisis lacus. Phasellus ligula ex, sodales eu suscipit non, dapibus sit amet ex."
             + Environment.NewLine + "Maecenas in rutrum massa, a dictum leo."
             + Environment.NewLine + "Sed pellentesque, massa tincidunt pulvinar vulputate, nibh dignissim nisi, ac rhoncus urna neque eget arcu.";

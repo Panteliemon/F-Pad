@@ -455,7 +455,8 @@ namespace FPad
                         }
                         else
                         {
-                            // After modifications - no longer possible to reinterpret preamble, decode text only.
+                            // After modifications - I decided it's not appropriate to reinterpret preamble anymore.
+                            // Decode text only.
                             byte[] bytes = currentEncoding.Encoding.GetBytes(text.Text);
                             enableTextChangeHandler = false;
                             text.Text = encodingVm.Encoding.GetString(bytes);

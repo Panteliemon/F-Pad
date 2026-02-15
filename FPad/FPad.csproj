@@ -9,6 +9,9 @@
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <AssemblyName>f-pad</AssemblyName>
+    <Product>F-Pad</Product>
+    <AssemblyTitle>F-Pad</AssemblyTitle>
+    <Copyright>Bn Entertainment</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
