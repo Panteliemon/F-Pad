@@ -140,11 +140,14 @@ public static class EncodingManager
         if (textFileBytes.Length == 0)
             return DefaultEncoding;
 
-        // If the file only contains Preamble - then it is this encoding, goddamnit!
+        // Ude, if detects preamble, returns encoding immediately with 100% certainty,
+        // but for some reason it only works if file size is >= 4 bytes.
+        // Empty UTF-16 files, empty UTF-8 files containing preamble only -
+        // returns incorrect encoding with 0.5 confidence.
+        // Therefore we will ourselves detect preambles.
         foreach (EncodingVm encoding in Encodings)
         {
-            if (encoding.StartsWithPreamble(textFileBytes)
-                && (textFileBytes.Length == encoding.Encoding.Preamble.Length))
+            if (encoding.StartsWithPreamble(textFileBytes))
             {
                 return encoding;
             }
