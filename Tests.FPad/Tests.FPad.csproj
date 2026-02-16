@@ -20,4 +20,10 @@
     <ProjectReference Include="..\FPad\FPad.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Txt\*.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
