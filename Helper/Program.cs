@@ -20,9 +20,9 @@ public static class Program
 
     public static void Main()
     {
-        Console.WriteLine("5");
+        Console.WriteLine("1");
 
-        //string encodingManagerLines = string.Join(Environment.NewLine, GenerateScoreCalculatorLines());
+        string encodingManagerLines = string.Join(Environment.NewLine, GenerateScoreCalculatorLines());
 
         //TestEvents();
 
@@ -30,7 +30,7 @@ public static class Program
 
         //WatchFiles();
 
-        PacketSaveAll();
+        //PacketSaveAll();
     }
 
     private static void PacketSaveAll()
@@ -240,25 +240,53 @@ public static class Program
     private static List<string> GenerateScoreCalculatorLines()
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        Encoding encWin1251 = Encoding.GetEncoding(1251);
+        Encoding encOem866 = Encoding.GetEncoding(866);
+        Encoding encKoi8R = Encoding.GetEncoding("koi8-r");
+
         Encoding encWin1257 = Encoding.GetEncoding(1257);
-        Encoding encWin1250 = Encoding.GetEncoding(1250);
         Encoding encOem775 = Encoding.GetEncoding(775);
+        Encoding encWin1250 = Encoding.GetEncoding(1250);
         Encoding encOem852 = Encoding.GetEncoding(852);
 
-        List<string> result = new();
-        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Est, "ÕÄÖÜ", [encWin1257, encOem775]));
-        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Lav, "āčēģīķļņšūž", [encWin1257, encOem775]));
-        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Lit, "ĄČĘĖĮŠŲŪŽ", [encWin1257, encOem775]));
+        Encoding encWin1252 = Encoding.GetEncoding(1252);
 
-        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Ces, "áčďéěíňóřšťúůýž", [encWin1250, encOem852]));
-        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Pol, "ąćęłńóśźż", [encWin1250, encOem852]));
-        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Slk, "áäčďéíĺľňóôŕšťúýž", [encWin1250, encOem852]));
-        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Slv, "čšž", [encWin1250, encOem852]));
-        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Hun, "áéíóöőúüű", [encWin1250, encOem852]));
-        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Srp, "čćđšž", [encWin1250, encOem852]));
-        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Hrv, "čćđšž", [encWin1250, encOem852]));
-        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Ron, "ăâîșț", [encWin1250, encOem852]));
-        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Tuk, "çäňöşüý", [encWin1250, encOem852]));
+        List<string> result = new();
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Est, WhatlangScript.Latn, "ÕÄÖÜ", [encWin1257, encOem775]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Lav, WhatlangScript.Latn, "āčēģīķļņšūž", [encWin1257, encOem775]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Lit, WhatlangScript.Latn, "ĄČĘĖĮŠŲŪŽ", [encWin1257, encOem775]));
+
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Ces, WhatlangScript.Latn, "áčďéěíňóřšťúůýž", [encWin1250, encOem852]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Pol, WhatlangScript.Latn, "ąćęłńóśźż", [encWin1250, encOem852]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Slk, WhatlangScript.Latn, "áäčďéíĺľňóôŕšťúýž", [encWin1250, encOem852]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Slv, WhatlangScript.Latn, "čšž", [encWin1250, encOem852]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Hun, WhatlangScript.Latn, "áéíóöőúüű", [encWin1250, encOem852]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Srp, WhatlangScript.Latn, "čćđšž", [encWin1250, encOem852]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Srp, WhatlangScript.Cyrl, "абвгдђежзијклљмнњопрстћуфхцчџш", [encWin1251]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Hrv, WhatlangScript.Latn, "čćđšž", [encWin1250, encOem852]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Ron, WhatlangScript.Latn, "ăâîșț", [encWin1250, encOem852]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Tuk, WhatlangScript.Latn, "çäňöşüý", [encWin1250, encOem852]));
+
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Rus, WhatlangScript.Cyrl, "абвгдеёжзийклмнопрстуфхцчшщъыьэюя", [encWin1251, encOem866, encKoi8R]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Bel, WhatlangScript.Cyrl, "абвгдеёжзійклмнопрстуўфхцчшыьэюя", [encWin1251, encOem866]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Ukr, WhatlangScript.Cyrl, "абвгґдеєжзиіїйклмнопрстуфхцчшщьюя", [encWin1251, encOem866]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Bul, WhatlangScript.Cyrl, "абвгдежзийклмнопрстуфхцчшщъьюя", [encWin1251, encOem866]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Mkd, WhatlangScript.Cyrl, "абвгдѓежзѕијклљмнњопрстќуфхцчџш", [encWin1251]));
+
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Afr, WhatlangScript.Latn, "áäéèêëíîïŉóôöúûüý", [encWin1252]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Cat, WhatlangScript.Latn, "àéèíïóòúüç", [encWin1252]));
+        // Indonesian: none
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Ita, WhatlangScript.Latn, "éàèìòùî", [encWin1252]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Nob, WhatlangScript.Latn, "æøåòôéó", [encWin1252]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Por, WhatlangScript.Latn, "áâãàçéêíóôõú", [encWin1252]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Spa, WhatlangScript.Latn, "ñáéíóú¿¡", [encWin1252]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Swe, WhatlangScript.Latn, "åäöé", [encWin1252]));
+        // Tagalog: diacritics not really used
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Dan, WhatlangScript.Latn, "æøåé", [encWin1252]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Nld, WhatlangScript.Latn, "ĳáéíóúëïöüè", [encWin1252]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Fra, WhatlangScript.Latn, "çœæàèùéâêîôûëïüÿîû", [encWin1252]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Deu, WhatlangScript.Latn, "äöüß", [encWin1252]));
+        result.Add(GenerateScoreCalculatorLine(WhatlangLanguage.Fin, WhatlangScript.Latn, "åäö", [encWin1252]));
 
         return result;
     }
@@ -267,25 +295,29 @@ public static class Program
     /// Generate code line for EncodingManager.
     /// </summary>
     /// <param name="lang"></param>
-    /// <param name="symbolsWithDiacritics">symbols with diacritics which the language has, in any case. no spaces.</param>
-    /// <param name="encodings">ANSI encodings suitable for this language (at least 2, or there is no point)</param>
+    /// <param name="symbolsBeyondAscii">symbols outside of ASCII range, which the language has, in any case. no spaces.</param>
+    /// <param name="encodings">ANSI encodings suitable for this language</param>
     /// <returns></returns>
-    private static string GenerateScoreCalculatorLine(WhatlangLanguage lang, string symbolsWithDiacritics,
+    private static string GenerateScoreCalculatorLine(WhatlangLanguage lang, WhatlangScript alphabet, string symbolsBeyondAscii,
         ICollection<Encoding> encodings)
     {
-        ScoreCalcStrings scoreCalcStrings = GetScoreCalcStrings(lang, symbolsWithDiacritics, encodings);
-        string result = $"scoreCalculators.Add(WhatlangLanguage.{lang}, new LangScoreCalculator(\"{scoreCalcStrings.GoodChars}\", \"{scoreCalcStrings.BadChars}\"));";
+        ScoreCalcStrings scoreCalcStrings = GetScoreCalcStrings(lang, symbolsBeyondAscii, encodings);
+        string result = $"scoreCalculators.Add(new LangKey(WhatlangLanguage.{lang}, WhatlangScript.{alphabet}), new LangScoreCalculator(\"{scoreCalcStrings.GoodChars}\", \"{scoreCalcStrings.BadChars}\"));";
         return result;
     }
 
-    private static ScoreCalcStrings GetScoreCalcStrings(WhatlangLanguage lang, string symbolsWithDiacritics,
+    private static ScoreCalcStrings GetScoreCalcStrings(WhatlangLanguage lang, string symbolsBeyondAscii,
         ICollection<Encoding> encodings)
     {
-        string goodSymbols = GetBothCasesSymbolsWithDiacritics(symbolsWithDiacritics);
+        string goodSymbols = GetBothCasesSymbols(symbolsBeyondAscii);
         HashSet<char> badSymbolsSet = new();
         StringBuilder badSymbolsSb = new();
 
-        foreach (Encoding enc in encodings)
+        // We handle cases "UTF-8 misinterpreted as ANSI", but not "ANSI misinterpreted as UTF-8",
+        // because such misenterpretation would give limitless number of incorrect symbols.
+        List<Encoding> sourceEncodings = encodings.ToList();
+        sourceEncodings.Add(Encoding.UTF8);
+        foreach (Encoding enc in sourceEncodings)
         {
             byte[] encodedBytes = enc.GetBytes(goodSymbols);
             // Try to decode using wrong page, and add whatever we see to "bad symbols"
@@ -295,7 +327,7 @@ public static class Program
                 for (int i = 0; i < badResult.Length; i++)
                 {
                     char c = badResult[i];
-                    if ((c > 32) // control symbols are handled differently, skip.
+                    if ((c > 127) // don't punish for symbols from ascii range (control symbols: handled independently)
                         && !goodSymbols.Contains(c)
                         && !badSymbolsSet.Contains(c))
                     {
@@ -309,13 +341,13 @@ public static class Program
         return new ScoreCalcStrings(goodSymbols, badSymbolsSb.ToString());
     }
 
-    private static string GetBothCasesSymbolsWithDiacritics(string symbolsWithDiacriticsAnyCase)
+    private static string GetBothCasesSymbols(string symbolsBeyondAsciiAnyCase)
     {
-        string symbolsWithDiacriticsLower = symbolsWithDiacriticsAnyCase.Normalize().ToLowerInvariant();
+        string symbolsBeyondAsciiLower = symbolsBeyondAsciiAnyCase.Normalize().ToLowerInvariant();
         HashSet<char> uniqueSymbols = new();
-        for (int i = 0; i < symbolsWithDiacriticsLower.Length; i++)
+        for (int i = 0; i < symbolsBeyondAsciiLower.Length; i++)
         {
-            char c = symbolsWithDiacriticsLower[i];
+            char c = symbolsBeyondAsciiLower[i];
             if (!uniqueSymbols.Contains(c))
                 uniqueSymbols.Add(c);
         }

@@ -34,7 +34,8 @@ internal class LangScoreCalculator
             {
                 score -= 2;
             }
-            else if ((c < 32) && (c != 13) && (c != 10) && (c != '\t'))
+            else if (((c < 32) && (c != 13) && (c != 10) && (c != '\t'))
+                     || (c == 127))
             {
                 score -= 3;
             }

@@ -24,7 +24,7 @@ public static class EncodingManager
 
     private static CharsetDetector charsetDetector;
     private static WhatlangDetector langDetector;
-    private static Dictionary<WhatlangLanguage, LangScoreCalculator> scoreCalculators;
+    private static Dictionary<LangKey, LangScoreCalculator> scoreCalculators;
 
     private static List<EncodingDetectionData> detectionData;
 
@@ -95,11 +95,15 @@ public static class EncodingManager
             new EncodingDetectionData(vmUtf8, "UTF-8"),
             new EncodingDetectionData(vmUtf16Be, "UTF-16BE"),
             new EncodingDetectionData(vmAscii, "ASCII"),
-            new EncodingDetectionData(vmWin1251, "windows-1251"),
-            new EncodingDetectionData(vmOem866, "IBM866"),
-            new EncodingDetectionData(vmKoi8R, "KOI8-R"),
+            new EncodingDetectionData(vmWin1251, "windows-1251",
+                [WhatlangLanguage.Rus, WhatlangLanguage.Bel, WhatlangLanguage.Ukr,
+                 WhatlangLanguage.Srp, WhatlangLanguage.Bul, WhatlangLanguage.Mkd]),
+            new EncodingDetectionData(vmOem866, "IBM866",
+                [WhatlangLanguage.Rus, WhatlangLanguage.Bel, WhatlangLanguage.Ukr,
+                 WhatlangLanguage.Bul]),
+            new EncodingDetectionData(vmKoi8R, "KOI8-R", [WhatlangLanguage.Rus]),
             new EncodingDetectionData(vmDefaultAnsi,
-                [WhatlangLanguage.Afr, WhatlangLanguage.Cat, WhatlangLanguage.Eng, WhatlangLanguage.Ind,
+                [WhatlangLanguage.Afr, WhatlangLanguage.Cat, WhatlangLanguage.Ind,
                  WhatlangLanguage.Ita, WhatlangLanguage.Nob, WhatlangLanguage.Por,
                  WhatlangLanguage.Spa, WhatlangLanguage.Swe, WhatlangLanguage.Tgl,
                  WhatlangLanguage.Dan, WhatlangLanguage.Nld, WhatlangLanguage.Fra, WhatlangLanguage.Deu,
@@ -118,20 +122,38 @@ public static class EncodingManager
                 [WhatlangLanguage.Est, WhatlangLanguage.Lav, WhatlangLanguage.Lit]),
         };
 
-        scoreCalculators = new Dictionary<WhatlangLanguage, LangScoreCalculator>();
+        scoreCalculators = new Dictionary<LangKey, LangScoreCalculator>();
         // Generated (Helper csproj)
-        scoreCalculators.Add(WhatlangLanguage.Est, new LangScoreCalculator("äõöüÄÕÖÜ", "§÷³─šų▄„”ˇå™"));
-        scoreCalculators.Add(WhatlangLanguage.Lav, new LangScoreCalculator("āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ", "Ōń’“­¹■┬╚╠╬═ęą█▐Ń‰…éėÕ×Ų ¶•ź¾"));
-        scoreCalculators.Add(WhatlangLanguage.Lit, new LangScoreCalculator("ąčėęįšūųžĄČĖĘĮŠŪŲŽ", "ÓĶļµß­¹°■└╚╦┴█▐ŃŅŌÕ×Ö¶ø·½¾ĒĻ"));
-        scoreCalculators.Add(WhatlangLanguage.Ces, new LangScoreCalculator("áéíóúýčďěňřšťůžÁÉÍÓÚÝČĎĚŇŘŠŤŮŽ", "ßˇ˙Ŕ´˛°ÜŁ¨×┴╔═Ë┌Ţ╚¤╠ŐŹ┘Ä ‚˘źÔĺçś…§µÖŕ¬·üć›¦"));
-        scoreCalculators.Add(WhatlangLanguage.Pol, new LangScoreCalculator("óąćęłńśźżÓĄĆĘŁŃŚŹŻ", "ˇ╣Šŕ│˝ťč┐ËĂ╩úĐî»˘†©ä«ľ¤¨ă—Ť"));
-        scoreCalculators.Add(WhatlangLanguage.Slk, new LangScoreCalculator("áäéíóôúýčďĺľňŕšťžÁÄÉÍÓÔÚÝČĎĹĽŇŔŠŤŽ", "ßńˇ˘˙ř´ż˛ÜŁ×┴─╔═Ë┌Ţ╚¤┼╝└ŐŹ „‚“ěź’–ęçś§µÖâ¬‘•ć›¦"));
-        scoreCalculators.Add(WhatlangLanguage.Slv, new LangScoreCalculator("čšžČŠŽ", "ŔÜ×╚ŐÄźç§¬ć¦"));
-        scoreCalculators.Add(WhatlangLanguage.Hun, new LangScoreCalculator("áéíóöúüőűÁÉÍÓÖÚÜŐŰ", "ßÝˇ÷˙Ř§┴╔═Ë┌▄Ň█ ‚˘”Ł‹µŕ™šŠë"));
-        scoreCalculators.Add(WhatlangLanguage.Srp, new LangScoreCalculator("ćčđšžĆČĐŠŽ", "Ŕ­Ü×Ă╚ŐÄ†źç§Ź¬Ń¦"));
-        scoreCalculators.Add(WhatlangLanguage.Hrv, new LangScoreCalculator("ćčđšžĆČĐŠŽ", "Ŕ­Ü×Ă╚ŐÄ†źç§Ź¬Ń¦"));
-        scoreCalculators.Add(WhatlangLanguage.Ron, new LangScoreCalculator("âîășțÂÎĂȘȚ", "ÔţŃ?┬╬├ŚÇ¶×Ć"));
-        scoreCalculators.Add(WhatlangLanguage.Tuk, new LangScoreCalculator("äçöüýňşÄÇÖÜÝŇŞ", "ńš÷Řř˛║─ăÍ▄ŢĎ¬„‡”ěĺ­Ž€™íŐ¸"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Est, WhatlangScript.Latn), new LangScoreCalculator("äõöüÄÕÖÜ", "§÷³─šų▄„”ˇå™Ć¤µ¶¼•–├żĄČ╝Ģ¢£"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Lav, WhatlangScript.Latn), new LangScoreCalculator("āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ", "Ōń’“­¹■┬╚╠╬═ęą█▐Ń‰…éėÕ×Ų ¶•ź¾Ä¨£«·¼Å†€¢Ŗ»½─üŹōŻĘ╝┼åĆÆó¬╗Į"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Lit, WhatlangScript.Latn), new LangScoreCalculator("ąčėęįšūųžĄČĖĘĮŠŪŲŽ", "ÓĶļµß­¹°■└╚╦┴█▐ŃŅŌÕ×Ö¶ø·½¾ĒĻÄ…¨—™ÆÅ«³„–® Ŗ²─ģŹŚ»┼Ī│äī¢śĀ¬▓"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Ces, WhatlangScript.Latn), new LangScoreCalculator("áéíóúýčďěňřšťůžÁÉÍÓÚÝČĎĚŇŘŠŤŮŽ", "ßˇ˙Ŕ´˛°ÜŁ¨×┴╔═Ë┌Ţ╚¤╠ŐŹ┘Ä ‚˘źÔĺçś…§µÖŕ¬·üć›¦Ă©­łş˝Ĺ™ĄŻľ‰“Ś‡®├ę│║─Ć┼ą»żëôî«"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Pol, WhatlangScript.Latn), new LangScoreCalculator("óąćęłńśźżÓĄĆĘŁŃŚŹŻ", "ˇ╣Šŕ│˝ťč┐ËĂ╩úĐî»˘†©ä«ľ¤¨ă—ŤÄ…‡™Ĺ‚„›şĽ“š├─ůçÖ┼é║╝ôüâÜ╗"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Slk, WhatlangScript.Latn), new LangScoreCalculator("áäéíóôúýčďĺľňŕšťžÁÄÉÍÓÔÚÝČĎĹĽŇŔŠŤŽ", "ßńˇ˘˙ř´ż˛ÜŁ×┴─╔═Ë┌Ţ╚¤┼╝└ŐŹ „‚“ěź’–ęçś§µÖâ¬‘•ć›¦Ă©­łş˝Ą‰”Śą‡├│┤║ŻĆüëöî╣"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Slv, WhatlangScript.Latn), new LangScoreCalculator("čšžČŠŽ", "ŔÜ×╚ŐÄźç§¬ć¦ŤĹˇľŚ ˝─Ź┼íżîáŻ"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Hun, WhatlangScript.Latn), new LangScoreCalculator("áéíóöúüőűÁÉÍÓÖÚÜŐŰ", "ßÝˇ÷˙Ř§┴╔═Ë┌▄Ň█ ‚˘”Ł‹µŕ™šŠëĂ©­ł¶şĽĹ‘±‰Ť“–ś°├ę│Â║╝┼▒Źôľť░"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Srp, WhatlangScript.Latn), new LangScoreCalculator("ćčđšžĆČĐŠŽ", "Ŕ­Ü×Ă╚ŐÄ†źç§Ź¬Ń¦‡Ť‘ĹˇľŚ ˝─┼íżîÉáŻ"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Srp, WhatlangScript.Cyrl), new LangScoreCalculator("абвгдежзиклмнопрстуфхцчшђјљњћџАБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЂЈЉЊЋЏ", "°±Ііґµ¶·ёє»ЅѕїЃ‚ѓ„…†‡€’™›‘“”•–—ќ Ўў¤Ґ¦§Ё‰‹"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Hrv, WhatlangScript.Latn), new LangScoreCalculator("ćčđšžĆČĐŠŽ", "Ŕ­Ü×Ă╚ŐÄ†źç§Ź¬Ń¦‡Ť‘ĹˇľŚ ˝─┼íżîÉáŻ"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Ron, WhatlangScript.Latn), new LangScoreCalculator("âîășțÂÎĂȘȚ", "ÔţŃ┬╬├ŚÇ¶×Ć˘®ÄČ™›‚Žšó«─╚ÖŤéśÜ"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Tuk, WhatlangScript.Latn), new LangScoreCalculator("äçöüýňşÄÇÖÜÝŇŞ", "ńš÷Řř˛║─ăÍ▄ŢĎ¬„‡”ěĺ­Ž€™íŐ¸Ă¤§¶Ľ˝Ĺź–śťž├ĄÂ╝Ż┼łčľŁ×"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Rus, WhatlangScript.Cyrl), new LangScoreCalculator("абвгдежзийклмнопрстуфхцчшщъыьэюяёАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯЁ", "ЄєЇїЎў°∙·√№¤■ ╕└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀╗ЈҐ¦§©«¬­®ЂЃ‚ѓ„…†‡€‰Љ‹ЊЌЋЏђ‘’“”•–—™љ›њќћџ║╖╛╜╝│┐┤░▒▓⌠≈≤≥⌡²÷і±Іґµ¶»јЅѕ╡╢╣"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Bel, WhatlangScript.Cyrl), new LangScoreCalculator("абвгдежзйклмнопрстуфхцчшыьэюяёіўАБВГДЕЖЗЙКЛМНОПРСТУФХЦЧШЫЬЭЮЯЁІЎ", "щъЄєЇї°√№¤■ ╕│└┴┬├─┼╞╟╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪█▄▌▐▀и▓ЈҐ¦§©«¬­®ЂЃ‚ѓ„…†‡‰Љ‹ЊЌЋЏђ‘’“”•–—›њќћџ±ґµ¶·»јЅѕ€™љ░▒┤╡╢╖╣║╗╝╜╛┐ИЩЪ"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Ukr, WhatlangScript.Cyrl), new LangScoreCalculator("абвгдежзийклмнопрстуфхцчшщьюяєіїґАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЮЯЄІЇҐ", "ъыэЁёЎў°∙№■ ║│┐┤└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘▄▐▀▓Ј¤¦§©«¬­®ЂЃ‚ѓ„…†‡€‰Љ‹ЊЌЋЏђ‘’“”•–—™њћџ±µ¶·»јЅѕљ›ќ░▒╡╢╖╕╣╗╝╜╛ЪЫЭ"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Bul, WhatlangScript.Cyrl), new LangScoreCalculator("абвгдежзийклмнопрстуфхцчшщъьюяАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЬЮЯ", "ыэЁёЄєЇїЎў°∙·№■ └┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌▄▐▀Ј¤Ґ¦§©«¬­®ЂЃ‚ѓ„…†‡€‰Љ‹ЊЌЋЏђ‘’“”•–—™љњћџ±Ііґµ¶»јЅѕ›ќ░▒▓│┤╡╢╖╕╣║╗╝╜╛┐ЫЭ"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Mkd, WhatlangScript.Cyrl), new LangScoreCalculator("абвгдежзиклмнопрстуфхцчшѓѕјљњќџАБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЃЅЈЉЊЌЏ", "°±Ііґµ¶·ёє»їЂ‚„…†‡€“•™ђ‘’”–—›ћ Ўў¤Ґ¦§Ё‰"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Afr, WhatlangScript.Latn), new LangScoreCalculator("áäèéêëíîïóôöúûüýŉÁÄÈÉÊËÍÎÏÓÔÖÚÛÜÝŉ", "Ã¡¤¨©ª«­®¯³´¶º»¼½Å‰„ˆŠ‹Ž“”–š›œ"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Cat, WhatlangScript.Latn), new LangScoreCalculator("àçèéíïòóúüÀÇÈÉÍÏÒÓÚÜ", "Ã §¨©­¯²³º¼€‡ˆ‰’“šœ"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Ita, WhatlangScript.Latn), new LangScoreCalculator("àèéìîòùÀÈÉÌÎÒÙ", "Ã ¨©¬®²¹€ˆ‰ŒŽ’™"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Nob, WhatlangScript.Latn), new LangScoreCalculator("åæéòóôøÅÆÉÒÓÔØ", "Ã¥¦©²³´¸…†‰’“”˜"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Por, WhatlangScript.Latn), new LangScoreCalculator("àáâãçéêíóôõúÀÁÂÃÇÉÊÍÓÔÕÚ", " ¡¢£§©ª­³´µº€‚ƒ‡‰Š“”•š"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Spa, WhatlangScript.Latn), new LangScoreCalculator("¡¿áéíñóú¡¿ÁÉÍÑÓÚ", "ÂÃ©­±³º‰‘“š"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Swe, WhatlangScript.Latn), new LangScoreCalculator("äåéöÄÅÉÖ", "Ã¤¥©¶„…‰–"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Dan, WhatlangScript.Latn), new LangScoreCalculator("åæéøÅÆÉØ", "Ã¥¦©¸…†‰˜"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Nld, WhatlangScript.Latn), new LangScoreCalculator("áèéëíïóöúüĳÁÈÉËÍÏÓÖÚÜĲ", "Ã¡¨©«­¯³¶º¼Äˆ‰‹“–šœ²"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Fra, WhatlangScript.Latn), new LangScoreCalculator("àâæçèéêëîïôùûüÿœÀÂÆÇÈÉÊËÎÏÔÙÛÜŸŒ", "Ã ¢¦§¨©ª«®¯´¹»¼¿Å“€‚†‡ˆ‰Š‹Ž”™›¸’"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Deu, WhatlangScript.Latn), new LangScoreCalculator("ßäöüßÄÖÜ", "ÃŸ¤¶¼„–œ"));
+        scoreCalculators.Add(new LangKey(WhatlangLanguage.Fin, WhatlangScript.Latn), new LangScoreCalculator("äåöÄÅÖ", "Ã¤¥¶„…–"));
     }
 
     public static EncodingVm DetectEncoding(byte[] textFileBytes)
@@ -188,7 +210,8 @@ public static class EncodingManager
                         && detectionData.Languages.Contains(prediction.Language))
                     {
                         int score = 0;
-                        if (scoreCalculators.TryGetValue(prediction.Language, out LangScoreCalculator scoreCalculator))
+                        LangKey key = new(prediction.Language, prediction.Script);
+                        if (scoreCalculators.TryGetValue(key, out LangScoreCalculator scoreCalculator))
                             score = scoreCalculator.Calculate(strTest);
                         // We again assume that all iterations will return the same language,
                         // so we don't check for that, we only compare how neat the writing is.
