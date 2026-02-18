@@ -11,34 +11,41 @@ namespace FPad.Encodings;
 /// </summary>
 internal class LangScoreCalculator
 {
-    private string goodChars;
-    private string badChars;
+    private sbyte[] scoreArray;
 
     public LangScoreCalculator(string goodChars, string badChars)
     {
-        this.goodChars = goodChars.Normalize();
-        this.badChars = badChars.Normalize();
+        scoreArray = new sbyte[0x10000]; // 65536.
+        
+        // Control characters: -3
+        for (int i = 0; i < 32; i++)
+            scoreArray[i] = -3;
+        scoreArray[13] = 0;
+        scoreArray[10] = 0;
+        scoreArray[9] = 0;
+        scoreArray[127] = -3;
+
+        // Good chars: +1
+        goodChars = goodChars.Normalize();
+        for (int i = 0; i < goodChars.Length; i++)
+        {
+            scoreArray[goodChars[i]] = 1;
+        }
+
+        // Bad chars: -2
+        badChars = badChars.Normalize();
+        for (int i = 0; i < badChars.Length; i++)
+        {
+            scoreArray[badChars[i]] = -2;
+        }
     }
 
     public int Calculate(ReadOnlySpan<char> text)
     {
         int score = 0;
-        for (int i=0; i<text.Length; i++)
+        for (int i = 0; i < text.Length; i++)
         {
-            char c = text[i];
-            if (goodChars.Contains(c))
-            {
-                score += 1;
-            }
-            else if (badChars.Contains(c))
-            {
-                score -= 2;
-            }
-            else if (((c < 32) && (c != 13) && (c != 10) && (c != '\t'))
-                     || (c == 127))
-            {
-                score -= 3;
-            }
+            score += (int)scoreArray[text[i]];
         }
 
         return score;
