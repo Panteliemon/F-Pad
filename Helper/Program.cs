@@ -20,9 +20,9 @@ public static class Program
 
     public static void Main()
     {
-        Console.WriteLine("5");
+        Console.WriteLine("1");
 
-        //string encodingManagerLines = string.Join(Environment.NewLine, GenerateScoreCalculatorLines());
+        string encodingManagerLines = string.Join(Environment.NewLine, GenerateScoreCalculatorLines());
 
         //TestEvents();
 
@@ -30,7 +30,7 @@ public static class Program
 
         //WatchFiles();
 
-        PacketSaveAll();
+        //PacketSaveAll();
     }
 
     private static void PacketSaveAll()
@@ -323,6 +323,7 @@ public static class Program
 
         // We handle cases "UTF-8 misinterpreted as ANSI", but not "ANSI misinterpreted as UTF-8",
         // because such misenterpretation would give limitless number of incorrect symbols.
+        // "ANSI misinterpreted as UTF-8" is handled by EncodingManager.IsValidUTF8 before score calculators.
         List<Encoding> sourceEncodings = encodings.ToList();
         sourceEncodings.Add(Encoding.UTF8);
         foreach (Encoding enc in sourceEncodings)

@@ -20,7 +20,8 @@ public static class EncodingManager
     private static Encoding encOem775;
 
     private static EncodingVm vmUnicode;
-    private static EncodingVm vmDefaultAnsi;
+    private static EncodingVm vmUtf8;
+    private static EncodingVm vmWin1252;
 
     private static CharsetDetector charsetDetector;
     private static WhatlangDetector langDetector;
@@ -33,6 +34,8 @@ public static class EncodingManager
     /// Supported encodings (flattened list from <see cref="Alphabets"/> + those which don't belong to an alphabet)
     /// </summary>
     public static IReadOnlyList<EncodingVm> Encodings { get; private set; }
+
+    public static EncodingVm DefaultEncoding => vmUnicode;
 
     public static void Init()
     {
@@ -64,7 +67,7 @@ public static class EncodingManager
 
         // Root-level (multibyte, "loseless") encodings
         vmUnicode = new EncodingVm(Encoding.Unicode, "Unicode", true, true);
-        EncodingVm vmUtf8 = new EncodingVm(Encoding.UTF8, "UTF-8", true, false);
+        vmUtf8 = new EncodingVm(Encoding.UTF8, "UTF-8", true, false);
         EncodingVm vmUtf16Be = new EncodingVm(Encoding.BigEndianUnicode, "UTF 16 Big Endian", true, true);
         EncodingVm vmAscii = new EncodingVm(Encoding.ASCII, "ASCII", false, false);
 
@@ -74,7 +77,7 @@ public static class EncodingManager
         EncodingVm vmKoi8R = new EncodingVm(cyrillic, encKoi8R, "KOI8-R");
 
         Alphabet latin = new("Latin");
-        vmDefaultAnsi = new EncodingVm(latin, encWin1252, "Western European (Windows 1252)");
+        vmWin1252 = new EncodingVm(latin, encWin1252, "Western European (Windows 1252)");
         EncodingVm vmWin1250 = new EncodingVm(latin, encWin1250, "Central European (Windows 1250)");
         EncodingVm vmOem852 = new EncodingVm(latin, encOem852, "Central European OEM 852 (DOS)");
         EncodingVm vmWin1257 = new EncodingVm(latin, encWin1257, "Baltics (Windows 1257)");
@@ -102,7 +105,7 @@ public static class EncodingManager
                 [WhatlangLanguage.Rus, WhatlangLanguage.Bel, WhatlangLanguage.Ukr,
                  WhatlangLanguage.Bul]),
             new EncodingDetectionData(vmKoi8R, "KOI8-R", [WhatlangLanguage.Rus]),
-            new EncodingDetectionData(vmDefaultAnsi,
+            new EncodingDetectionData(vmWin1252,
                 [WhatlangLanguage.Afr, WhatlangLanguage.Cat, WhatlangLanguage.Ind,
                  WhatlangLanguage.Ita, WhatlangLanguage.Nob, WhatlangLanguage.Por,
                  WhatlangLanguage.Spa, WhatlangLanguage.Swe, WhatlangLanguage.Tgl,
@@ -179,26 +182,30 @@ public static class EncodingManager
         charsetDetector.Feed(textFileBytes, 0, textFileBytes.Length);
         charsetDetector.DataEnd();
 
-        // example_1251.txt: 0.52 for ANSI 1251 (correct)
-        // empty file with Preamble only: 0.5 for ANSI 1252 (incorrect)
-        // Keep threshold at 0.5 for now, and strict inequality
-        if (charsetDetector.Confidence > 0.5)
+        // problem_windows-1251.txt: 0.52 for ANSI 1251 (correct)
+        // problem_utf-8: 0.99 for GB18030 (incorrect)
+        // So any value of threshold could be "wrong".
+        if (charsetDetector.Confidence > 0.7)
         {
             EncodingDetectionData result = detectionData.FirstOrDefault(x => x.UdeCode == charsetDetector.Charset);
-            return (result != null) ? result.Vm : vmDefaultAnsi;
+            return (result != null) ? result.Vm : vmUtf8;
         }
         else
         {
-            if (textFileBytes.Length == 0)
-                return vmUnicode;
             ReadOnlySpan<byte> first1000 = textFileBytes.AsSpan();
             if (first1000.Length > 1000)
                 first1000 = first1000[..1000];
 
             // Detect by language
-            EncodingDetectionData bestCandidate = null;
-            int bestScore = 0; // for Baltics
-            foreach (EncodingDetectionData detectionData in detectionData.Where(x => x.Languages != null))
+            EncodingDetectionData bestCandidate = null; // For languages for which we can check score
+            int bestScore = 0;
+            List<EncodingDetectionData> detectedForUnsupportedLanguages = new(); // For languages for which we cannot check score
+
+            List<EncodingDetectionData> encodingsToTry = detectionData.Where(x => x.Languages != null).ToList();
+            bool considerUtf8 = IsValidUTF8(textFileBytes);
+            if (considerUtf8)
+                encodingsToTry.Add(detectionData.First(x => x.Vm == vmUtf8));
+            foreach (EncodingDetectionData detectionData in encodingsToTry)
             {
                 string strTest = detectionData.Vm.Encoding.GetString(first1000);
                 WhatlangPrediction prediction = langDetector.PredictLanguage(strTest);
@@ -207,27 +214,132 @@ public static class EncodingManager
                     if (prediction.IsReliable
                         // Recognizes languages with 100% confidence
                         // no matter how bastardized by incorrect encoding, cannot rely solely on recognition.
-                        && detectionData.Languages.Contains(prediction.Language))
+                        // Need to check that this encoding is intended for that language
+                        && ((detectionData.Vm == vmUtf8)
+                            || detectionData.Languages.Contains(prediction.Language))
+                        )
                     {
-                        int score = 0;
                         LangKey key = new(prediction.Language, prediction.Script);
                         if (scoreCalculators.TryGetValue(key, out LangScoreCalculator scoreCalculator))
-                            score = scoreCalculator.Calculate(strTest);
-                        // We again assume that all iterations will return the same language,
-                        // so we don't check for that, we only compare how neat the writing is.
-                        if ((bestCandidate == null)
-                            || (score > bestScore)) // if score equal then first wrapper wins
                         {
-                            bestCandidate = detectionData;
-                            bestScore = score;
+                            int score = scoreCalculator.Calculate(strTest);
+                            // Even if there can be different languages at each iteration,
+                            // we only compare how neat the writing is for each of them.
+                            if ((bestCandidate == null)
+                                || (score > bestScore)) // if score equal then first wrapper wins
+                            {
+                                bestCandidate = detectionData;
+                                bestScore = score;
+                            }
+                        }
+                        else
+                        {
+                            // If we don't have score calculator for a language - this means 2 things:
+                            // 1. English and other ascii-only languages - encoding doesn't really matter,
+                            //    we can fallback to UTF-8 / Win 1252
+                            // 2. Encoding isn't designed to be used for that language - discard such detection,
+                            //    try other encodings and only use this result if nothing supported has been detected.
+                            detectedForUnsupportedLanguages.Add(detectionData);
                         }
                     }
                 }
             }
 
-            return (bestCandidate != null) ? bestCandidate.Vm : vmDefaultAnsi;
+                 
+            return (bestCandidate != null) ? bestCandidate.Vm
+                // If some encoding allowed to detect unsupported language - take first such.
+                // If several - priority to UTF-8, then to Windows 1252
+                : (detectedForUnsupportedLanguages.FirstOrDefault(x => x.Vm == vmUtf8)?.Vm
+                   ?? detectedForUnsupportedLanguages.FirstOrDefault(x => x.Vm == vmWin1252)?.Vm
+                   ?? detectedForUnsupportedLanguages.FirstOrDefault()?.Vm
+                   ?? (considerUtf8 ? vmUtf8 : vmWin1252));
         }
     }
 
-    public static EncodingVm DefaultEncoding => vmUnicode;
+    private static bool IsValidUTF8(ReadOnlySpan<byte> bytes)
+    {
+        const int MASK_OR_2BYTE = 0xC0;  // 110xxxxx
+        const int MASK_AND_2BYTE = 0xE0; // 11100000
+        const int MASK_OR_3BYTE = 0xE0;  // 1110xxxx
+        const int MASK_AND_3BYTE = 0xF0; // 11110000
+        const int MASK_OR_4BYTE = 0xF0;  // 11110xxx
+        const int MASK_AND_4BYTE = 0xF8; // 11111000
+        const int MASK_OR_CNT = 0x80;    // 10xxxxxx
+        const int MASK_AND_CNT = 0xC0;   // 11000000
+
+        int multiBTotal = 0;
+        int multiBLeft = 0;
+        int multiBCurrentValue = 0;
+
+        for (int i = 0; i < bytes.Length; i++)
+        {
+            int cb = (int)bytes[i];
+
+            if (multiBTotal == 0)
+            {
+                if (cb > 0x7F)
+                {
+                    if ((cb & MASK_AND_2BYTE) == MASK_OR_2BYTE)
+                    {
+                        multiBTotal = 2;
+                        multiBLeft = 1;
+                        multiBCurrentValue = cb & ~MASK_AND_2BYTE;
+                    }
+                    else if ((cb & MASK_AND_3BYTE) == MASK_OR_3BYTE)
+                    {
+                        multiBTotal = 3;
+                        multiBLeft = 2;
+                        multiBCurrentValue = cb & ~MASK_AND_3BYTE;
+                    }
+                    else if ((cb & MASK_AND_4BYTE) == MASK_OR_4BYTE)
+                    {
+                        multiBTotal = 4;
+                        multiBLeft = 3;
+                        multiBCurrentValue = cb & ~MASK_AND_4BYTE;
+                    }
+                    else
+                    {
+                        // Invalid start of a multibyte
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                if ((cb & MASK_AND_CNT) == MASK_OR_CNT)
+                {
+                    multiBCurrentValue <<= 6;
+                    multiBCurrentValue |= (cb & ~MASK_AND_CNT);
+                    multiBLeft--;
+                    if (multiBLeft == 0)
+                    {
+                        if (((multiBTotal == 2) && (multiBCurrentValue < 0x0080))
+                            || ((multiBTotal == 3) && (multiBCurrentValue < 0x0800))
+                            || ((multiBTotal == 4) && (multiBCurrentValue < 0x10000)))
+                        {
+                            // Overlong (more bytes used than needed)
+                            return false;
+                        }
+
+                        if (multiBCurrentValue > 0x10FFFF)
+                        {
+                            // Max allowed value
+                            return false;
+                        }
+
+                        // Surrogate pairs encoded as two separate symbols - don't detect.
+
+                        multiBTotal = 0;
+                    }
+                }
+                else
+                {
+                    // Invalid continuation of a multibyte
+                    return false;
+                }
+            }
+        }
+
+        return (multiBTotal == 0); // no unfinished multibyte sequences left
+    }
 }
