@@ -49,6 +49,7 @@ namespace FPad
             saveToolStripMenuItem = new ToolStripMenuItem();
             saveAsToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator1 = new ToolStripSeparator();
+            externalEditorsSeparator = new ToolStripSeparator();
             exitToolStripMenuItem = new ToolStripMenuItem();
             editToolStripMenuItem = new ToolStripMenuItem();
             cutToolStripMenuItem = new ToolStripMenuItem();
@@ -67,11 +68,15 @@ namespace FPad
             aboutToolStripMenuItem = new ToolStripMenuItem();
             panel1 = new Panel();
             text = new GoodTextBox();
+            textContextMenuStrip = new ContextMenuStrip(components);
+            cutContextMenuItem = new ToolStripMenuItem();
+            copyContextMenuItem = new ToolStripMenuItem();
+            pasteContextMenuItem = new ToolStripMenuItem();
             blinkingTimer = new Timer(components);
-            externalEditorsSeparator = new ToolStripSeparator();
             statusBar.SuspendLayout();
             mainMenu.SuspendLayout();
             panel1.SuspendLayout();
+            textContextMenuStrip.SuspendLayout();
             SuspendLayout();
             // 
             // statusBar
@@ -206,6 +211,12 @@ namespace FPad
             toolStripSeparator1.Name = "toolStripSeparator1";
             toolStripSeparator1.Size = new Size(183, 6);
             // 
+            // externalEditorsSeparator
+            // 
+            externalEditorsSeparator.Name = "externalEditorsSeparator";
+            externalEditorsSeparator.Size = new Size(183, 6);
+            externalEditorsSeparator.Visible = false;
+            // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
@@ -335,6 +346,7 @@ namespace FPad
             text.AcceptsTab = true;
             text.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             text.BorderStyle = BorderStyle.None;
+            text.ContextMenuStrip = textContextMenuStrip;
             text.Location = new Point(-2, 1);
             text.Multiline = true;
             text.Name = "text";
@@ -344,16 +356,40 @@ namespace FPad
             text.SelectionChanged += Text_SelectionChanged;
             text.TextChanged += textBox1_TextChanged;
             // 
+            // textContextMenuStrip
+            // 
+            textContextMenuStrip.Items.AddRange(new ToolStripItem[] { cutContextMenuItem, copyContextMenuItem, pasteContextMenuItem });
+            textContextMenuStrip.Name = "contextMenuStrip1";
+            textContextMenuStrip.Size = new Size(145, 70);
+            // 
+            // cutContextMenuItem
+            // 
+            cutContextMenuItem.Name = "cutContextMenuItem";
+            cutContextMenuItem.ShortcutKeys = Keys.Control | Keys.X;
+            cutContextMenuItem.Size = new Size(144, 22);
+            cutContextMenuItem.Text = "Cut";
+            cutContextMenuItem.Click += cutToolStripMenuItem_Click;
+            // 
+            // copyContextMenuItem
+            // 
+            copyContextMenuItem.Name = "copyContextMenuItem";
+            copyContextMenuItem.ShortcutKeys = Keys.Control | Keys.C;
+            copyContextMenuItem.Size = new Size(144, 22);
+            copyContextMenuItem.Text = "Copy";
+            copyContextMenuItem.Click += copyToolStripMenuItem_Click;
+            // 
+            // pasteContextMenuItem
+            // 
+            pasteContextMenuItem.Name = "pasteContextMenuItem";
+            pasteContextMenuItem.ShortcutKeys = Keys.Control | Keys.V;
+            pasteContextMenuItem.Size = new Size(144, 22);
+            pasteContextMenuItem.Text = "Paste";
+            pasteContextMenuItem.Click += pasteToolStripMenuItem_Click;
+            // 
             // blinkingTimer
             // 
             blinkingTimer.Interval = 750;
             blinkingTimer.Tick += blinkingTimer_Tick;
-            // 
-            // externalEditorsSeparator
-            // 
-            externalEditorsSeparator.Name = "externalEditorsSeparator";
-            externalEditorsSeparator.Size = new Size(183, 6);
-            externalEditorsSeparator.Visible = false;
             // 
             // MainWindow
             // 
@@ -368,6 +404,7 @@ namespace FPad
             Name = "MainWindow";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "F-Pad";
+            Activated += MainWindow_Activated;
             FormClosing += MainWindow_FormClosing;
             Load += MainWindow_Load;
             LocationChanged += MainWindow_LocationChanged;
@@ -380,6 +417,7 @@ namespace FPad
             mainMenu.PerformLayout();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
+            textContextMenuStrip.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -422,5 +460,9 @@ namespace FPad
         private Timer blinkingTimer;
         private ToolStripMenuItem goToLineMenuItem;
         private ToolStripSeparator externalEditorsSeparator;
+        private ContextMenuStrip textContextMenuStrip;
+        private ToolStripMenuItem cutContextMenuItem;
+        private ToolStripMenuItem copyContextMenuItem;
+        private ToolStripMenuItem pasteContextMenuItem;
     }
 }

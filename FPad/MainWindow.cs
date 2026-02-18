@@ -53,8 +53,11 @@ namespace FPad
             saveToolStripMenuItem.Image = App.LoadImage("b16_save.png");
             saveAsToolStripMenuItem.Image = App.LoadImage("b16_saveas.png");
             cutToolStripMenuItem.Image = App.LoadImage("b16_cut.png");
+            cutContextMenuItem.Image = cutToolStripMenuItem.Image;
             copyToolStripMenuItem.Image = App.LoadImage("b16_copy.png");
+            copyContextMenuItem.Image = copyToolStripMenuItem.Image;
             pasteToolStripMenuItem.Image = App.LoadImage("b16_paste.png");
+            pasteContextMenuItem.Image = pasteToolStripMenuItem.Image;
             findToolStripMenuItem.Image = App.LoadImage("b16_find.png");
             encodingToolStripMenuItem.Image = App.LoadImage("b16_encoding.png");
             preferencesToolStripMenuItem.Image = App.LoadImage("b16_settings.png");
@@ -223,6 +226,12 @@ namespace FPad
             enableSizingHandlers = true;
         }
 
+        private void MainWindow_Activated(object sender, EventArgs e)
+        {
+            // Clipboard content might have changed, update for "Paste" availability:
+            UpdateMenu();
+        }
+
         private void MainWindow_Resize(object sender, EventArgs e)
         {
             if (enableSizingHandlers)
@@ -269,6 +278,7 @@ namespace FPad
 
         private void Text_SelectionChanged(object sender, EventArgs e)
         {
+            UpdateMenu();
             UpdateStatusBar();
             SelectionChanged?.Invoke(this, e);
         }
@@ -382,6 +392,7 @@ namespace FPad
             if (text.SelectionLength > 0)
             {
                 Clipboard.SetText(text.Text.Substring(text.SelectionStart, text.SelectionLength));
+                UpdateMenu();
             }
         }
 
@@ -873,7 +884,7 @@ namespace FPad
 
                     int separatorIndex = fileToolStripMenuItem.DropDownItems.IndexOf(externalEditorsSeparator);
                     fileToolStripMenuItem.DropDownItems.Insert(separatorIndex, menuItem);
-                    
+
                     if (!externalEditorsSeparator.Visible)
                         externalEditorsSeparator.Visible = true;
 
@@ -921,6 +932,7 @@ namespace FPad
             text.SelectionLength = selectionLength;
             text.ScrollToCaret();
 
+            UpdateMenu();
             UpdateStatusBar();
 
             if (changed)
@@ -950,6 +962,13 @@ namespace FPad
                     fileItem.Enabled = !isNew;
                 }
             }
+
+            cutToolStripMenuItem.Enabled = text.SelectionLength > 0;
+            cutContextMenuItem.Enabled = cutToolStripMenuItem.Enabled;
+            copyToolStripMenuItem.Enabled = text.SelectionLength > 0;
+            copyContextMenuItem.Enabled = copyToolStripMenuItem.Enabled;
+            pasteToolStripMenuItem.Enabled = Clipboard.ContainsText();
+            pasteContextMenuItem.Enabled = pasteToolStripMenuItem.Enabled;
         }
 
         private void UpdateStatusBar()
