@@ -63,6 +63,15 @@ namespace FPad
 
         #endregion
 
+        /// <summary>
+        /// For preventing "variable ex is declared but never used" warnings.
+        /// The method does nothing.
+        /// </summary>
+        /// <param name="ex"></param>
+        public static void Discard(Exception ex)
+        {
+        }
+
         public static bool SaveSettings(SettingsFlags flags, string currentFileFullPath = null)
         {
             return SettingsManager.Modify(destSettings =>

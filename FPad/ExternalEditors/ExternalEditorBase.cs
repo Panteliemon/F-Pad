@@ -76,6 +76,7 @@ internal class ExternalEditorBase
             }
             catch (Exception ex)
             {
+                App.Discard(ex);
             }
 
             DestroyIcon(handles[0]);

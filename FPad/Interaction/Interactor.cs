@@ -161,6 +161,7 @@ public static class Interactor
                 }
                 catch (Exception ex)
                 {
+                    App.Discard(ex);
                 }
             }
         }
@@ -187,6 +188,7 @@ public static class Interactor
         }
         catch (Exception ex)
         {
+            App.Discard(ex);
             sharedMemoryMutex.ReleaseMutex();
             throw;
         }
@@ -236,6 +238,7 @@ public static class Interactor
         }
         catch (Exception ex)
         {
+            App.Discard(ex);
             return new MemStruct()
             {
                 Instances = new List<FPadRec>(),
@@ -260,6 +263,7 @@ public static class Interactor
         }
         catch (Exception ex)
         {
+            App.Discard(ex);
         }
     }
 

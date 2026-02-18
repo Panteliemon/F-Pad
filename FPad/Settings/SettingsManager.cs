@@ -65,6 +65,7 @@ public static class SettingsManager
             }
             catch (Exception ex)
             {
+                App.Discard(ex);
             }
         });
 
@@ -122,6 +123,7 @@ public static class SettingsManager
         }
         catch (Exception ex)
         {
+            App.Discard(ex);
             settingsMutex.ReleaseMutex();
             throw;
         }
@@ -144,6 +146,7 @@ public static class SettingsManager
         }
         catch (Exception ex)
         {
+            App.Discard(ex);
             return false;
         }
     }
@@ -304,6 +307,7 @@ public static class SettingsManager
             }
             catch (Exception ex)
             {
+                App.Discard(ex);
             }
         }
 

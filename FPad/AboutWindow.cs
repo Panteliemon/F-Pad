@@ -52,6 +52,7 @@ public partial class AboutWindow : Form
         }
         catch (Exception ex)
         {
+            App.Discard(ex);
         }
     }
 }

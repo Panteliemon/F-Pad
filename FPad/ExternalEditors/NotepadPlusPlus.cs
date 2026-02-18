@@ -93,6 +93,7 @@ internal class NotepadPlusPlus : ExternalEditorBase, IExternalEditor
             }
             catch (Exception ex)
             {
+                App.Discard(ex);
             }
 
             ct.ThrowIfCancellationRequested();
@@ -114,6 +115,7 @@ internal class NotepadPlusPlus : ExternalEditorBase, IExternalEditor
         }
         catch (Exception ex)
         {
+            App.Discard(ex);
         }
 
         return false;
