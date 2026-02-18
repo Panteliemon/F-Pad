@@ -19,12 +19,14 @@ public class EncodingVm
     public string DisplayName { get; }
 
     public bool IsLossless { get; }
+    public bool IsPreambleMandatory { get; }
 
-    internal EncodingVm(Encoding encoding, string displayName, bool isLossless)
+    internal EncodingVm(Encoding encoding, string displayName, bool isLossless, bool isPreambleMandatory)
     {
         Encoding = encoding;
         DisplayName = displayName;
         IsLossless = isLossless;
+        IsPreambleMandatory = (encoding.Preamble.Length > 0) && isPreambleMandatory;
     }
 
     internal EncodingVm(Alphabet alphabet, Encoding encoding, string displayName)
@@ -63,7 +65,14 @@ public class EncodingVm
         return Encoding.GetString(allFileBytes[byteDecodeStart..]);
     }
 
-    public byte[] StringToFileBytes(string allText)
+    /// <summary>
+    /// </summary>
+    /// <param name="allText"></param>
+    /// <param name="preferPreamble">If preamble is optional, this parameter says
+    /// that it should be added. If preamble is mandatory, or no preamble,
+    /// then this parameter doesn't matter.</param>
+    /// <returns></returns>
+    public byte[] StringToFileBytes(string allText, bool preferPreamble)
     {
         // Implementation of Encoding sucks dick.
         // Internally it can only work with char arrays and cannot into spans.
@@ -74,11 +83,19 @@ public class EncodingVm
         char[] textAsArray = allText.ToCharArray();
         int textBytesCount = Encoding.GetByteCount(textAsArray);
 
-        byte[] result = new byte[textBytesCount + Encoding.Preamble.Length];
-        Span<byte> spanResult = result.AsSpan();
-        Encoding.Preamble.CopyTo(spanResult);
-        Encoding.GetBytes(textAsArray, spanResult[Encoding.Preamble.Length..]);
-
-        return result;
+        if ((Encoding.Preamble.Length > 0) && (IsPreambleMandatory || preferPreamble))
+        {
+            byte[] result = new byte[textBytesCount + Encoding.Preamble.Length];
+            Span<byte> spanResult = result.AsSpan();
+            Encoding.Preamble.CopyTo(spanResult);
+            Encoding.GetBytes(textAsArray, spanResult[Encoding.Preamble.Length..]);
+            return result;
+        }
+        else
+        {
+            byte[] result = new byte[textBytesCount];
+            Encoding.GetBytes(textAsArray, result);
+            return result;
+        }
     }
 }

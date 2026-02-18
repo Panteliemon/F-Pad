@@ -27,6 +27,11 @@ namespace FPad
         /// Valid until first change
         /// </summary>
         byte[] currentDocumentBytes;
+        /// <summary>
+        /// Null if <see cref="isNew"/>
+        /// </summary>
+        EncodingVm initialEncoding = null;
+        bool fileContainsPreamble;
         EncodingVm currentEncoding = null;
         FileWatcher currentDocumentWatcher;
 
@@ -446,22 +451,23 @@ namespace FPad
 
                     if (switchMethod == EncodingSwitchMethod.Reinterpret)
                     {
-                        if (currentDocumentBytes != null)
-                        {
-                            // These are bytes from file, and therefore preamble-aware decoding must be used.
-                            enableTextChangeHandler = false;
-                            text.Text = encodingVm.FileBytesToString(currentDocumentBytes);
-                            enableTextChangeHandler = true;
-                        }
-                        else
-                        {
-                            // After modifications - I decided it's not appropriate to reinterpret preamble anymore.
-                            // Decode text only.
-                            byte[] bytes = currentEncoding.Encoding.GetBytes(text.Text);
-                            enableTextChangeHandler = false;
-                            text.Text = encodingVm.Encoding.GetString(bytes);
-                            enableTextChangeHandler = true;
-                        }
+                        // Controversial scenario:
+                        // - loaded UTF-8 with preamble
+                        // - reinterpreted as ANSI
+                        // - while it's in ANSI form - deleted preamble
+                        // - reinterpreted back as UTF-8
+                        // Now should save with preamble or without it? - With, file initially contained it.
+                        // - again reinterpred as ANSI
+                        // Show preamble because we are going to save the file with it
+                        // or don't show because it was manually erased?
+
+                        byte[] bytes = currentDocumentBytes
+                            ?? currentEncoding.StringToFileBytes(text.Text,
+                                fileContainsPreamble && (currentEncoding == initialEncoding));
+
+                        enableTextChangeHandler = false;
+                        text.Text = encodingVm.FileBytesToString(bytes);
+                        enableTextChangeHandler = true;
 
                         // Keep previous hasUnsavedChanges (reinterpretation != edit)
                         // Keep previous currentDocumentBytes (reinterpreted, not changed)
@@ -562,7 +568,9 @@ namespace FPad
             UpdateTitle();
             UpdateMenu();
 
+            initialEncoding = null;
             currentEncoding = EncodingManager.DefaultEncoding;
+            fileContainsPreamble = false; // no file
             UpdateEncodingMenuCheckboxes();
             UpdateStatusBar();
 
@@ -581,7 +589,9 @@ namespace FPad
 
                 currentDocumentFullPath = fullPath;
                 currentDocumentFileName = Path.GetFileName(fullPath);
-                currentEncoding = EncodingManager.DetectEncoding(allBytes);
+                initialEncoding = EncodingManager.DetectEncoding(allBytes);
+                currentEncoding = initialEncoding;
+                fileContainsPreamble = currentEncoding.StartsWithPreamble(allBytes);
                 UpdateEncodingMenuCheckboxes();
 
                 text.Text = currentEncoding.FileBytesToString(allBytes);
@@ -617,7 +627,9 @@ namespace FPad
             {
                 byte[] allBytes = File.ReadAllBytes(currentDocumentFullPath);
 
-                currentEncoding = EncodingManager.DetectEncoding(allBytes);
+                initialEncoding = EncodingManager.DetectEncoding(allBytes);
+                currentEncoding = initialEncoding;
+                fileContainsPreamble = currentEncoding.StartsWithPreamble(allBytes);
                 UpdateEncodingMenuCheckboxes();
 
                 text.Text = currentEncoding.FileBytesToString(allBytes);
@@ -681,7 +693,7 @@ namespace FPad
                 }
                 else
                 {
-                    (bool proceed, byte[] encodedBytes) = EncodeForSave(text.Text);
+                    (bool proceed, byte[] encodedBytes) = EncodeForSave(text.Text, false);
                     if (!proceed)
                         return null;
 
@@ -696,6 +708,8 @@ namespace FPad
                         hasUnsavedChanges = false;
                         isExternallyModified = false;
                         currentDocumentBytes = encodedBytes;
+                        initialEncoding = currentEncoding;
+                        fileContainsPreamble = currentEncoding.StartsWithPreamble(encodedBytes);
                         UpdateTitle();
                         UpdateMenu();
                         UpdateStatusBar();
@@ -726,7 +740,9 @@ namespace FPad
             if (isNew)
                 throw new InvalidOperationException();
 
-            (bool proceed, byte[] encodedBytes) = EncodeForSave(text.Text);
+            (bool proceed, byte[] encodedBytes) = EncodeForSave(text.Text,
+                // We save UTF-8 by default without preamble, but if it was already there - we preserve it
+                fileContainsPreamble && (currentEncoding == initialEncoding));
             if (!proceed)
                 return null;
 
@@ -737,6 +753,8 @@ namespace FPad
                 hasUnsavedChanges = false;
                 isExternallyModified = false;
                 currentDocumentBytes = encodedBytes;
+                initialEncoding = currentEncoding;
+                fileContainsPreamble = currentEncoding.StartsWithPreamble(encodedBytes);
             }
 
             UpdateTitle();
@@ -745,9 +763,9 @@ namespace FPad
             return saveResult;
         }
 
-        private (bool proceed, byte[] encodedBytes) EncodeForSave(string allText)
+        private (bool proceed, byte[] encodedBytes) EncodeForSave(string allText, bool preferPreamble)
         {
-            byte[] result = currentEncoding.StringToFileBytes(allText);
+            byte[] result = currentEncoding.StringToFileBytes(allText, preferPreamble);
             if (!currentEncoding.IsLossless)
             {
                 string decoded = currentEncoding.FileBytesToString(result);

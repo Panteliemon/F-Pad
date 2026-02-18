@@ -20,10 +20,14 @@ internal class EncodingDetectionData
     /// </summary>
     public HashSet<WhatlangLanguage> Languages { get; }
 
-    internal EncodingDetectionData(EncodingVm vm, string udeCode)
+    internal EncodingDetectionData(EncodingVm vm, string udeCode, IEnumerable<WhatlangLanguage> languages = null)
     {
         Vm = vm;
         UdeCode = udeCode;
+        if (languages != null)
+        {
+            Languages = [.. languages];
+        }
     }
 
     internal EncodingDetectionData(EncodingVm vm, IEnumerable<WhatlangLanguage> languages)
