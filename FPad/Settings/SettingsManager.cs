@@ -53,8 +53,7 @@ public static class SettingsManager
                     settingsSerializer ??= new XmlSerializer(typeof(SettingsDto));
                     SettingsDto dto = null;
 
-                    string settingsFilePath = GetSettingsFilePath();
-                    using (FileStream fs = new FileStream(settingsFilePath, FileMode.Open, FileAccess.Read, FileShare.Read, App.BUFFERSIZE))
+                    using (FileStream fs = new FileStream(pathToFile, FileMode.Open, FileAccess.Read, FileShare.Read, App.BUFFERSIZE))
                     {
                         XmlReader xmlReader = XmlReader.Create(fs, xmlReaderSettings);
                         dto = settingsSerializer.Deserialize(xmlReader) as SettingsDto;

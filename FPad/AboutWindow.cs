@@ -20,7 +20,8 @@ public partial class AboutWindow : Form
         Text = "About – " + App.TITLE;
 
         picLogo.Image = App.LoadImage("logo.png");
-        labelTitle.Text = $"{App.TITLE} {App.Version.Major}.{App.Version.Minor}";
+        string buildPostfix = App.Version.Build > 0 ? $".{App.Version.Build}" : string.Empty;
+        labelTitle.Text = $"{App.TITLE} {App.Version.Major}.{App.Version.Minor}{buildPostfix}";
         labelBuild.Text = "Build " + App.BuildDate.ToShortDateString();
     }
 

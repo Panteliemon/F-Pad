@@ -37,6 +37,7 @@ namespace FPad
 
         bool enableSizingHandlers = false;
         bool enableTextChangeHandler = true;
+        int? setPositionOnActivate;
 
         FormWindowState prevWindowState = FormWindowState.Normal;
 
@@ -71,7 +72,9 @@ namespace FPad
                 if (LoadFile(App.CmdLineFile, false))
                 {
                     (int position, _, _) = StringUtils.GetPositionAdaptive(text.Text, App.CmdLineLineIndex ?? 0, App.CmdLineCharIndex ?? 0);
-                    SetTextSelection(position, 0);
+                    // ScrollToCaret currently doesn't work because we are in constructor.
+                    // Perform it when the window is ready.
+                    setPositionOnActivate = position;
                 }
                 else
                 {
@@ -144,6 +147,11 @@ namespace FPad
                 if (WindowState == FormWindowState.Minimized)
                     WindowState = prevWindowState;
                 Activate();
+
+                // Activate() for some reason focuses the window but doesn't bring it to front.
+                // Here is what helps:
+                TopMost = true;
+                TopMost = false;
             });
         }
 
@@ -163,6 +171,9 @@ namespace FPad
                 {
                     Activate();
                 }
+
+                TopMost = true;
+                TopMost = false;
             });
         }
 
@@ -230,6 +241,13 @@ namespace FPad
         {
             // Clipboard content might have changed, update for "Paste" availability:
             UpdateMenu();
+
+            if (setPositionOnActivate.HasValue)
+            {
+                int localValue = setPositionOnActivate.Value;
+                setPositionOnActivate = null;
+                SetTextSelection(localValue, 0);
+            }
         }
 
         private void MainWindow_Resize(object sender, EventArgs e)

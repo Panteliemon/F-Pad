@@ -95,8 +95,8 @@ public class FileWatcher : IDisposable
         {
             fileSystemWatcherLocal.Dispose();
 
-            fileChangedEvent.Set(); // Wake up the thread
             eventThreadCanceledTs.Cancel();
+            fileChangedEvent.Set(); // Wake up the thread
             eventThread.Join();
 
             fileChangedEvent.Dispose();
