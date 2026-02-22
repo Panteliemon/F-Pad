@@ -1,5 +1,7 @@
-﻿using System;
+﻿using FPad.Edit;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -11,25 +13,36 @@ namespace FPad.Controls;
 public class GoodTextBox : TextBox
 {
     private const int WM_LBUTTONDBLCLK = 0x0203;
-    private const int CHAR_SPACE = 0;
-    private const int CHAR_NONWORD = 1;
-    private const int CHAR_WORD = 2;
 
-    private int prevSelectionStart;
-    private int prevSelectionLength;
+    private Selection prevSelection;
+    private Selection selectionBeforeEdit;
 
+    public Selection Selection => new Selection(SelectionStart, SelectionLength);
     public event EventHandler SelectionChanged;
+
+    public Selection SelectionBeforeEdit => selectionBeforeEdit;
 
     public GoodTextBox()
     {
-        prevSelectionStart = SelectionStart;
-        prevSelectionLength = SelectionLength;
+        prevSelection = Selection;
+        selectionBeforeEdit = Selection;
 
         MouseUp += OnMouse;
         MouseDown += OnMouse;
         MouseMove += OnMouse;
-        KeyUp += OnKeyboard;
+        KeyDown += OnKeyDown;
+        KeyUp += OnKeyUp;
         TextChanged += OnTextChanged;
+    }
+
+    public new string Text
+    {
+        get => base.Text;
+        set
+        {
+            selectionBeforeEdit = Selection;
+            base.Text = value;
+        }
     }
 
     protected override void WndProc(ref Message m)
@@ -45,27 +58,27 @@ public class GoodTextBox : TextBox
                 // If there are two chars of different quality at different sides of a caret -
                 // prefer 'word' over 'non-word' and 'non-word' over 'space'.
                 int initialCharIndex = SelectionStart;
-                int initialCharQuality;
+                ConseqCharType initialCharType;
                 if (initialCharIndex == Text.Length)
                 {
                     initialCharIndex--;
-                    initialCharQuality = GetCharQuality(Text[initialCharIndex]);
+                    initialCharType = StringUtils.GetCharType(Text[initialCharIndex]);
                 }
                 else
                 {
-                    initialCharQuality = GetCharQuality(Text[initialCharIndex]);
-                    if ((initialCharQuality < CHAR_WORD) && (initialCharIndex > 0))
+                    initialCharType = StringUtils.GetCharType(Text[initialCharIndex]);
+                    if ((initialCharType < ConseqCharType.Word) && (initialCharIndex > 0))
                     {
-                        int prevCharQuality = GetCharQuality(Text[initialCharIndex - 1]);
-                        if (prevCharQuality > initialCharQuality)
+                        ConseqCharType prevCharType = StringUtils.GetCharType(Text[initialCharIndex - 1]);
+                        if (prevCharType > initialCharType)
                         {
                             initialCharIndex--;
-                            initialCharQuality = prevCharQuality;
+                            initialCharType = prevCharType;
                         }
                     }
                 }
 
-                if (initialCharQuality > CHAR_SPACE)
+                if (initialCharType > ConseqCharType.Space)
                 {
                     int selStart = initialCharIndex;
                     int selEnd = initialCharIndex + 1;
@@ -73,14 +86,14 @@ public class GoodTextBox : TextBox
                     // Spread forward
                     while (selEnd < Text.Length)
                     {
-                        if (GetCharQuality(Text[selEnd]) != initialCharQuality)
+                        if (StringUtils.GetCharType(Text[selEnd]) != initialCharType)
                             break;
                         selEnd++;
                     }
                     // Spread backwards
                     while (selStart > 0)
                     {
-                        if (GetCharQuality(Text[selStart - 1]) != initialCharQuality)
+                        if (StringUtils.GetCharType(Text[selStart - 1]) != initialCharType)
                             break;
                         selStart--;
                     }
@@ -98,21 +111,17 @@ public class GoodTextBox : TextBox
         base.WndProc(ref m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int GetCharQuality(char c)
-    {
-        if (c <= 32)
-            return CHAR_SPACE;
-        else
-            return StringUtils.IsPartOfWord(c) ? CHAR_WORD : CHAR_NONWORD;
-    }
-
     private void OnTextChanged(object sender, EventArgs e)
     {
         OnPotentialSelectionChange();
     }
 
-    private void OnKeyboard(object sender, KeyEventArgs e)
+    private void OnKeyDown(object sender, KeyEventArgs e)
+    {
+        selectionBeforeEdit = Selection;
+    }
+
+    private void OnKeyUp(object sender, KeyEventArgs e)
     {
         OnPotentialSelectionChange();
     }
@@ -124,10 +133,9 @@ public class GoodTextBox : TextBox
 
     private void OnPotentialSelectionChange()
     {
-        if ((SelectionStart != prevSelectionStart) || (SelectionLength != prevSelectionLength))
+        if (Selection != prevSelection)
         {
-            prevSelectionStart = SelectionStart;
-            prevSelectionLength = SelectionLength;
+            prevSelection = Selection;
             SelectionChanged?.Invoke(this, EventArgs.Empty);
         }
     }

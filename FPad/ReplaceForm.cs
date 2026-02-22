@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FPad.Edit;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -35,11 +36,11 @@ public partial class ReplaceForm : Form
         owner.KeyDown += ReplaceForm_KeyDown;
         owner.SelectionChanged += Owner_SelectionChanged;
 
-        (int selStart, int selLength) = owner.GetTextSelection();
+        Selection selection = owner.GetTextSelection();
         // Unlike in Find, here auto-fill from selection happens only on first Ctrl+H
-        if ((selLength > 0) && (selLength < REASONABLE_SELECTION_LENGTH))
+        if ((selection.Length > 0) && (selection.Length < REASONABLE_SELECTION_LENGTH))
         {
-            tbFind.Text = owner.GetText().Substring(selStart, selLength);
+            tbFind.Text = owner.GetText().Substring(selection.Start, selection.Length);
             tbFind.SelectAll();
         }
         else if (!string.IsNullOrEmpty(App.LastSearchStr))
@@ -160,7 +161,7 @@ public partial class ReplaceForm : Form
             List<int> matches = FindAllMatches(owner.GetText());
             if (matches.Count > 0)
             {
-                owner.ActivateAndSetTextSelection(matches[0], tbFind.Text.Length);
+                owner.ActivateAndSetTextSelection(new Selection(matches[0], tbFind.Text.Length));
             }
             // Let know if cannot find due to everything being already replaced
             else if (isDisplayingFindResult && wasSomethingFound && (matches.Count == 0))
@@ -179,21 +180,21 @@ public partial class ReplaceForm : Form
         if (isSearchAllowed)
         {
             List<int> matches = FindAllMatches(owner.GetText());
-            (int selStart, int selLength) = owner.GetTextSelection();
-            int matchIndex = matches.FindIndex(x => x >= selStart);
+            Selection selection = owner.GetTextSelection();
+            int matchIndex = matches.FindIndex(x => x >= selection.Start);
             if (matchIndex >= 0)
             {
                 // If some match is already selected - move to the next one
-                if ((selStart == matches[matchIndex])
-                    && ((selLength == tbFind.Text.Length)
+                if ((selection.Start == matches[matchIndex])
+                    && ((selection.Length == tbFind.Text.Length)
                         // If replace.StartsWith(find) and we have already replaced:
-                        || owner.GetText().AsSpan()[selStart..(selStart+selLength)].Equals(tbReplaceWith.Text, StringComparison.CurrentCulture))
+                        || owner.GetText().AsSpan()[selection.Start..(selection.Start + selection.Length)].Equals(tbReplaceWith.Text, StringComparison.CurrentCulture))
                    )
                 {
                     if (matchIndex + 1 < matches.Count)
                     {
                         matchIndex++;
-                        owner.ActivateAndSetTextSelection(matches[matchIndex], tbFind.Text.Length);
+                        owner.ActivateAndSetTextSelection(new Selection(matches[matchIndex], tbFind.Text.Length));
                     }
                     else
                     {
@@ -204,7 +205,7 @@ public partial class ReplaceForm : Form
                 }
                 else
                 {
-                    owner.ActivateAndSetTextSelection(matches[matchIndex], tbFind.Text.Length);
+                    owner.ActivateAndSetTextSelection(new Selection(matches[matchIndex], tbFind.Text.Length));
                 }
             }
             // Let know if cannot find due to everything being already replaced
@@ -224,14 +225,14 @@ public partial class ReplaceForm : Form
         if (isSearchAllowed)
         {
             List<int> matches = FindAllMatches(owner.GetText());
-            (int selStart, int selLength) = owner.GetTextSelection();
-            int matchIndex = matches.FindLastIndex(x => x < selStart);
+            Selection selection = owner.GetTextSelection();
+            int matchIndex = matches.FindLastIndex(x => x < selection.Start);
             if (matchIndex >= 0)
             {
-                owner.ActivateAndSetTextSelection(matches[matchIndex], tbFind.Text.Length);
+                owner.ActivateAndSetTextSelection(new Selection(matches[matchIndex], tbFind.Text.Length));
             }
             // If standing on the first match - beep
-            else if ((matches.Count > 0) && (selStart == matches[0]) && (selLength == tbFind.Text.Length))
+            else if ((matches.Count > 0) && (selection.Start == matches[0]) && (selection.Length == tbFind.Text.Length))
             {
                 matchIndex = 0;
                 SystemSounds.Beep.Play();
@@ -260,18 +261,18 @@ public partial class ReplaceForm : Form
     {
         if (bReplace.Enabled)
         {
-            (int selStart, int selLength) = owner.GetTextSelection();
-            if (selLength > 0)
+            Selection selection = owner.GetTextSelection();
+            if (selection.Length > 0)
             {
                 ReadOnlySpan<char> textSpan = owner.GetText().AsSpan();
 
                 StringBuilder sb = new();
-                sb.Append(textSpan[..selStart]);
+                sb.Append(textSpan[..selection.Start]);
                 sb.Append(tbReplaceWith.Text);
-                sb.Append(textSpan[(selStart + selLength)..]);
+                sb.Append(textSpan[(selection.Start + selection.Length)..]);
 
                 owner.SetText(sb.ToString());
-                owner.ActivateAndSetTextSelection(selStart, tbReplaceWith.Text.Length);
+                owner.ActivateAndSetTextSelection(new Selection(selection.Start, tbReplaceWith.Text.Length));
 
                 App.LastReplaceToStr = tbReplaceWith.Text;
             }
@@ -305,10 +306,10 @@ public partial class ReplaceForm : Form
 
         bReplaceAll.Enabled = isSearchAllowed;
 
-        (int selStart, int selLength) = owner.GetTextSelection();
-        bReplace.Enabled = selLength > 0;
+        Selection selection = owner.GetTextSelection();
+        bReplace.Enabled = selection.Length > 0;
 
-        bReplaceAllInSelection.Enabled = isSearchAllowed && (selLength >= tbFind.Text.Length);
+        bReplaceAllInSelection.Enabled = isSearchAllowed && (selection.Length >= tbFind.Text.Length);
     }
 
     private void DisplayFindResult(int matchesCount, int selectedIndex)
@@ -356,18 +357,18 @@ public partial class ReplaceForm : Form
     private void ExecuteReplaceAllMatches(bool withinSelection)
     {
         ReadOnlySpan<char> text = owner.GetText();
-        (int selStart, int selLength) = owner.GetTextSelection();
-        int selEnd = selStart + selLength;
+        Selection selection = owner.GetTextSelection();
+        int selEnd = selection.Start + selection.Length;
 
         List<int> allMatches;
         if (withinSelection)
         {
             // To make "whole words" option work correctly on borders we will cover broader range
-            int virtualSelStart = selStart > 0 ? selStart - 1 : selStart;
+            int virtualSelStart = selection.Start > 0 ? selection.Start - 1 : selection.Start;
             int virtualSelEnd = selEnd < text.Length ? selEnd + 1 : selEnd;
             allMatches = FindAllMatches(text[virtualSelStart..virtualSelEnd])
                 .Select(x => x + virtualSelStart) // convert to absolute offsets
-                .Where(x => (x >= selStart) && (x + tbFind.Text.Length <= selEnd)) // filter because the search range was wider than the selection
+                .Where(x => (x >= selection.Start) && (x + tbFind.Text.Length <= selEnd)) // filter because the search range was wider than the selection
                 .ToList();
         }
         else
@@ -402,11 +403,11 @@ public partial class ReplaceForm : Form
             if (currentFragmentStart < text.Length)
                 sb.Append(text[currentFragmentStart..]);
 
-            selStart = GetPositionAfterReplace(selStart, matches, tbFind.Text.Length, tbReplaceWith.Text.Length);
+            int selStart = GetPositionAfterReplace(selection.Start, matches, tbFind.Text.Length, tbReplaceWith.Text.Length);
             selEnd = GetPositionAfterReplace(selEnd, matches, tbFind.Text.Length, tbReplaceWith.Text.Length);
 
             owner.SetText(sb.ToString());
-            owner.ActivateAndSetTextSelection(selStart, selEnd - selStart);
+            owner.ActivateAndSetTextSelection(new Selection(selStart, selEnd - selStart));
 
             labelResult.Text = withinSelection
                 ? $"{matches.Count} occurences replaced within selection"

@@ -1,3 +1,4 @@
+using FPad.Edit;
 using FPad.Encodings;
 using FPad.ExternalEditors;
 using FPad.Interaction;
@@ -96,17 +97,17 @@ namespace FPad
 
         #region Cross-Window communication
 
-        public (int Start, int Length) GetTextSelection()
+        public Selection GetTextSelection()
         {
-            return (text.SelectionStart, text.SelectionLength);
+            return new Selection(text.SelectionStart, text.SelectionLength);
         }
 
-        public void ActivateAndSetTextSelection(int selectionStart, int selectionLength)
+        public void ActivateAndSetTextSelection(Selection selection)
         {
             Activate();
             text.Focus();
 
-            SetTextSelection(selectionStart, selectionLength);
+            SetTextSelection(selection);
         }
 
         public event EventHandler SelectionChanged;
@@ -165,7 +166,7 @@ namespace FPad
                 if (lineIndex.HasValue || charIndex.HasValue)
                 {
                     (int position, _, _) = StringUtils.GetPositionAdaptive(text.Text, lineIndex ?? 0, charIndex ?? 0);
-                    ActivateAndSetTextSelection(position, 0);
+                    ActivateAndSetTextSelection(new Selection(position, 0));
                 }
                 else
                 {
@@ -246,7 +247,7 @@ namespace FPad
             {
                 int localValue = setPositionOnActivate.Value;
                 setPositionOnActivate = null;
-                SetTextSelection(localValue, 0);
+                SetTextSelection(new Selection(localValue, 0));
             }
         }
 
@@ -401,7 +402,7 @@ namespace FPad
                 sb.Append(text.Text.Substring(text.SelectionStart + text.SelectionLength));
 
                 text.Text = sb.ToString();
-                SetTextSelection(newCursorPosition, 0);
+                SetTextSelection(new Selection(newCursorPosition, 0));
             }
         }
 
@@ -427,7 +428,7 @@ namespace FPad
                 sb.Append(text.Text.Substring(text.SelectionStart + text.SelectionLength));
 
                 text.Text = sb.ToString();
-                SetTextSelection(newCursorPosition, 0);
+                SetTextSelection(new Selection(newCursorPosition, 0));
             }
         }
 
@@ -451,7 +452,7 @@ namespace FPad
             if (targetLine.HasValue)
             {
                 (int targetPosition, _, _) = StringUtils.GetPositionAdaptive(text.Text, targetLine.Value, 0);
-                SetTextSelection(targetPosition, 0);
+                SetTextSelection(new Selection(targetPosition, 0));
             }
         }
 
@@ -562,7 +563,7 @@ namespace FPad
                 ReloadFile();
 
                 (int newSelStartPos, _, _) = StringUtils.GetPositionAdaptive(text.Text, selStartLine, selStartChar);
-                SetTextSelection(newSelStartPos, 0);
+                SetTextSelection(new Selection(newSelStartPos, 0));
             }
         }
 
@@ -942,12 +943,12 @@ namespace FPad
             }
         }
 
-        private void SetTextSelection(int selectionStart, int selectionLength)
+        private void SetTextSelection(Selection selection)
         {
-            bool changed = (selectionStart != text.SelectionStart) || (selectionLength != text.SelectionLength);
+            bool changed = selection != text.Selection;
 
-            text.SelectionStart = selectionStart;
-            text.SelectionLength = selectionLength;
+            text.SelectionStart = selection.Start;
+            text.SelectionLength = selection.Length;
             text.ScrollToCaret();
 
             UpdateMenu();

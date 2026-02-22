@@ -148,6 +148,15 @@ public static class StringUtils
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static ConseqCharType GetCharType(char c)
+    {
+        if (c <= 32)
+            return ConseqCharType.Space;
+        else
+            return IsPartOfWord(c) ? ConseqCharType.Word : ConseqCharType.NonWord;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool IsPartOfWord(char c)
     {
         return (c == '_') || char.IsLetterOrDigit(c);

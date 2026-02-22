@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FPad.Edit;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -30,8 +31,8 @@ public partial class FindForm : Form
         InitializeComponent();
         this.topRight = topRight;
 
-        (int selStart, int selLength) = owner.GetTextSelection();
-        if ((selLength == 0) && !string.IsNullOrEmpty(App.LastSearchStr))
+        Selection selection = owner.GetTextSelection();
+        if ((selection.Length == 0) && !string.IsNullOrEmpty(App.LastSearchStr))
         {
             tbFind.Text = App.LastSearchStr;
             tbFind.SelectAll();
@@ -63,14 +64,14 @@ public partial class FindForm : Form
         }
 
         // Auto-fill from current selection (on each Ctrl+F):
-        (int selStart, int selLength) = owner.GetTextSelection();
-        if ((selLength > 0) && (selLength <= REASONABLE_SELECTION_LENGTH))
+        Selection selection = owner.GetTextSelection();
+        if ((selection.Length > 0) && (selection.Length <= REASONABLE_SELECTION_LENGTH))
         {
-            string selectedText = owner.GetText().Substring(selStart, selLength);
+            string selectedText = owner.GetText().Substring(selection.Start, selection.Length);
             if (!string.Equals(selectedText, instance.tbFind.Text,
                 instance.chMatchCase.Checked ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase))
             {
-                instance.tbFind.Text = owner.GetText().Substring(selStart, selLength).Trim();
+                instance.tbFind.Text = owner.GetText().Substring(selection.Start, selection.Length).Trim();
                 instance.tbFind.SelectAll();
             }
         }
@@ -151,7 +152,7 @@ public partial class FindForm : Form
             List<int> allMatches = FindAllMatches();
             if (allMatches.Count > 0)
             {
-                owner.ActivateAndSetTextSelection(allMatches[0], tbFind.Text.Length);
+                owner.ActivateAndSetTextSelection(new Selection(allMatches[0], tbFind.Text.Length));
             }
 
             DisplayResults(allMatches, 0);
@@ -164,17 +165,17 @@ public partial class FindForm : Form
         if (areButtonsAvailable)
         {
             List<int> allMatches = FindAllMatches();
-            (int selStart, int selLength) = owner.GetTextSelection();
-            int matchIndex = allMatches.FindIndex(x => x >= selStart);
+            Selection selection = owner.GetTextSelection();
+            int matchIndex = allMatches.FindIndex(x => x >= selection.Start);
             if (matchIndex >= 0)
             {
                 // If some match was exactly selected already - go to the next one.
-                if ((selStart == allMatches[matchIndex]) && (selLength == tbFind.Text.Length))
+                if ((selection.Start == allMatches[matchIndex]) && (selection.Length == tbFind.Text.Length))
                 {
                     if (matchIndex + 1 < allMatches.Count)
                     {
                         matchIndex++;
-                        owner.ActivateAndSetTextSelection(allMatches[matchIndex], tbFind.Text.Length);
+                        owner.ActivateAndSetTextSelection(new Selection(allMatches[matchIndex], tbFind.Text.Length));
                     }
                     else
                     {
@@ -185,7 +186,7 @@ public partial class FindForm : Form
                 }
                 else
                 {
-                    owner.ActivateAndSetTextSelection(allMatches[matchIndex], tbFind.Text.Length);
+                    owner.ActivateAndSetTextSelection(new Selection(allMatches[matchIndex], tbFind.Text.Length));
                 }
             }
 
@@ -199,14 +200,14 @@ public partial class FindForm : Form
         if (areButtonsAvailable)
         {
             List<int> allMatches = FindAllMatches();
-            (int selStart, int selLength) = owner.GetTextSelection();
-            int matchIndex = allMatches.FindLastIndex(x => x < selStart);
+            Selection selection = owner.GetTextSelection();
+            int matchIndex = allMatches.FindLastIndex(x => x < selection.Start);
             if (matchIndex >= 0)
             {
-                owner.ActivateAndSetTextSelection(allMatches[matchIndex], tbFind.Text.Length);
+                owner.ActivateAndSetTextSelection(new Selection(allMatches[matchIndex], tbFind.Text.Length));
             }
             // If standing on the first match - beep
-            else if ((allMatches.Count > 0) && (selStart == allMatches[0]) && (selLength == tbFind.Text.Length))
+            else if ((allMatches.Count > 0) && (selection.Start == allMatches[0]) && (selection.Length == tbFind.Text.Length))
             {
                 matchIndex = 0;
                 SystemSounds.Beep.Play();
