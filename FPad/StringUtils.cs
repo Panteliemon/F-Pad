@@ -147,6 +147,63 @@ public static class StringUtils
         }
     }
 
+    public static int GetCommonPrefixLength(string str1, string str2)
+    {
+        if (str1.Length <= str2.Length)
+        {
+            for (int i = 0; i < str1.Length; i++)
+            {
+                if (str1[i] != str2[i])
+                    return i;
+            }
+
+            return str1.Length;
+        }
+        else
+        {
+            for (int i = 0; i < str2.Length; i++)
+            {
+                if (str1[i] != str2[i])
+                    return i;
+            }
+
+            return str2.Length;
+        }
+    }
+
+    public static int GetCommonSuffixLength(string str1, string str2)
+    {
+        int pos1 = str1.Length;
+        int pos2 = str2.Length;
+        int result = 0;
+        if (str1.Length <= str2.Length)
+        {
+            while (pos1 > 0)
+            {
+                pos1--;
+                pos2--;
+                if (str1[pos1] != str2[pos2])
+                    return result;
+                result++;
+            }
+
+            return str1.Length;
+        }
+        else
+        {
+            while (pos2 > 0)
+            {
+                pos1--;
+                pos2--;
+                if (str1[pos1] != str2[pos2])
+                    return result;
+                result++;
+            }
+
+            return str2.Length;
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static ConseqCharType GetCharType(char c)
     {
