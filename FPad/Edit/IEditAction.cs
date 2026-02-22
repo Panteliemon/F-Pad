@@ -9,8 +9,8 @@ namespace FPad.Edit;
 public interface IEditAction
 {
     string DisplayName { get; }
-    void PlayForward(IEditor editor);
-    void PlayBackward(IEditor editor);
+    void Apply(IEditor editor);
+    void Rollback(IEditor editor);
     /// <summary>
     /// Try to combine current action with the next one.
     /// </summary>

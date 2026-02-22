@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FPad.Encodings;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,4 +17,5 @@ public interface IEditor
     /// </summary>
     string TextNoUndo { get; set; }
     Selection Selection { get; set; }
+    EncodingVm Encoding { get; set; }
 }
