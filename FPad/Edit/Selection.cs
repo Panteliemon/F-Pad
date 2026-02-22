@@ -54,6 +54,11 @@ public struct Selection : IEquatable<Selection>
     {
         return !x.Equals(y);
     }
+
+    public static explicit operator Range(Selection sel)
+    {
+        return new Range(sel.Start, sel.End);
+    }
 }
 
 public static class SelectionExtensions

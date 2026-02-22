@@ -147,7 +147,7 @@ public static class StringUtils
         }
     }
 
-    public static int GetCommonPrefixLength(string str1, string str2)
+    public static int GetCommonPrefixLength(ReadOnlySpan<char> str1, ReadOnlySpan<char> str2)
     {
         if (str1.Length <= str2.Length)
         {
@@ -171,7 +171,7 @@ public static class StringUtils
         }
     }
 
-    public static int GetCommonSuffixLength(string str1, string str2)
+    public static int GetCommonSuffixLength(ReadOnlySpan<char> str1, ReadOnlySpan<char> str2)
     {
         int pos1 = str1.Length;
         int pos2 = str2.Length;
