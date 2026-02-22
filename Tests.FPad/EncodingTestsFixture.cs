@@ -13,6 +13,8 @@ namespace Tests.FPad;
 
 public class EncodingTestsFixture
 {
+    private static object lockObj = new();
+
     public record EncodingWrapper(EncodingVm Vm, StringSearch Search);
 
     public DirectoryInfo TxtDir { get; }
@@ -23,14 +25,26 @@ public class EncodingTestsFixture
         string pathToCurrentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         TxtDir = new DirectoryInfo(Path.Combine(pathToCurrentDir, "Txt"));
 
-        EncodingManager.Init();
+        bool isFirstInit = false;
+        lock (lockObj)
+        {
+            if (EncodingManager.DefaultEncoding == null)
+            {
+                EncodingManager.Init();
+                isFirstInit = true;
+            }
+        }
+
         Wrappers = EncodingManager.Encodings.Select(x => new EncodingWrapper(
             x, new StringSearch(x.Encoding.WebName, false)
         )).ToList();
 
-        string[] codes = EncodingManager.Encodings.Select(x => x.Encoding.WebName).ToArray();
-        string codesLines = $"Generated {DateTime.UtcNow} UTC{Environment.NewLine}Supported encoding identifiers are:"
-            + Environment.NewLine + string.Join(Environment.NewLine, codes);
-        File.WriteAllText(Path.Combine(TxtDir.FullName, "_codes.txt"), codesLines);
+        if (isFirstInit)
+        {
+            string[] codes = EncodingManager.Encodings.Select(x => x.Encoding.WebName).ToArray();
+            string codesLines = $"Generated {DateTime.UtcNow} UTC{Environment.NewLine}Supported encoding identifiers are:"
+                + Environment.NewLine + string.Join(Environment.NewLine, codes);
+            File.WriteAllText(Path.Combine(TxtDir.FullName, "_codes.txt"), codesLines);
+        }
     }
 }
