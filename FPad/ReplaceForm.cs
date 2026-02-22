@@ -40,7 +40,7 @@ public partial class ReplaceForm : Form
         // Unlike in Find, here auto-fill from selection happens only on first Ctrl+H
         if ((selection.Length > 0) && (selection.Length < REASONABLE_SELECTION_LENGTH))
         {
-            tbFind.Text = owner.GetText().Substring(selection.Start, selection.Length);
+            tbFind.Text = owner.GetText().SubString(selection);
             tbFind.SelectAll();
         }
         else if (!string.IsNullOrEmpty(App.LastSearchStr))
@@ -188,7 +188,7 @@ public partial class ReplaceForm : Form
                 if ((selection.Start == matches[matchIndex])
                     && ((selection.Length == tbFind.Text.Length)
                         // If replace.StartsWith(find) and we have already replaced:
-                        || owner.GetText().AsSpan()[selection.Start..(selection.Start + selection.Length)].Equals(tbReplaceWith.Text, StringComparison.CurrentCulture))
+                        || owner.GetText().AsSpan()[selection.Start..selection.End].Equals(tbReplaceWith.Text, StringComparison.CurrentCulture))
                    )
                 {
                     if (matchIndex + 1 < matches.Count)
@@ -269,7 +269,7 @@ public partial class ReplaceForm : Form
                 StringBuilder sb = new();
                 sb.Append(textSpan[..selection.Start]);
                 sb.Append(tbReplaceWith.Text);
-                sb.Append(textSpan[(selection.Start + selection.Length)..]);
+                sb.Append(textSpan[selection.End..]);
 
                 owner.SetText(sb.ToString());
                 owner.ActivateAndSetTextSelection(new Selection(selection.Start, tbReplaceWith.Text.Length));
@@ -358,7 +358,7 @@ public partial class ReplaceForm : Form
     {
         ReadOnlySpan<char> text = owner.GetText();
         Selection selection = owner.GetTextSelection();
-        int selEnd = selection.Start + selection.Length;
+        int selEnd = selection.End;
 
         List<int> allMatches;
         if (withinSelection)

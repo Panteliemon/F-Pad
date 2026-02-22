@@ -67,11 +67,11 @@ public partial class FindForm : Form
         Selection selection = owner.GetTextSelection();
         if ((selection.Length > 0) && (selection.Length <= REASONABLE_SELECTION_LENGTH))
         {
-            string selectedText = owner.GetText().Substring(selection.Start, selection.Length);
+            string selectedText = owner.GetText().SubString(selection);
             if (!string.Equals(selectedText, instance.tbFind.Text,
                 instance.chMatchCase.Checked ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase))
             {
-                instance.tbFind.Text = owner.GetText().Substring(selection.Start, selection.Length).Trim();
+                instance.tbFind.Text = owner.GetText().SubString(selection).Trim();
                 instance.tbFind.SelectAll();
             }
         }

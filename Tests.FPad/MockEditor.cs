@@ -53,9 +53,7 @@ internal class MockEditor : IEditor
 
     private Selection NormalizeSelection(Selection sel)
     {
-        int start = NormalizePosition(sel.Start);
-        int end = NormalizePosition(sel.Start + sel.Length);
-        return new Selection(start, end - start);
+        return Selection.FromStartEnd(NormalizePosition(sel.Start), NormalizePosition(sel.End));
     }
 
     private int NormalizePosition(int pos)
