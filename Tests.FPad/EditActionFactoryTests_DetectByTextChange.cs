@@ -13,6 +13,27 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         this.fixture = fixture;
     }
 
+    private void AssertActionApplyAndRollback(IEditAction action, string textBefore, string textAfter, Selection selectionBefore, int positionAfter)
+    {
+        IEditor editor = new MockEditor(fixture);
+        editor.TextNoUndo = textBefore;
+        editor.Selection = selectionBefore;
+
+        // Act: Apply
+        action.Apply(editor);
+
+        // Assert after Apply
+        Assert.Equal(textAfter, editor.TextNoUndo);
+        Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
+
+        // Act: Rollback
+        action.Rollback(editor);
+
+        // Assert after Rollback
+        Assert.Equal(textBefore, editor.TextNoUndo);
+        Assert.Equal(selectionBefore, editor.Selection);
+    }
+
     #region No Change Detection
 
     [Fact]
@@ -98,24 +119,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         Assert.NotNull(result);
         Assert.IsType<SingleSymbolTypeEditAction>(result);
 
-        //========
-        IEditor editor = new MockEditor(fixture);
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
-        // Act: Apply
-        result.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-        Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
-
-        // Act: Rollback
-        result.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(result, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     [Fact]
@@ -190,30 +194,14 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_TypeOverSelection_ApplyRollbackRoundTrip()
     {
         // Arrange
-        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello World";
         string textAfter = "Hello Universe";
         Selection selectionBefore = new(6, 5); // "World" selected
         int positionAfter = 14;
 
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
         IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
-        // Act: Apply
-        action.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-        Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
-
-        // Act: Rollback
-        action.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     #endregion
@@ -254,54 +242,21 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         Assert.NotNull(result);
         Assert.IsType<SingleSymbolEraseEditAction>(result);
 
-        //=========
-        IEditor editor = new MockEditor(fixture);
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
-        // Act: Apply
-        result.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-        Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
-
-        // Act: Rollback
-        result.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(result, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     [Fact]
     public void DetectByTextChange_BackspaceAtBeginning_ApplyRollbackRoundTrip()
     {
         // Arrange
-        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello";
         string textAfter = "ello";
         Selection selectionBefore = new(1, 0);
         int positionAfter = 0;
 
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
         IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
-        // Act: Apply
-        action.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-        Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
-
-        // Act: Rollback
-        action.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     #endregion
@@ -346,30 +301,14 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_DeleteAtEnd_ApplyRollbackRoundTrip()
     {
         // Arrange
-        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello";
         string textAfter = "Hell";
         Selection selectionBefore = new(4, 0);
         int positionAfter = 4;
 
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
         IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
-        // Act: Apply
-        action.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-        Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
-
-        // Act: Rollback
-        action.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     #endregion
@@ -432,30 +371,14 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_ClearSelection_ApplyRollbackRoundTrip()
     {
         // Arrange
-        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello World";
         string textAfter = "Hello ";
         Selection selectionBefore = new(6, 5);
         int positionAfter = 6;
 
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
         IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
-        // Act: Apply
-        action.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-        Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
-
-        // Act: Rollback
-        action.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     #endregion
@@ -485,90 +408,45 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_GenericEdit_ApplyRollbackRoundTrip()
     {
         // Arrange
-        IEditor editor = new MockEditor(fixture);
         string textBefore = "ABCDEF";
         string textAfter = "AXYZEF";
         Selection selectionBefore = new(3, 2);
         int positionAfter = 2;
 
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
         IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
         Assert.IsType<GenericEditAction>(action);
 
-        // Act: Apply
-        action.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-
-        // Act: Rollback
-        action.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     [Fact]
     public void DetectByTextChange_GenericEdit_AtBegin()
     {
         // Arrange
-        IEditor editor = new MockEditor(fixture);
         string textBefore = "ABCDEF";
         string textAfter = "XYZABCDEF";
         Selection selectionBefore = new(3, 2);
         int positionAfter = 9;
 
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
         IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
         Assert.IsType<GenericEditAction>(action);
 
-        // Act: Apply
-        action.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-
-        // Act: Rollback
-        action.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     [Fact]
     public void DetectByTextChange_GenericEdit_AtEnd()
     {
         // Arrange
-        IEditor editor = new MockEditor(fixture);
         string textBefore = "ABCDEF";
         string textAfter = "ABCDEFXYZ";
         Selection selectionBefore = new(3, 2);
         int positionAfter = 3;
 
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
         IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
         Assert.IsType<GenericEditAction>(action);
 
-        // Act: Apply
-        action.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-
-        // Act: Rollback
-        action.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     #endregion
@@ -664,29 +542,14 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_ReplaceSelectionInMiddle_ApplyRollbackRoundTrip()
     {
         // Arrange
-        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello Beautiful World";
         string textAfter = "Hello Amazing World";
         Selection selectionBefore = new(6, 9); // "Beautiful" selected
         int positionAfter = 13;
 
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
         IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
-        // Act: Apply
-        action.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-
-        // Act: Rollback
-        action.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     #endregion
@@ -697,150 +560,70 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_TypeAtBeginning_ApplyRollbackRoundTrip()
     {
         // Arrange
-        IEditor editor = new MockEditor(fixture);
         string textBefore = "World";
         string textAfter = "Hello World";
         Selection selectionBefore = new(0, 0);
         int positionAfter = 6;
 
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
         IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
-        // Act: Apply
-        action.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-        Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
-
-        // Act: Rollback
-        action.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     [Fact]
     public void DetectByTextChange_TypeAtEnd_ApplyRollbackRoundTrip()
     {
         // Arrange
-        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello";
         string textAfter = "Hello World";
         Selection selectionBefore = new(5, 0);
         int positionAfter = 11;
 
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
         IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
-        // Act: Apply
-        action.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-        Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
-
-        // Act: Rollback
-        action.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     [Fact]
     public void DetectByTextChange_DeleteEntireText_ApplyRollbackRoundTrip()
     {
         // Arrange
-        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello";
         string textAfter = "";
         Selection selectionBefore = new(0, 5);
         int positionAfter = 0;
 
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
         IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
-        // Act: Apply
-        action.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-        Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
-
-        // Act: Rollback
-        action.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     [Fact]
     public void DetectByTextChange_DeleteInMiddle_ApplyRollbackRoundTrip()
     {
         // Arrange
-        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello World";
         string textAfter = "Helloorld";
         Selection selectionBefore = new(5, 0);
         int positionAfter = 5;
 
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
         IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
-        // Act: Apply
-        action.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-        Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
-
-        // Act: Rollback
-        action.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     [Fact]
     public void DetectByTextChange_BackspaceInMiddle_ApplyRollbackRoundTrip()
     {
         // Arrange
-        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello World";
         string textAfter = "Hell World";
         Selection selectionBefore = new(5, 0);
         int positionAfter = 4;
 
-        editor.TextNoUndo = textBefore;
-        editor.Selection = selectionBefore;
-
         IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
-        // Act: Apply
-        action.Apply(editor);
-
-        // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
-        Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
-
-        // Act: Rollback
-        action.Rollback(editor);
-
-        // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
-        Assert.Equal(selectionBefore, editor.Selection);
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
     #endregion
