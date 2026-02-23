@@ -9,17 +9,19 @@ namespace FPad.Edit;
 internal class SingleSymbolTypeEditAction : InsertEditAction, IEditAction
 {
     private ConseqCharType insertedCharsType;
+    private int positionAfterEdit;
 
     internal SingleSymbolTypeEditAction(int charsBeforeChange, int charsAfterChange,
-        string erasedSubString, string insertedSubString)
+        string erasedSubString, string insertedSubString, int positionAfterEdit)
         : base(charsBeforeChange, charsAfterChange, erasedSubString, insertedSubString)
     {
         insertedCharsType = StringUtils.GetCharType(insertedSubString[0]);
+        this.positionAfterEdit = positionAfterEdit;
     }
 
     protected override void SelectAfterApply(IEditor editor)
     {
-        editor.Selection = new Selection(charsBeforeChange + insertedSubString.Length, 0);
+        editor.Selection = new Selection(positionAfterEdit, 0);
     }
 
     #region IEditAction
@@ -40,6 +42,7 @@ internal class SingleSymbolTypeEditAction : InsertEditAction, IEditAction
             sb.Append(next.insertedSubString);
             sb.Append(insertedSubString[relativePos..]);
             insertedSubString = sb.ToString();
+            positionAfterEdit = next.positionAfterEdit;
 
             return true;
         }

@@ -34,7 +34,8 @@ public static class EditActionFactory
         {
             return new SingleSymbolTypeEditAction(selectionBefore.Start, charsToEndBefore,
                 selectionBefore.Length > 0 ? textBefore[(Range)selectionBefore].ToString() : null,
-                textAfter[selectionBefore.Start..positionAfterEdit].ToString());
+                textAfter[selectionBefore.Start..positionAfterEdit].ToString(),
+                positionAfterEdit);
         }
 
         // Pattern: Backspace (no selection prior)
