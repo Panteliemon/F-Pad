@@ -22,6 +22,13 @@ public static class EditActionFactory
         int charsToEndBefore = textBefore.Length - selectionBefore.End;
         int charsToEndAfter = textAfter.Length - positionAfterEdit;
 
+        int commonPrefixLength = StringUtils.GetCommonPrefixLength(textBefore, textAfter);
+        if ((textBefore.Length == textAfter.Length)
+            && (commonPrefixLength == textBefore.Length))
+        {
+            return null;
+        }
+
         // TODO:
         // - group similar checks
         // - substrings comparison - perform once
@@ -29,7 +36,7 @@ public static class EditActionFactory
         // Pattern: Typing some characters (include type over selection)
         if ((positionAfterEdit > selectionBefore.Start)
             && (charsToEndBefore == charsToEndAfter)
-            && textBefore[0..selectionBefore.Start].Equals(textAfter[0..selectionBefore.Start], StringComparison.Ordinal)
+            && (commonPrefixLength >= selectionBefore.Start)
             && textBefore[^charsToEndBefore..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
         {
             return new SingleSymbolTypeEditAction(selectionBefore.Start, charsToEndBefore,
@@ -42,7 +49,7 @@ public static class EditActionFactory
         if ((positionAfterEdit < selectionBefore.Start)
             && (charsToEndBefore == charsToEndAfter)
             && (selectionBefore.Length == 0)
-            && textBefore[0..positionAfterEdit].Equals(textAfter[0..positionAfterEdit], StringComparison.Ordinal)
+            && (commonPrefixLength >= positionAfterEdit)
             && textBefore[^charsToEndAfter..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
         {
             return new SingleSymbolEraseEditAction(positionAfterEdit, charsToEndAfter,
@@ -54,7 +61,7 @@ public static class EditActionFactory
         if ((positionAfterEdit == selectionBefore.Start)
             && (charsToEndBefore > charsToEndAfter)
             && (selectionBefore.Length == 0)
-            && textBefore[0..selectionBefore.Start].Equals(textAfter[0..selectionBefore.Start], StringComparison.Ordinal)
+            && (commonPrefixLength >= selectionBefore.Start)
             && textBefore[^charsToEndAfter..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
         {
             return new SingleSymbolEraseEditAction(positionAfterEdit, charsToEndAfter,
@@ -66,7 +73,7 @@ public static class EditActionFactory
         if ((positionAfterEdit == selectionBefore.Start)
             && (charsToEndBefore == charsToEndAfter)
             && (selectionBefore.Length > 0)
-            && textBefore[0..selectionBefore.Start].Equals(textAfter[0..selectionBefore.Start], StringComparison.Ordinal)
+            && (commonPrefixLength >= selectionBefore.Start)
             && textBefore[^charsToEndAfter..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
         {
             return new SelectionEraseEditAction(selectionBefore.Start, charsToEndBefore,
@@ -78,13 +85,6 @@ public static class EditActionFactory
         // This should not happen if I'm not missing anything.
         // We will support undo-redo in this scenario exactly how we've detected it,
         // but this is not the "right" way.
-
-        int commonPrefixLength = StringUtils.GetCommonPrefixLength(textBefore, textAfter);
-        if ((textBefore.Length == textAfter.Length)
-            && (commonPrefixLength == textBefore.Length))
-        {
-            return null;
-        }
 
         // Suffix should not overlap prefix. Cut equal part to prevent overlap.
         ReadOnlySpan<char> tailBefore = textBefore[commonPrefixLength..];
