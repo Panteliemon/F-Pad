@@ -281,7 +281,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello";
         string textAfter = "ello";
-        var selectionBefore = new Selection(1, 0);
+        Selection selectionBefore = new(1, 0);
         int positionAfter = 0;
 
         editor.TextNoUndo = textBefore;
@@ -314,7 +314,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         // Arrange
         string textBefore = "Hello World";
         string textAfter = "Hello orld";
-        var selectionBefore = new Selection(6, 0); // cursor before 'W'
+        Selection selectionBefore = new(6, 0); // cursor before 'W'
         int positionAfter = 6;
 
         // Act
@@ -331,7 +331,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         // Arrange
         string textBefore = "Hello World";
         string textAfter = "Hello rld";
-        var selectionBefore = new Selection(6, 0);
+        Selection selectionBefore = new(6, 0);
         int positionAfter = 6;
 
         // Act
@@ -349,7 +349,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello";
         string textAfter = "Hell";
-        var selectionBefore = new Selection(4, 0);
+        Selection selectionBefore = new(4, 0);
         int positionAfter = 4;
 
         editor.TextNoUndo = textBefore;
@@ -382,7 +382,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         // Arrange
         string textBefore = "Hello World";
         string textAfter = "Hello ";
-        var selectionBefore = new Selection(6, 5); // "World" selected
+        Selection selectionBefore = new(6, 5); // "World" selected
         int positionAfter = 6;
 
         // Act
@@ -400,7 +400,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         // Arrange
         string textBefore = "Hello World";
         string textAfter = " World";
-        var selectionBefore = new Selection(0, 5); // "Hello" selected
+        Selection selectionBefore = new(0, 5); // "Hello" selected
         int positionAfter = 0;
 
         // Act
@@ -417,7 +417,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         // Arrange
         string textBefore = "Hello World";
         string textAfter = "";
-        var selectionBefore = new Selection(0, 11); // entire text selected
+        Selection selectionBefore = new(0, 11); // entire text selected
         int positionAfter = 0;
 
         // Act
@@ -435,7 +435,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello World";
         string textAfter = "Hello ";
-        var selectionBefore = new Selection(6, 5);
+        Selection selectionBefore = new(6, 5);
         int positionAfter = 6;
 
         editor.TextNoUndo = textBefore;
@@ -469,7 +469,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         // e.g., cursor moved significantly and text changed in unexpected ways
         string textBefore = "ABCDEF";
         string textAfter = "AXYZEF";
-        var selectionBefore = new Selection(0, 0); // cursor at beginning
+        Selection selectionBefore = new(0, 0); // cursor at beginning
         int positionAfter = 4; // cursor at position 4
 
         // Act
@@ -488,7 +488,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         IEditor editor = new MockEditor(fixture);
         string textBefore = "ABCDEF";
         string textAfter = "AXYZEF";
-        var selectionBefore = new Selection(3, 2);
+        Selection selectionBefore = new(3, 2);
         int positionAfter = 2;
 
         editor.TextNoUndo = textBefore;
@@ -518,7 +518,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         IEditor editor = new MockEditor(fixture);
         string textBefore = "ABCDEF";
         string textAfter = "XYZABCDEF";
-        var selectionBefore = new Selection(3, 2);
+        Selection selectionBefore = new(3, 2);
         int positionAfter = 9;
 
         editor.TextNoUndo = textBefore;
@@ -548,7 +548,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         IEditor editor = new MockEditor(fixture);
         string textBefore = "ABCDEF";
         string textAfter = "ABCDEFXYZ";
-        var selectionBefore = new Selection(3, 2);
+        Selection selectionBefore = new(3, 2);
         int positionAfter = 3;
 
         editor.TextNoUndo = textBefore;
@@ -581,7 +581,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         // Arrange
         string textBefore = "HelloWorld";
         string textAfter = "Hello World";
-        var selectionBefore = new Selection(5, 0);
+        Selection selectionBefore = new(5, 0);
         int positionAfter = 6;
 
         // Act
@@ -598,7 +598,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         // Arrange
         string textBefore = "Hello";
         string textAfter = "Hello\n";
-        var selectionBefore = new Selection(5, 0);
+        Selection selectionBefore = new(5, 0);
         int positionAfter = 6;
 
         // Act
@@ -615,7 +615,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         // Arrange
         string textBefore = "Hello";
         string textAfter = "Hello!@#";
-        var selectionBefore = new Selection(5, 0);
+        Selection selectionBefore = new(5, 0);
         int positionAfter = 8;
 
         // Act
@@ -632,7 +632,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         // Arrange
         string textBefore = "Hello\nWorld";
         string textAfter = "HelloWorld";
-        var selectionBefore = new Selection(6, 0);
+        Selection selectionBefore = new(6, 0);
         int positionAfter = 5;
 
         // Act
@@ -667,7 +667,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello Beautiful World";
         string textAfter = "Hello Amazing World";
-        var selectionBefore = new Selection(6, 9); // "Beautiful" selected
+        Selection selectionBefore = new(6, 9); // "Beautiful" selected
         int positionAfter = 13;
 
         editor.TextNoUndo = textBefore;
@@ -700,7 +700,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         IEditor editor = new MockEditor(fixture);
         string textBefore = "World";
         string textAfter = "Hello World";
-        var selectionBefore = new Selection(0, 0);
+        Selection selectionBefore = new(0, 0);
         int positionAfter = 6;
 
         editor.TextNoUndo = textBefore;
@@ -730,7 +730,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello";
         string textAfter = "Hello World";
-        var selectionBefore = new Selection(5, 0);
+        Selection selectionBefore = new(5, 0);
         int positionAfter = 11;
 
         editor.TextNoUndo = textBefore;
@@ -760,7 +760,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello";
         string textAfter = "";
-        var selectionBefore = new Selection(0, 5);
+        Selection selectionBefore = new(0, 5);
         int positionAfter = 0;
 
         editor.TextNoUndo = textBefore;
@@ -790,7 +790,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello World";
         string textAfter = "Helloorld";
-        var selectionBefore = new Selection(5, 0);
+        Selection selectionBefore = new(5, 0);
         int positionAfter = 5;
 
         editor.TextNoUndo = textBefore;
@@ -820,7 +820,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello World";
         string textAfter = "Hell World";
-        var selectionBefore = new Selection(5, 0);
+        Selection selectionBefore = new(5, 0);
         int positionAfter = 4;
 
         editor.TextNoUndo = textBefore;

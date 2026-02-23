@@ -17,7 +17,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
     public void Apply_Rollback_RoundTrip_Insert()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string prefix = "Hello ";
         string erased = "";
         string inserted = "Beautiful ";
@@ -27,7 +27,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         Selection selectionBefore = new Selection(prefix.Length, erased.Length);
         Selection selectionAfter = new Selection(prefix.Length, inserted.Length);
 
-        var action = new GenericEditAction(prefix.Length, suffix.Length, erased, inserted, selectionBefore, selectionAfter);
+        IEditAction action = new GenericEditAction(prefix.Length, suffix.Length, erased, inserted, selectionBefore, selectionAfter);
 
         // Act: Apply
         action.Apply(editor);
@@ -48,7 +48,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
     public void Apply_Rollback_RoundTrip_Delete()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string prefix = "Hello ";
         string erased = "World ";
         string inserted = "";
@@ -58,7 +58,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         Selection selectionBefore = new Selection(prefix.Length, erased.Length);
         Selection selectionAfter = new Selection(prefix.Length, inserted.Length);
 
-        var action = new GenericEditAction(prefix.Length, suffix.Length, erased, inserted, selectionBefore, selectionAfter);
+        IEditAction action = new GenericEditAction(prefix.Length, suffix.Length, erased, inserted, selectionBefore, selectionAfter);
 
         // Act: Apply
         action.Apply(editor);
@@ -79,7 +79,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
     public void Apply_Rollback_RoundTrip_Replace()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string prefix = "Hello ";
         string erased = "World";
         string inserted = "Universe";
@@ -89,7 +89,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         Selection selectionBefore = new Selection(prefix.Length, erased.Length);
         Selection selectionAfter = new Selection(prefix.Length, inserted.Length);
 
-        var action = new GenericEditAction(prefix.Length, suffix.Length, erased, inserted, selectionBefore, selectionAfter);
+        IEditAction action = new GenericEditAction(prefix.Length, suffix.Length, erased, inserted, selectionBefore, selectionAfter);
 
         // Act: Apply
         action.Apply(editor);
@@ -110,7 +110,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
     public void Apply_Rollback_RoundTrip_AtBeginning()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string prefix = "";
         string erased = "Hello";
         string inserted = "Hi";
@@ -120,7 +120,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         Selection selectionBefore = new Selection(prefix.Length, erased.Length);
         Selection selectionAfter = new Selection(prefix.Length, inserted.Length);
 
-        var action = new GenericEditAction(prefix.Length, suffix.Length, erased, inserted, selectionBefore, selectionAfter);
+        IEditAction action = new GenericEditAction(prefix.Length, suffix.Length, erased, inserted, selectionBefore, selectionAfter);
 
         // Act: Apply
         action.Apply(editor);
@@ -141,7 +141,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
     public void Apply_Rollback_RoundTrip_AtEnd()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string prefix = "Hello World";
         string erased = "!";
         string inserted = "!!";
@@ -151,7 +151,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         Selection selectionBefore = new Selection(prefix.Length, erased.Length);
         Selection selectionAfter = new Selection(prefix.Length, inserted.Length);
 
-        var action = new GenericEditAction(prefix.Length, suffix.Length, erased, inserted, selectionBefore, selectionAfter);
+        IEditAction action = new GenericEditAction(prefix.Length, suffix.Length, erased, inserted, selectionBefore, selectionAfter);
 
         // Act: Apply
         action.Apply(editor);
@@ -172,7 +172,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
     public void Apply_Rollback_RoundTrip_EmptyText()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string prefix = "";
         string erased = "";
         string inserted = "Hello";
@@ -182,7 +182,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         Selection selectionBefore = new Selection(prefix.Length, erased.Length);
         Selection selectionAfter = new Selection(prefix.Length, inserted.Length);
 
-        var action = new GenericEditAction(prefix.Length, suffix.Length, erased, inserted, selectionBefore, selectionAfter);
+        IEditAction action = new GenericEditAction(prefix.Length, suffix.Length, erased, inserted, selectionBefore, selectionAfter);
 
         // Act: Apply
         action.Apply(editor);

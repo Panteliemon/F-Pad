@@ -17,7 +17,7 @@ public class SelectionEraseEditActionTests : IClassFixture<EncodingTestsFixture>
     public void Apply_Rollback_RoundTrip()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string prefix = "Hello ";
         string erased = "World";
         string suffix = "!";
@@ -25,7 +25,7 @@ public class SelectionEraseEditActionTests : IClassFixture<EncodingTestsFixture>
         editor.TextNoUndo = initialText;
         editor.Selection = new Selection(prefix.Length, erased.Length);
 
-        var action = new SelectionEraseEditAction(prefix.Length, suffix.Length, erased);
+        IEditAction action = new SelectionEraseEditAction(prefix.Length, suffix.Length, erased);
 
         // Act: Apply
         action.Apply(editor);
@@ -46,7 +46,7 @@ public class SelectionEraseEditActionTests : IClassFixture<EncodingTestsFixture>
     public void Apply_Rollback_RoundTrip_EmptySuffix()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string prefix = "Hello ";
         string erased = "World";
         string suffix = "";
@@ -54,7 +54,7 @@ public class SelectionEraseEditActionTests : IClassFixture<EncodingTestsFixture>
         editor.TextNoUndo = initialText;
         editor.Selection = new Selection(prefix.Length, erased.Length);
 
-        var action = new SelectionEraseEditAction(prefix.Length, suffix.Length, erased);
+        IEditAction action = new SelectionEraseEditAction(prefix.Length, suffix.Length, erased);
 
         // Act: Apply
         action.Apply(editor);
@@ -75,7 +75,7 @@ public class SelectionEraseEditActionTests : IClassFixture<EncodingTestsFixture>
     public void Apply_Rollback_RoundTrip_EmptyPrefix()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string prefix = "";
         string erased = "Hello";
         string suffix = " World!";
@@ -83,7 +83,7 @@ public class SelectionEraseEditActionTests : IClassFixture<EncodingTestsFixture>
         editor.TextNoUndo = initialText;
         editor.Selection = new Selection(prefix.Length, erased.Length);
 
-        var action = new SelectionEraseEditAction(prefix.Length, suffix.Length, erased);
+        IEditAction action = new SelectionEraseEditAction(prefix.Length, suffix.Length, erased);
 
         // Act: Apply
         action.Apply(editor);

@@ -192,7 +192,7 @@ public class InteractorTests
     public void MemStruct_Write_TruncatesInstances_WhenExceedingMaxLimit()
     {
         // Arrange - Create more than MAX_INSTANCES (1024)
-        var instances = new List<FPadRec>();
+        List<FPadRec> instances = new List<FPadRec>();
         for (int i = 0; i < 1100; i++)
         {
             instances.Add(new FPadRec
@@ -222,7 +222,7 @@ public class InteractorTests
     public void MemStruct_Write_TruncatesMessages_WhenExceedingMaxLimit()
     {
         // Arrange - Create more than MAX_MESSAGES (2048)
-        var messages = new List<MessageRec>();
+        List<MessageRec> messages = new List<MessageRec>();
         for (int i = 0; i < 2100; i++)
         {
             messages.Add(new MessageRec
@@ -251,15 +251,15 @@ public class InteractorTests
     public void MemStruct_Read_ThrowsException_WhenSignatureIsInvalid()
     {
         // Arrange
-        using var ms = new MemoryStream();
-        using var writer = new BinaryWriter(ms);
+        using MemoryStream ms = new MemoryStream();
+        using BinaryWriter writer = new BinaryWriter(ms);
 
         writer.Write(0x12345678); // Invalid signature
         writer.Write(0); // instances count
         writer.Write(0); // messages count
 
         ms.Position = 0;
-        using var reader = new BinaryReader(ms);
+        using BinaryReader reader = new BinaryReader(ms);
 
         // Act & Assert
         Assert.Throws<ApplicationException>(() => MemStruct.Read(reader));
@@ -269,14 +269,14 @@ public class InteractorTests
     public void MemStruct_Read_ThrowsException_WhenInstancesCountIsNegative()
     {
         // Arrange
-        using var ms = new MemoryStream();
-        using var writer = new BinaryWriter(ms);
+        using MemoryStream ms = new MemoryStream();
+        using BinaryWriter writer = new BinaryWriter(ms);
 
         writer.Write(0x06060600); // Valid signature
         writer.Write(-1); // Invalid instances count
 
         ms.Position = 0;
-        using var reader = new BinaryReader(ms);
+        using BinaryReader reader = new BinaryReader(ms);
 
         // Act & Assert
         Assert.Throws<ApplicationException>(() => MemStruct.Read(reader));
@@ -286,14 +286,14 @@ public class InteractorTests
     public void MemStruct_Read_ThrowsException_WhenInstancesCountExceedsMax()
     {
         // Arrange
-        using var ms = new MemoryStream();
-        using var writer = new BinaryWriter(ms);
+        using MemoryStream ms = new MemoryStream();
+        using BinaryWriter writer = new BinaryWriter(ms);
 
         writer.Write(0x06060600); // Valid signature
         writer.Write(1025); // Exceeds MAX_INSTANCES (1024)
 
         ms.Position = 0;
-        using var reader = new BinaryReader(ms);
+        using BinaryReader reader = new BinaryReader(ms);
 
         // Act & Assert
         Assert.Throws<ApplicationException>(() => MemStruct.Read(reader));
@@ -303,15 +303,15 @@ public class InteractorTests
     public void MemStruct_Read_ThrowsException_WhenMessagesCountIsNegative()
     {
         // Arrange
-        using var ms = new MemoryStream();
-        using var writer = new BinaryWriter(ms);
+        using MemoryStream ms = new MemoryStream();
+        using BinaryWriter writer = new BinaryWriter(ms);
 
         writer.Write(0x06060600); // Valid signature
         writer.Write(0); // Valid instances count
         writer.Write(-1); // Invalid messages count
 
         ms.Position = 0;
-        using var reader = new BinaryReader(ms);
+        using BinaryReader reader = new BinaryReader(ms);
 
         // Act & Assert
         Assert.Throws<ApplicationException>(() => MemStruct.Read(reader));
@@ -321,15 +321,15 @@ public class InteractorTests
     public void MemStruct_Read_ThrowsException_WhenMessagesCountExceedsMax()
     {
         // Arrange
-        using var ms = new MemoryStream();
-        using var writer = new BinaryWriter(ms);
+        using MemoryStream ms = new MemoryStream();
+        using BinaryWriter writer = new BinaryWriter(ms);
 
         writer.Write(0x06060600); // Valid signature
         writer.Write(0); // Valid instances count
         writer.Write(2049); // Exceeds MAX_MESSAGES (2048)
 
         ms.Position = 0;
-        using var reader = new BinaryReader(ms);
+        using BinaryReader reader = new BinaryReader(ms);
 
         // Act & Assert
         Assert.Throws<ApplicationException>(() => MemStruct.Read(reader));
@@ -387,15 +387,15 @@ public class InteractorTests
     // Helper method to write and read MemStruct
     private static MemStruct WriteAndRead(MemStruct memStruct)
     {
-        using var ms = new MemoryStream();
-        using (var writer = new BinaryWriter(ms, System.Text.Encoding.UTF8, leaveOpen: true))
+        using MemoryStream ms = new MemoryStream();
+        using (BinaryWriter writer = new BinaryWriter(ms, System.Text.Encoding.UTF8, leaveOpen: true))
         {
             memStruct.Write(writer);
         }
 
         ms.Position = 0;
 
-        using var reader = new BinaryReader(ms);
+        using BinaryReader reader = new BinaryReader(ms);
         return MemStruct.Read(reader);
     }
 }
