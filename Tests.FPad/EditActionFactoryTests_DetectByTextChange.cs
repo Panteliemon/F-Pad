@@ -651,7 +651,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         string textBefore = "abcXabcabc"; // Must correctly determine that only "X" has changed,
         string textAfter = "abcabcabc";   // and not "Xabc" has changed
         Selection selectionBefore = new(3, 4); // leaves 3 "chars to end", but suffix length for generic must be 6
-        int positionAfter = 1;
+        int positionAfter = 5;
 
         IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
         Assert.IsType<GenericEditAction>(action);

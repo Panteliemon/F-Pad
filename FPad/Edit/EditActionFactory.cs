@@ -30,11 +30,14 @@ public static class EditActionFactory
         }
 
         int? verifiedCommonSuffixLength = null;
+
+        // This arrangement looks cryptic, but this is what you get if you group and minimize checks
+        // to avoid repeatly checking the same stuff.
         if (charsToEndBefore == charsToEndAfter)
         {
             if (positionAfterEdit == selectionBefore.Start)
             {
-                // Pattern: clear the selection
+                // Pattern: Clear the selection
                 if ((selectionBefore.Length > 0)
                     && (commonPrefixLength >= selectionBefore.Start))
                 {
@@ -117,10 +120,15 @@ public static class EditActionFactory
             {
                 if (verifiedCommonSuffixLength.Value == charsToEndAfter)
                 {
-                    // Suffix was probably capped during evaluation and in reality might be longer.
+                    // This code is never executed!
+                    // See above: as soon as verifiedCommonSuffixLength becomes equal to charsToEndAfter
+                    // there is immediate return, always.
+                    // If it wasn't for return, then here we would've had to handle what todo if
+                    // the suffix was capped during initial comparison and it is longer in reality.
 
-                    // TODO implement.
-                    // For now:
+                    // The next line returns correct value just for the case,
+                    // it just doesn't reuse previous comparison result and therefore
+                    // is not as effective.
                     commonSuffixLength = StringUtils.GetCommonSuffixLength(tailBefore, tailAfter);
                 }
                 else // only "<" is possible
