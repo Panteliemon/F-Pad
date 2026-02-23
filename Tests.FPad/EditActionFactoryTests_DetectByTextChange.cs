@@ -37,7 +37,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         Selection selection = new(0, 0);
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(text, selection, text, 0);
+        IEditAction result = EditActionFactory.DetectByTextChange(text, selection, text, 0);
 
         // Assert
         Assert.Null(result);
@@ -57,7 +57,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 7; // cursor moved to position 7
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -75,7 +75,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 9;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -92,14 +92,14 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 9;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
         Assert.IsType<SingleSymbolTypeEditAction>(result);
 
         //========
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         editor.TextNoUndo = textBefore;
         editor.Selection = selectionBefore;
 
@@ -128,7 +128,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 1;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -145,7 +145,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 6;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -162,7 +162,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 5;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -179,7 +179,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 7;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -190,7 +190,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_TypeOverSelection_ApplyRollbackRoundTrip()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello World";
         string textAfter = "Hello Universe";
         Selection selectionBefore = new(6, 5); // "World" selected
@@ -199,7 +199,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         editor.TextNoUndo = textBefore;
         editor.Selection = selectionBefore;
 
-        var action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Act: Apply
         action.Apply(editor);
@@ -230,7 +230,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 6;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -248,14 +248,14 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 6;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
         Assert.IsType<SingleSymbolEraseEditAction>(result);
 
         //=========
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         editor.TextNoUndo = textBefore;
         editor.Selection = selectionBefore;
 
@@ -278,7 +278,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_BackspaceAtBeginning_ApplyRollbackRoundTrip()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello";
         string textAfter = "ello";
         var selectionBefore = new Selection(1, 0);
@@ -287,7 +287,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         editor.TextNoUndo = textBefore;
         editor.Selection = selectionBefore;
 
-        var action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Act: Apply
         action.Apply(editor);
@@ -318,7 +318,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 6;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -335,7 +335,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 6;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -346,7 +346,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_DeleteAtEnd_ApplyRollbackRoundTrip()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello";
         string textAfter = "Hell";
         var selectionBefore = new Selection(4, 0);
@@ -355,7 +355,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         editor.TextNoUndo = textBefore;
         editor.Selection = selectionBefore;
 
-        var action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Act: Apply
         action.Apply(editor);
@@ -386,7 +386,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 6;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -404,7 +404,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 0;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -421,7 +421,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 0;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -432,7 +432,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_ClearSelection_ApplyRollbackRoundTrip()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello World";
         string textAfter = "Hello ";
         var selectionBefore = new Selection(6, 5);
@@ -441,7 +441,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         editor.TextNoUndo = textBefore;
         editor.Selection = selectionBefore;
 
-        var action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Act: Apply
         action.Apply(editor);
@@ -473,7 +473,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 4; // cursor at position 4
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -485,7 +485,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_GenericEdit_ApplyRollbackRoundTrip()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string textBefore = "ABCDEF";
         string textAfter = "AXYZEF";
         var selectionBefore = new Selection(3, 2);
@@ -494,7 +494,68 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         editor.TextNoUndo = textBefore;
         editor.Selection = selectionBefore;
 
-        var action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        // Act: Apply
+        action.Apply(editor);
+
+        // Assert after Apply
+        Assert.Equal(textAfter, editor.TextNoUndo);
+
+        // Act: Rollback
+        action.Rollback(editor);
+
+        // Assert after Rollback
+        Assert.Equal(textBefore, editor.TextNoUndo);
+        Assert.Equal(selectionBefore, editor.Selection);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_AtBegin()
+    {
+        // Arrange
+        IEditor editor = new MockEditor(fixture);
+        string textBefore = "ABCDEF";
+        string textAfter = "XYZABCDEF";
+        var selectionBefore = new Selection(3, 2);
+        int positionAfter = 9;
+
+        editor.TextNoUndo = textBefore;
+        editor.Selection = selectionBefore;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        // Act: Apply
+        action.Apply(editor);
+
+        // Assert after Apply
+        Assert.Equal(textAfter, editor.TextNoUndo);
+
+        // Act: Rollback
+        action.Rollback(editor);
+
+        // Assert after Rollback
+        Assert.Equal(textBefore, editor.TextNoUndo);
+        Assert.Equal(selectionBefore, editor.Selection);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_AtEnd()
+    {
+        // Arrange
+        IEditor editor = new MockEditor(fixture);
+        string textBefore = "ABCDEF";
+        string textAfter = "ABCDEFXYZ";
+        var selectionBefore = new Selection(3, 2);
+        int positionAfter = 3;
+
+        editor.TextNoUndo = textBefore;
+        editor.Selection = selectionBefore;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
 
         // Act: Apply
         action.Apply(editor);
@@ -524,7 +585,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 6;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -541,7 +602,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 6;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -558,7 +619,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 8;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -575,7 +636,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 5;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -592,7 +653,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         int positionAfter = 9;
 
         // Act
-        var result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction result = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Assert
         Assert.NotNull(result);
@@ -603,7 +664,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_ReplaceSelectionInMiddle_ApplyRollbackRoundTrip()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello Beautiful World";
         string textAfter = "Hello Amazing World";
         var selectionBefore = new Selection(6, 9); // "Beautiful" selected
@@ -612,7 +673,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         editor.TextNoUndo = textBefore;
         editor.Selection = selectionBefore;
 
-        var action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Act: Apply
         action.Apply(editor);
@@ -636,7 +697,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_TypeAtBeginning_ApplyRollbackRoundTrip()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string textBefore = "World";
         string textAfter = "Hello World";
         var selectionBefore = new Selection(0, 0);
@@ -645,7 +706,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         editor.TextNoUndo = textBefore;
         editor.Selection = selectionBefore;
 
-        var action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Act: Apply
         action.Apply(editor);
@@ -666,7 +727,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_TypeAtEnd_ApplyRollbackRoundTrip()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello";
         string textAfter = "Hello World";
         var selectionBefore = new Selection(5, 0);
@@ -675,7 +736,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         editor.TextNoUndo = textBefore;
         editor.Selection = selectionBefore;
 
-        var action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Act: Apply
         action.Apply(editor);
@@ -696,7 +757,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_DeleteEntireText_ApplyRollbackRoundTrip()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello";
         string textAfter = "";
         var selectionBefore = new Selection(0, 5);
@@ -705,7 +766,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         editor.TextNoUndo = textBefore;
         editor.Selection = selectionBefore;
 
-        var action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Act: Apply
         action.Apply(editor);
@@ -726,7 +787,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_DeleteInMiddle_ApplyRollbackRoundTrip()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello World";
         string textAfter = "Helloorld";
         var selectionBefore = new Selection(5, 0);
@@ -735,7 +796,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         editor.TextNoUndo = textBefore;
         editor.Selection = selectionBefore;
 
-        var action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Act: Apply
         action.Apply(editor);
@@ -756,7 +817,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     public void DetectByTextChange_BackspaceInMiddle_ApplyRollbackRoundTrip()
     {
         // Arrange
-        var editor = new MockEditor(fixture);
+        IEditor editor = new MockEditor(fixture);
         string textBefore = "Hello World";
         string textAfter = "Hell World";
         var selectionBefore = new Selection(5, 0);
@@ -765,7 +826,7 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         editor.TextNoUndo = textBefore;
         editor.Selection = selectionBefore;
 
-        var action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
 
         // Act: Apply
         action.Apply(editor);

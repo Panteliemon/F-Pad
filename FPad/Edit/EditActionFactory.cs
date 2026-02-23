@@ -29,44 +29,51 @@ public static class EditActionFactory
             return null;
         }
 
-        // TODO:
-        // - substrings comparison - perform once
-
+        int? verifiedCommonSuffixLength = null;
         if (charsToEndBefore == charsToEndAfter)
         {
             if (positionAfterEdit == selectionBefore.Start)
             {
                 // Pattern: clear the selection
                 if ((selectionBefore.Length > 0)
-                    && (commonPrefixLength >= selectionBefore.Start)
-                    && textBefore[^charsToEndAfter..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
+                    && (commonPrefixLength >= selectionBefore.Start))
                 {
-                    return new SelectionEraseEditAction(selectionBefore.Start, charsToEndBefore,
-                        textBefore[(Range)selectionBefore].ToString());
+                    verifiedCommonSuffixLength = StringUtils.GetCommonSuffixLength(textBefore, textAfter, charsToEndAfter);
+                    if (verifiedCommonSuffixLength.Value >= charsToEndAfter) // ==
+                    {
+                        return new SelectionEraseEditAction(selectionBefore.Start, charsToEndBefore,
+                            textBefore[(Range)selectionBefore].ToString());
+                    }
                 }
             }
             else if (positionAfterEdit > selectionBefore.Start)
             {
                 // Pattern: Typing some characters (include type over selection)
-                if ((commonPrefixLength >= selectionBefore.Start)
-                    && textBefore[^charsToEndAfter..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
+                if (commonPrefixLength >= selectionBefore.Start)
                 {
-                    return new SingleSymbolTypeEditAction(selectionBefore.Start, charsToEndBefore,
-                        selectionBefore.Length > 0 ? textBefore[(Range)selectionBefore].ToString() : null,
-                        textAfter[selectionBefore.Start..positionAfterEdit].ToString(),
-                        positionAfterEdit);
+                    verifiedCommonSuffixLength = StringUtils.GetCommonSuffixLength(textBefore, textAfter, charsToEndAfter);
+                    if (verifiedCommonSuffixLength.Value >= charsToEndAfter) // ==
+                    {
+                        return new SingleSymbolTypeEditAction(selectionBefore.Start, charsToEndBefore,
+                            selectionBefore.Length > 0 ? textBefore[(Range)selectionBefore].ToString() : null,
+                            textAfter[selectionBefore.Start..positionAfterEdit].ToString(),
+                            positionAfterEdit);
+                    }
                 }
             }
             else // positionAfterEdit < selectionBefore.Start
             {
                 // Pattern: Backspace (no selection prior)
                 if ((selectionBefore.Length == 0)
-                    && (commonPrefixLength >= positionAfterEdit)
-                    && textBefore[^charsToEndAfter..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
+                    && (commonPrefixLength >= positionAfterEdit))
                 {
-                    return new SingleSymbolEraseEditAction(positionAfterEdit, charsToEndAfter,
-                        textBefore[positionAfterEdit..selectionBefore.Start].ToString(),
-                        selectionBefore.Start);
+                    verifiedCommonSuffixLength = StringUtils.GetCommonSuffixLength(textBefore, textAfter, charsToEndAfter);
+                    if (verifiedCommonSuffixLength.Value >= charsToEndAfter) // ==
+                    {
+                        return new SingleSymbolEraseEditAction(positionAfterEdit, charsToEndAfter,
+                            textBefore[positionAfterEdit..selectionBefore.Start].ToString(),
+                            selectionBefore.Start);
+                    }
                 }
             }
         }
@@ -75,12 +82,15 @@ public static class EditActionFactory
             // Pattern: Delete (no selection prior)
             if ((positionAfterEdit == selectionBefore.Start)
                 && (selectionBefore.Length == 0)
-                && (commonPrefixLength >= selectionBefore.Start)
-                && textBefore[^charsToEndAfter..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
+                && (commonPrefixLength >= selectionBefore.Start))
             {
-                return new SingleSymbolEraseEditAction(positionAfterEdit, charsToEndAfter,
-                    textBefore[selectionBefore.Start..^charsToEndAfter].ToString(),
-                    selectionBefore.Start);
+                verifiedCommonSuffixLength = StringUtils.GetCommonSuffixLength(textBefore, textAfter, charsToEndAfter);
+                if (verifiedCommonSuffixLength.Value >= charsToEndAfter) // ==
+                {
+                    return new SingleSymbolEraseEditAction(positionAfterEdit, charsToEndAfter,
+                        textBefore[selectionBefore.Start..^charsToEndAfter].ToString(),
+                        selectionBefore.Start);
+                }
             }
         }
         // And there are no actions which would increase charsToEnd.
@@ -95,7 +105,34 @@ public static class EditActionFactory
         // Suffix should not overlap prefix. Cut equal part to prevent overlap.
         ReadOnlySpan<char> tailBefore = textBefore[commonPrefixLength..];
         ReadOnlySpan<char> tailAfter = textAfter[commonPrefixLength..];
-        int commonSuffixLength = StringUtils.GetCommonSuffixLength(tailBefore, tailAfter);
+        int commonSuffixLength;
+        if (verifiedCommonSuffixLength.HasValue)
+        {
+            int shortestTailLength = Math.Min(tailBefore.Length, tailAfter.Length);
+            if (verifiedCommonSuffixLength.Value >= shortestTailLength)
+            {
+                commonSuffixLength = shortestTailLength;
+            }
+            else
+            {
+                if (verifiedCommonSuffixLength.Value == charsToEndAfter)
+                {
+                    // Suffix was probably capped during evaluation and in reality might be longer.
+
+                    // TODO implement.
+                    // For now:
+                    commonSuffixLength = StringUtils.GetCommonSuffixLength(tailBefore, tailAfter);
+                }
+                else // only "<" is possible
+                {
+                    commonSuffixLength = verifiedCommonSuffixLength.Value;
+                }
+            }
+        }
+        else
+        {
+            commonSuffixLength = StringUtils.GetCommonSuffixLength(tailBefore, tailAfter);
+        }
 
         return new GenericEditAction(commonPrefixLength, commonSuffixLength,
             textBefore[commonPrefixLength..^commonSuffixLength].ToString(),

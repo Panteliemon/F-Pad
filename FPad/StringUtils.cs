@@ -204,6 +204,39 @@ public static class StringUtils
         }
     }
 
+    public static int GetCommonSuffixLength(ReadOnlySpan<char> str1, ReadOnlySpan<char> str2, int suffixLengthLimit)
+    {
+        int pos1 = str1.Length;
+        int pos2 = str2.Length;
+        int result = 0;
+        if (str1.Length <= str2.Length)
+        {
+            while ((pos1 > 0) && (result < suffixLengthLimit))
+            {
+                pos1--;
+                pos2--;
+                if (str1[pos1] != str2[pos2])
+                    return result;
+                result++;
+            }
+
+            return str1.Length;
+        }
+        else
+        {
+            while ((pos2 > 0) && (result < suffixLengthLimit))
+            {
+                pos1--;
+                pos2--;
+                if (str1[pos1] != str2[pos2])
+                    return result;
+                result++;
+            }
+
+            return str2.Length;
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static ConseqCharType GetCharType(char c)
     {
