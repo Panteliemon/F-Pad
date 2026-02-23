@@ -30,55 +30,61 @@ public static class EditActionFactory
         }
 
         // TODO:
-        // - group similar checks
         // - substrings comparison - perform once
 
-        // Pattern: Typing some characters (include type over selection)
-        if ((positionAfterEdit > selectionBefore.Start)
-            && (charsToEndBefore == charsToEndAfter)
-            && (commonPrefixLength >= selectionBefore.Start)
-            && textBefore[^charsToEndBefore..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
+        if (charsToEndBefore == charsToEndAfter)
         {
-            return new SingleSymbolTypeEditAction(selectionBefore.Start, charsToEndBefore,
-                selectionBefore.Length > 0 ? textBefore[(Range)selectionBefore].ToString() : null,
-                textAfter[selectionBefore.Start..positionAfterEdit].ToString(),
-                positionAfterEdit);
+            if (positionAfterEdit == selectionBefore.Start)
+            {
+                // Pattern: clear the selection
+                if ((selectionBefore.Length > 0)
+                    && (commonPrefixLength >= selectionBefore.Start)
+                    && textBefore[^charsToEndAfter..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
+                {
+                    return new SelectionEraseEditAction(selectionBefore.Start, charsToEndBefore,
+                        textBefore[(Range)selectionBefore].ToString());
+                }
+            }
+            else if (positionAfterEdit > selectionBefore.Start)
+            {
+                // Pattern: Typing some characters (include type over selection)
+                if ((commonPrefixLength >= selectionBefore.Start)
+                    && textBefore[^charsToEndAfter..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
+                {
+                    return new SingleSymbolTypeEditAction(selectionBefore.Start, charsToEndBefore,
+                        selectionBefore.Length > 0 ? textBefore[(Range)selectionBefore].ToString() : null,
+                        textAfter[selectionBefore.Start..positionAfterEdit].ToString(),
+                        positionAfterEdit);
+                }
+            }
+            else // positionAfterEdit < selectionBefore.Start
+            {
+                // Pattern: Backspace (no selection prior)
+                if ((selectionBefore.Length == 0)
+                    && (commonPrefixLength >= positionAfterEdit)
+                    && textBefore[^charsToEndAfter..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
+                {
+                    return new SingleSymbolEraseEditAction(positionAfterEdit, charsToEndAfter,
+                        textBefore[positionAfterEdit..selectionBefore.Start].ToString(),
+                        selectionBefore.Start);
+                }
+            }
         }
+        else if (charsToEndBefore > charsToEndAfter)
+        {
+            // Pattern: Delete (no selection prior)
+            if ((positionAfterEdit == selectionBefore.Start)
+                && (selectionBefore.Length == 0)
+                && (commonPrefixLength >= selectionBefore.Start)
+                && textBefore[^charsToEndAfter..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
+            {
+                return new SingleSymbolEraseEditAction(positionAfterEdit, charsToEndAfter,
+                    textBefore[selectionBefore.Start..^charsToEndAfter].ToString(),
+                    selectionBefore.Start);
+            }
+        }
+        // And there are no actions which would increase charsToEnd.
 
-        // Pattern: Backspace (no selection prior)
-        if ((positionAfterEdit < selectionBefore.Start)
-            && (charsToEndBefore == charsToEndAfter)
-            && (selectionBefore.Length == 0)
-            && (commonPrefixLength >= positionAfterEdit)
-            && textBefore[^charsToEndAfter..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
-        {
-            return new SingleSymbolEraseEditAction(positionAfterEdit, charsToEndAfter,
-                textBefore[positionAfterEdit..selectionBefore.Start].ToString(),
-                selectionBefore.Start);
-        }
-
-        // Pattern: Delete (no selection prior)
-        if ((positionAfterEdit == selectionBefore.Start)
-            && (charsToEndBefore > charsToEndAfter)
-            && (selectionBefore.Length == 0)
-            && (commonPrefixLength >= selectionBefore.Start)
-            && textBefore[^charsToEndAfter..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
-        {
-            return new SingleSymbolEraseEditAction(positionAfterEdit, charsToEndAfter,
-                textBefore[selectionBefore.Start..^charsToEndAfter].ToString(),
-                selectionBefore.Start);
-        }
-
-        // Pattern: clear the selection
-        if ((positionAfterEdit == selectionBefore.Start)
-            && (charsToEndBefore == charsToEndAfter)
-            && (selectionBefore.Length > 0)
-            && (commonPrefixLength >= selectionBefore.Start)
-            && textBefore[^charsToEndAfter..].Equals(textAfter[^charsToEndAfter..], StringComparison.Ordinal))
-        {
-            return new SelectionEraseEditAction(selectionBefore.Start, charsToEndBefore,
-                textBefore[(Range)selectionBefore].ToString());
-        }
 
         // Unrecognized pattern: most likely means that function-specific action on text
         // was intercepted by text change handler, instead of being handled separately.
