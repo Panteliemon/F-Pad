@@ -449,6 +449,238 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
     }
 
+    [Fact]
+    public void DetectByTextChange_GenericEdit_PretendsToBeType_PrefixFail()
+    {
+        // Arrange
+        string textBefore = "AbCDEF";
+        string textAfter = "ABCxDEF";
+        Selection selectionBefore = new(3, 0);
+        int positionAfter = 4;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_PretendsToBeType_SuffixFail()
+    {
+        // Arrange
+        string textBefore = "ABCdEF";
+        string textAfter = "ABCxDEF";
+        Selection selectionBefore = new(3, 0);
+        int positionAfter = 4;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_PretendsToBeType2_PrefixFail()
+    {
+        // Arrange
+        string textBefore = "AbCDEF";
+        string textAfter = "ABCxyzDEF";
+        Selection selectionBefore = new(3, 0);
+        int positionAfter = 6;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_PretendsToBeType2_SuffixFail()
+    {
+        // Arrange
+        string textBefore = "ABCdEF";
+        string textAfter = "ABCxyzDEF";
+        Selection selectionBefore = new(3, 0);
+        int positionAfter = 6;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_PretendsToBeBackspace_PrefixFail()
+    {
+        // Arrange
+        string textBefore = "Hello World";
+        string textAfter = "hell World";
+        Selection selectionBefore = new(5, 0);
+        int positionAfter = 4;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_PretendsToBeBackspace_SuffixFail()
+    {
+        // Arrange
+        string textBefore = "Hello World";
+        string textAfter = "Hell world";
+        Selection selectionBefore = new(5, 0);
+        int positionAfter = 4;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_PretendsToBeBackspace2_PrefixFail()
+    {
+        // Arrange
+        string textBefore = "Hello World";
+        string textAfter = "he World";
+        Selection selectionBefore = new(5, 0);
+        int positionAfter = 2;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_PretendsToBeBackspace2_SuffixFail()
+    {
+        // Arrange
+        string textBefore = "Hello World";
+        string textAfter = "He world";
+        Selection selectionBefore = new(5, 0);
+        int positionAfter = 2;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_PretendsToBeDelete_PrefixFail()
+    {
+        // Arrange
+        string textBefore = "Hello World";
+        string textAfter = "helloWorld";
+        Selection selectionBefore = new(5, 0);
+        int positionAfter = 5;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_PretendsToBeDelete_SuffixFail()
+    {
+        // Arrange
+        string textBefore = "Hello World";
+        string textAfter = "Helloworld";
+        Selection selectionBefore = new(5, 0);
+        int positionAfter = 5;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_PretendsToBeDelete2_PrefixFail()
+    {
+        // Arrange
+        string textBefore = "Hello World";
+        string textAfter = "hellorld";
+        Selection selectionBefore = new(5, 0);
+        int positionAfter = 5;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_PretendsToBeDelete2_SuffixFail()
+    {
+        // Arrange
+        string textBefore = "Hello World";
+        string textAfter = "HellOrld";
+        Selection selectionBefore = new(5, 0);
+        int positionAfter = 5;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_PretendsToBeSelectionErase_PrefixFail()
+    {
+        // Arrange
+        string textBefore = "Hi there, hello!";
+        string textAfter = "5i thhello!";
+        Selection selectionBefore = new(5, 5);
+        int positionAfter = 5;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_SuffixGoesIntoSelection()
+    {
+        // Arrange
+        string textBefore = "abcXabcabc"; // Must correctly determine that only "X" has changed,
+        string textAfter = "abcabcabc";   // and not "Xabc" has changed
+        Selection selectionBefore = new(3, 4); // leaves 3 "chars to end", but suffix length for generic must be 6
+        int positionAfter = 1;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        IEditor editor = new MockEditor(fixture);
+        editor.TextNoUndo = "1234567890";
+        editor.Selection = selectionBefore;
+
+        action.Apply(editor);
+
+        Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
+        Assert.Equal("123567890", editor.TextNoUndo); // must erase 1 symbol and not replace 4 symbols or something
+    }
+
+    [Fact]
+    public void DetectByTextChange_GenericEdit_PretendsToBeSelectionErase_SuffixFail()
+    {
+        // Arrange
+        string textBefore = "Hi there, hello!";
+        string textAfter = "Hi thHello!";
+        Selection selectionBefore = new(5, 5);
+        int positionAfter = 5;
+
+        IEditAction action = EditActionFactory.DetectByTextChange(textBefore, selectionBefore, textAfter, positionAfter);
+        Assert.IsType<GenericEditAction>(action);
+
+        AssertActionApplyAndRollback(action, textBefore, textAfter, selectionBefore, positionAfter);
+    }
+
     #endregion
 
     #region Edge Cases
