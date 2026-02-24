@@ -21,11 +21,18 @@ public class GoodTextBox : TextBox
     public event EventHandler SelectionChanged;
 
     public Selection SelectionBeforeEdit => selectionBeforeEdit;
+    /// <summary>
+    /// Valid during TextChanged event.
+    /// Setting this property does nothing, and is mainly here for possibility
+    /// to set null for garbage collection.
+    /// </summary>
+    public string TextBeforeEdit { get; set; }
 
     public GoodTextBox()
     {
         prevSelection = Selection;
         selectionBeforeEdit = Selection;
+        TextBeforeEdit = Text;
 
         MouseUp += OnMouse;
         MouseDown += OnMouse;
@@ -41,6 +48,7 @@ public class GoodTextBox : TextBox
         set
         {
             selectionBeforeEdit = Selection;
+            TextBeforeEdit = base.Text;
             base.Text = value;
         }
     }
@@ -118,6 +126,7 @@ public class GoodTextBox : TextBox
 
     private void OnKeyDown(object sender, KeyEventArgs e)
     {
+        TextBeforeEdit = Text;
         selectionBeforeEdit = Selection;
     }
 
