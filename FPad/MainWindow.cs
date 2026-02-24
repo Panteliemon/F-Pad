@@ -15,7 +15,7 @@ using System.Windows.Forms;
 
 namespace FPad
 {
-    public partial class MainWindow : Form
+    public partial class MainWindow : Form, IEditor
     {
         bool isNew = false;
         bool hasUnsavedChanges = false;
@@ -37,7 +37,10 @@ namespace FPad
         FileWatcher currentDocumentWatcher;
 
         bool enableSizingHandlers = false;
-        bool enableTextChangeHandler = true;
+        /// <summary>
+        /// If false - acts one time. Restores itself back to true after text change.
+        /// </summary>
+        bool setModifiedOnTextChange = true;
         int? setPositionOnActivate;
 
         FormWindowState prevWindowState = FormWindowState.Normal;
@@ -134,6 +137,33 @@ namespace FPad
                     StatusBarShowSecondOrderSuccessMessage("Settings Saved");
                 else
                     StatusBarShowSecondOrderErrorMessage("Error when saving settings. Settings not saved.");
+            }
+        }
+
+        string IEditor.TextNoUndo
+        {
+            get => text.Text;
+            set
+            {
+                // TODO
+            }
+        }
+
+        Selection IEditor.Selection
+        {
+            get => text.Selection;
+            set
+            {
+                // TODO
+            }
+        }
+
+        EncodingVm IEditor.Encoding
+        {
+            get => currentEncoding;
+            set
+            {
+                // TODO
             }
         }
 
@@ -286,13 +316,19 @@ namespace FPad
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            if (enableTextChangeHandler)
+            if (setModifiedOnTextChange)
             {
                 hasUnsavedChanges = true;
                 currentDocumentBytes = null;
                 UpdateTitle();
-                UpdateStatusBar();
             }
+            else
+            {
+                setModifiedOnTextChange = true;
+            }
+
+            // Stuff like line/col - update in any case
+            UpdateStatusBar();
         }
 
         private void Text_SelectionChanged(object sender, EventArgs e)
@@ -495,9 +531,8 @@ namespace FPad
                             ?? currentEncoding.StringToFileBytes(text.Text,
                                 fileContainsPreamble && (currentEncoding == initialEncoding));
 
-                        enableTextChangeHandler = false;
+                        setModifiedOnTextChange = false;
                         text.Text = encodingVm.FileBytesToString(bytes);
-                        enableTextChangeHandler = true;
 
                         // Keep previous hasUnsavedChanges (reinterpretation != edit)
                         // Keep previous currentDocumentBytes (reinterpreted, not changed)
@@ -585,6 +620,7 @@ namespace FPad
             if (isCurrentDocumentStateValid)
                 CloseCurrentDocument();
 
+            setModifiedOnTextChange = false;
             text.Text = string.Empty;
 
             currentDocumentFileName = "new.txt";
@@ -624,10 +660,11 @@ namespace FPad
                 fileContainsPreamble = currentEncoding.StartsWithPreamble(allBytes);
                 UpdateEncodingMenuCheckboxes();
 
+                setModifiedOnTextChange = false;
                 text.Text = currentEncoding.FileBytesToString(allBytes);
 
-                currentDocumentBytes = allBytes; // after text change
-                hasUnsavedChanges = false; // after text change
+                currentDocumentBytes = allBytes;
+                hasUnsavedChanges = false;
                 isNew = false;
                 isExternallyModified = false;
                 ResetSelection();
@@ -662,10 +699,11 @@ namespace FPad
                 fileContainsPreamble = currentEncoding.StartsWithPreamble(allBytes);
                 UpdateEncodingMenuCheckboxes();
 
+                setModifiedOnTextChange = false;
                 text.Text = currentEncoding.FileBytesToString(allBytes);
 
-                currentDocumentBytes = allBytes; // after text change
-                hasUnsavedChanges = false; // after text change
+                currentDocumentBytes = allBytes;
+                hasUnsavedChanges = false;
                 isNew = false;
                 isExternallyModified = false;
                 UpdateTitle();
