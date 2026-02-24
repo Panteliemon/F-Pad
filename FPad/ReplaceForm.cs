@@ -407,7 +407,7 @@ public partial class ReplaceForm : Form
             selEnd = GetPositionAfterReplace(selEnd, matches, tbFind.Text.Length, tbReplaceWith.Text.Length);
 
             owner.SetText(sb.ToString());
-            owner.ActivateAndSetTextSelection(new Selection(selStart, selEnd - selStart));
+            owner.ActivateAndSetTextSelection(Selection.FromStartEnd(selStart, selEnd));
 
             labelResult.Text = withinSelection
                 ? $"{matches.Count} occurences replaced within selection"

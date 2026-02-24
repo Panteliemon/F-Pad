@@ -102,7 +102,7 @@
       </Path>
     </InheritanceLine>
     <TypeIdentifier>
-      <HashCode>AAAQEAAAAAACAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAQEAAAAAACAAAAAAEAAAAAAAAAAAAAAAAAAAACAAA=</HashCode>
       <FileName>Edit\SingleSymbolTypeEditAction.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -127,6 +127,14 @@
     <TypeIdentifier>
       <HashCode>AAAwEAAAABAEAAACAAAAAAAAQAAAAAAAAAgAAAAAAAA=</HashCode>
       <FileName>Edit\GenericEditAction.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="FPad.Edit.ReplaceAllEditAction" Collapsed="true">
+    <Position X="10" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AgAQEAAAABAEAAACAAAAAAAAQAAAAAAAABAAAAAAAAA=</HashCode>
+      <FileName>Edit\ReplaceAllEditAction.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>

@@ -27,6 +27,11 @@ public struct Selection : IEquatable<Selection>
         return new Selection(start, end - start);
     }
 
+    public override string ToString()
+    {
+        return $"({Start}, {Length})";
+    }
+
     public bool Equals(Selection other)
     {
         return (Start == other.Start) && (Length == other.Length);
