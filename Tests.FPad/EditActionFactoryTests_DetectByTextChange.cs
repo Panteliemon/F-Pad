@@ -859,4 +859,226 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     }
 
     #endregion
+
+    #region Glue
+
+    [Fact]
+    public void GlueSpaces_Backspace()
+    {
+        string text1 = "Hello, beautiful world!";
+        string text2 = "Hello, iful world!";
+        string text3 = "Hello,iful world!";
+        Selection selection1 = new Selection(12, 0);
+        Selection selection2 = new Selection(7, 0);
+        int position2 = selection2.Start;
+        int position3 = 6;
+
+        IEditAction action1to2 = EditActionFactory.DetectByTextChange(text1, selection1, text2, position2);
+        IEditAction action2to3 = EditActionFactory.DetectByTextChange(text2, selection2, text3, position3);
+
+        bool combined = action1to2.Absorb(action2to3);
+        Assert.True(combined);
+
+        AssertActionApplyAndRollback(action1to2, text1, text3, selection1, position3);
+
+        // Next backspaced char is not glued
+        string text4 = "Helloiful world!";
+        int position4 = 5;
+        IEditAction action3to4 = EditActionFactory.DetectByTextChange(text3, new Selection(position3, 0), text4, position4);
+        bool combined2 = action1to2.Absorb(action3to4);
+        Assert.False(combined2);
+    }
+
+    [Fact]
+    public void GlueSpaces_Backspace_MoreThan1Space_Nope()
+    {
+        string text1 = "Hello,  beautiful world!";
+        string text2 = "Hello,  iful world!";
+        string text3 = "Hello, iful world!";
+        Selection selection1 = new Selection(13, 0);
+        Selection selection2 = new Selection(8, 0);
+        int position2 = selection2.Start;
+        int position3 = 7;
+
+        IEditAction action1to2 = EditActionFactory.DetectByTextChange(text1, selection1, text2, position2);
+        IEditAction action2to3 = EditActionFactory.DetectByTextChange(text2, selection2, text3, position3);
+
+        bool combined = action1to2.Absorb(action2to3);
+        Assert.False(combined);
+    }
+
+    [Fact]
+    public void GlueSpaces_Delete()
+    {
+        string text1 = "Hello, beautiful world!";
+        string text2 = "Hello, bea world!";
+        string text3 = "Hello, beaworld!";
+        Selection selection1 = new Selection(10, 0);
+        Selection selection2 = new Selection(10, 0);
+        int position2 = selection2.Start;
+        int position3 = 10;
+
+        IEditAction action1to2 = EditActionFactory.DetectByTextChange(text1, selection1, text2, position2);
+        IEditAction action2to3 = EditActionFactory.DetectByTextChange(text2, selection2, text3, position3);
+
+        bool combined = action1to2.Absorb(action2to3);
+        Assert.True(combined);
+
+        AssertActionApplyAndRollback(action1to2, text1, text3, selection1, position3);
+
+        // Next deleted char is not glued
+        string text4 = "Hello, beaorld!";
+        int position4 = 10;
+        IEditAction action3to4 = EditActionFactory.DetectByTextChange(text3, new Selection(position3, 0), text4, position4);
+        bool combined2 = action1to2.Absorb(action3to4);
+        Assert.False(combined2);
+    }
+
+    [Fact]
+    public void GlueSpaces_Delete_MoreThan1Space_Nope()
+    {
+        string text1 = "Hello, beautiful  world!";
+        string text2 = "Hello, bea  world!";
+        string text3 = "Hello, bea world!";
+        Selection selection1 = new Selection(10, 0);
+        Selection selection2 = new Selection(10, 0);
+        int position2 = selection2.Start;
+        int position3 = 10;
+
+        IEditAction action1to2 = EditActionFactory.DetectByTextChange(text1, selection1, text2, position2);
+        IEditAction action2to3 = EditActionFactory.DetectByTextChange(text2, selection2, text3, position3);
+
+        bool combined = action1to2.Absorb(action2to3);
+        Assert.False(combined);
+    }
+
+    [Fact]
+    public void GlueSpaces_Delete_CheckNearBorder()
+    {
+        string text1 = "Hello world ";
+        string text2 = "Hello  ";
+        string text3 = "Hello ";
+        Selection selection1 = new Selection(6, 0);
+        Selection selection2 = new Selection(6, 0);
+        int position2 = selection2.Start;
+        int position3 = 6;
+
+        IEditAction action1to2 = EditActionFactory.DetectByTextChange(text1, selection1, text2, position2);
+        IEditAction action2to3 = EditActionFactory.DetectByTextChange(text2, selection2, text3, position3);
+
+        bool combined = action1to2.Absorb(action2to3);
+        Assert.True(combined);
+
+        AssertActionApplyAndRollback(action1to2, text1, text3, selection1, position3);
+
+        // Glue the space before erased word
+        string text4 = "Hello";
+        int position4 = 5;
+        IEditAction action3to4 = EditActionFactory.DetectByTextChange(text3, new Selection(position3, 0), text4, position4);
+        bool combined2 = action1to2.Absorb(action3to4);
+        Assert.True(combined2);
+    }
+
+    [Fact]
+    public void GlueSpaces_Backspace_CheckNearBorder()
+    {
+        string text1 = " Hello world";
+        string text2 = "  world";
+        string text3 = " world";
+        Selection selection1 = new Selection(6, 0);
+        Selection selection2 = new Selection(1, 0);
+        int position2 = selection2.Start;
+        int position3 = 0;
+
+        IEditAction action1to2 = EditActionFactory.DetectByTextChange(text1, selection1, text2, position2);
+        IEditAction action2to3 = EditActionFactory.DetectByTextChange(text2, selection2, text3, position3);
+
+        bool combined = action1to2.Absorb(action2to3);
+        Assert.True(combined);
+
+        AssertActionApplyAndRollback(action1to2, text1, text3, selection1, position3);
+
+        // Glue the space after erased word
+        string text4 = "world";
+        int position4 = 0;
+        IEditAction action3to4 = EditActionFactory.DetectByTextChange(text3, new Selection(position3, 0), text4, position4);
+        bool combined2 = action1to2.Absorb(action3to4);
+        Assert.True(combined2);
+    }
+
+    [Fact]
+    public void GlueSpaces_Type()
+    {
+        string text1 = "Hello";
+        string text2 = "Hello ";
+        string text3 = "Hello X";
+        Selection selection1 = new Selection(5, 0);
+        Selection selection2 = new Selection(6, 0);
+        int position2 = selection2.Start;
+        int position3 = 7;
+
+        IEditAction action1to2 = EditActionFactory.DetectByTextChange(text1, selection1, text2, position2);
+        IEditAction action2to3 = EditActionFactory.DetectByTextChange(text2, selection2, text3, position3);
+
+        bool combined = action1to2.Absorb(action2to3);
+        Assert.True(combined);
+
+        AssertActionApplyAndRollback(action1to2, text1, text3, selection1, position3);
+    }
+
+    [Fact]
+    public void GlueSpaces_ManySpaces_Doesnt()
+    {
+        string text1 = "Hello";
+        string text2 = "Hello  ";
+        string text3 = "Hello  X";
+        Selection selection1 = new Selection(5, 0);
+        Selection selection2 = new Selection(7, 0);
+        int position2 = selection2.Start;
+        int position3 = 8;
+
+        IEditAction action1to2 = EditActionFactory.DetectByTextChange(text1, selection1, text2, position2);
+        IEditAction action2to3 = EditActionFactory.DetectByTextChange(text2, selection2, text3, position3);
+
+        bool combined = action1to2.Absorb(action2to3);
+        Assert.False(combined);
+    }
+
+    [Fact]
+    public void GlueSpaces_SpaceWasSelection_Doesnt()
+    {
+        string text1 = "Hello9";
+        string text2 = "Hello ";
+        string text3 = "Hello X";
+        Selection selection1 = new Selection(5, 1);
+        Selection selection2 = new Selection(6, 0);
+        int position2 = selection2.Start;
+        int position3 = 7;
+
+        IEditAction action1to2 = EditActionFactory.DetectByTextChange(text1, selection1, text2, position2);
+        IEditAction action2to3 = EditActionFactory.DetectByTextChange(text2, selection2, text3, position3);
+
+        bool combined = action1to2.Absorb(action2to3);
+        Assert.False(combined);
+    }
+
+    [Fact]
+    public void GlueSpaces_LetterWasSelection_Doesnt()
+    {
+        string text1 = "HelloQ";
+        string text2 = "Hello Q";
+        string text3 = "Hello X";
+        Selection selection1 = new Selection(5, 0);
+        Selection selection2 = new Selection(6, 1);
+        int position2 = selection2.Start;
+        int position3 = 7;
+
+        IEditAction action1to2 = EditActionFactory.DetectByTextChange(text1, selection1, text2, position2);
+        IEditAction action2to3 = EditActionFactory.DetectByTextChange(text2, selection2, text3, position3);
+
+        bool combined = action1to2.Absorb(action2to3);
+        Assert.False(combined);
+    }
+
+    #endregion
 }
