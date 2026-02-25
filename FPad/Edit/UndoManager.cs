@@ -103,7 +103,7 @@ public class UndoManager
         indexWhenSaved = nextActionIndex;
         while (indexWhenSaved > 0)
         {
-            if (actions[indexWhenSaved - 1].IsModifying)
+            if (IsModifying(actions[indexWhenSaved - 1]))
                 break;
             else
                 indexWhenSaved--;
@@ -124,7 +124,7 @@ public class UndoManager
                 // Saved in past (most natural case)
                 for (int i = indexWhenSaved; i < nextActionIndex; i++)
                 {
-                    if (actions[i].IsModifying)
+                    if (IsModifying(actions[i]))
                         return false;
                 }
             }
@@ -133,7 +133,7 @@ public class UndoManager
                 // Saved in future (someone slammed Ctrl-Z after saving)
                 for (int i = nextActionIndex; i < indexWhenSaved; i++)
                 {
-                    if (actions[i].IsModifying)
+                    if (IsModifying(actions[i]))
                         return false;
                 }
             }
@@ -152,5 +152,13 @@ public class UndoManager
         actions.Clear();
         nextActionIndex = 0;
         indexWhenSaved = 0;
+    }
+
+    private static bool IsModifying(IEditAction action)
+    {
+        if (action is IModifyingEditAction x)
+            return x.IsModifying;
+        else
+            return true;
     }
 }

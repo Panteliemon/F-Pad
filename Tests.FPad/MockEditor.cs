@@ -41,13 +41,9 @@ internal class MockEditor : IEditor
         }
     }
 
-    public EncodingVm Encoding
+    public void SetEncoding(EncodingVm value, bool raiseModifiedFlag)
     {
-        get => encoding;
-        set
-        {
-            encoding = value;
-        }
+        encoding = value;
     }
 
     #region Private

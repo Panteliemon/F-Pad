@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FPad.Edit;
 
-internal class DecodeEditAction : IEditAction
+internal class DecodeEditAction : IEditAction, IModifyingEditAction
 {
     private string textBefore;
     private string textAfter;
@@ -25,11 +25,11 @@ internal class DecodeEditAction : IEditAction
         this.encodingAfter = encodingAfter;
     }
 
+    public bool IsModifying => false;
+
     #region IEditAction
 
     public string DisplayName => "Decode";
-
-    public bool IsModifying => false; // 😱
 
     public void Apply(IEditor editor)
     {

@@ -9,10 +9,6 @@ namespace FPad.Edit;
 public interface IEditAction
 {
     string DisplayName { get; }
-    /// <summary>
-    /// True if this action raises "unsaved changes" flag (99% of actions do that)
-    /// </summary>
-    bool IsModifying { get; }
     void Apply(IEditor editor);
     void Rollback(IEditor editor);
     /// <summary>

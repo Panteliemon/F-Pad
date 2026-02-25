@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FPad.Edit;
 
-internal class EncodingForSaveEditAction : IEditAction, ISaveAwareEditAction
+internal class EncodingForSaveEditAction : IEditAction, ISaveAwareEditAction, IModifyingEditAction
 {
     private EncodingVm encodingBefore;
     private EncodingVm encodingAfter;
@@ -21,10 +21,11 @@ internal class EncodingForSaveEditAction : IEditAction, ISaveAwareEditAction
         this.raiseModifiedFlag = raiseModifiedFlag;
     }
 
+    public bool IsModifying => raiseModifiedFlag;
+
     #region IEditAction
 
     public string DisplayName => "Encoding";
-    public bool IsModifying => raiseModifiedFlag;
 
     public void Apply(IEditor editor)
     {

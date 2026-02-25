@@ -23,8 +23,6 @@ internal class PasteEditAction : InsertEditAction, IEditAction
 
     public string DisplayName => "Paste";
 
-    public bool IsModifying => true;
-
     public bool Absorb(IEditAction nextAction)
     {
         return false;
