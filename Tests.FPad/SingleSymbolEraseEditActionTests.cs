@@ -26,7 +26,8 @@ public class SingleSymbolEraseEditActionTests : IClassFixture<EncodingTestsFixtu
         int positionBeforeEdit = prefix.Length; // 2
         editor.Selection = new Selection(positionBeforeEdit, 0);
 
-        IEditAction action = new SingleSymbolEraseEditAction(prefix.Length, suffix.Length, erased, positionBeforeEdit);
+        IEditAction action = new SingleSymbolEraseEditAction(prefix.Length, suffix.Length,
+            new ErasedSubString(erased, false, false), positionBeforeEdit);
 
         // Act: Apply
         action.Apply(editor);
@@ -56,7 +57,8 @@ public class SingleSymbolEraseEditActionTests : IClassFixture<EncodingTestsFixtu
         int positionBeforeEdit = prefix.Length + erased.Length; // 2
         editor.Selection = new Selection(positionBeforeEdit, 0);
 
-        IEditAction action = new SingleSymbolEraseEditAction(prefix.Length, suffix.Length, erased, positionBeforeEdit);
+        IEditAction action = new SingleSymbolEraseEditAction(prefix.Length, suffix.Length,
+            new ErasedSubString(erased, false, false), positionBeforeEdit);
 
         // Act: Apply
         action.Apply(editor);
@@ -80,8 +82,8 @@ public class SingleSymbolEraseEditActionTests : IClassFixture<EncodingTestsFixtu
         IEditor editor = new MockEditor(fixture);
         string initialText = "abc";
         editor.SetTextNoUndo(initialText);
-        IEditAction action1 = new SingleSymbolEraseEditAction(1, 1, "b", 1); // erase 'b'
-        IEditAction action2 = new SingleSymbolEraseEditAction(1, 0, "c", 1); // erase 'c' after 'b' erased
+        IEditAction action1 = new SingleSymbolEraseEditAction(1, 1, new ErasedSubString("b", false, false), 1); // erase 'b'
+        IEditAction action2 = new SingleSymbolEraseEditAction(1, 0, new ErasedSubString("c", false, false), 1); // erase 'c' after 'b' erased
 
         // Act
         bool absorbed = action1.Absorb(action2);
@@ -108,8 +110,8 @@ public class SingleSymbolEraseEditActionTests : IClassFixture<EncodingTestsFixtu
         IEditor editor = new MockEditor(fixture);
         string initialText = "abc";
         editor.SetTextNoUndo(initialText);
-        IEditAction action1 = new SingleSymbolEraseEditAction(1, 1, "b", 2); // erase 'b'
-        IEditAction action2 = new SingleSymbolEraseEditAction(0, 1, "a", 1); // erase 'a' before 'b'
+        IEditAction action1 = new SingleSymbolEraseEditAction(1, 1, new ErasedSubString("b", false, false), 2); // erase 'b'
+        IEditAction action2 = new SingleSymbolEraseEditAction(0, 1, new ErasedSubString("a", false, false), 1); // erase 'a' before 'b'
 
         // Act
         bool absorbed = action1.Absorb(action2);
@@ -133,8 +135,8 @@ public class SingleSymbolEraseEditActionTests : IClassFixture<EncodingTestsFixtu
     public void Absorb_DifferentType_DoesNotAbsorb()
     {
         // Arrange
-        IEditAction action1 = new SingleSymbolEraseEditAction(1, 2, "a", 1); // 'a' is Word
-        IEditAction action2 = new SingleSymbolEraseEditAction(1, 1, " ", 1); // ' ' is Space
+        IEditAction action1 = new SingleSymbolEraseEditAction(1, 2, new ErasedSubString("a", false, false), 1); // 'a' is Word
+        IEditAction action2 = new SingleSymbolEraseEditAction(1, 1, new ErasedSubString("=", false, false), 1); // '=' is NonWord
 
         // Act
         bool absorbed = action1.Absorb(action2);
@@ -147,8 +149,8 @@ public class SingleSymbolEraseEditActionTests : IClassFixture<EncodingTestsFixtu
     public void Absorb_SameType_DifferentChars_DoesNotAbsorb()
     {
         // Arrange
-        IEditAction action1 = new SingleSymbolEraseEditAction(1, 2, "a", 1);
-        IEditAction action2 = new SingleSymbolEraseEditAction(2, 3, "a", 2); // different charsBefore and charsAfter
+        IEditAction action1 = new SingleSymbolEraseEditAction(1, 2, new ErasedSubString("a", false, false), 1);
+        IEditAction action2 = new SingleSymbolEraseEditAction(2, 3, new ErasedSubString("a", false, false), 2); // different charsBefore and charsAfter
 
         // Act
         bool absorbed = action1.Absorb(action2);

@@ -72,10 +72,15 @@ public static class EditActionFactory
                 {
                     verifiedCommonSuffixLength = StringUtils.GetCommonSuffixLength(textBefore, textAfter, charsToEndAfter);
                     if (verifiedCommonSuffixLength.Value >= charsToEndAfter) // ==
-                    {
-                        return new SingleSymbolEraseEditAction(positionAfterEdit, charsToEndAfter,
+                    { 
+                        ErasedSubString erasedSubStr = new ErasedSubString(
                             textBefore[positionAfterEdit..selectionBefore.Start].ToString(),
-                            selectionBefore.Start);
+                            IsSpace(textBefore, positionAfterEdit - 1),
+                            IsSpace(textBefore, selectionBefore.Start)
+                        );
+
+                        return new SingleSymbolEraseEditAction(positionAfterEdit, charsToEndAfter,
+                            erasedSubStr, selectionBefore.Start);
                     }
                 }
             }
@@ -90,9 +95,14 @@ public static class EditActionFactory
                 verifiedCommonSuffixLength = StringUtils.GetCommonSuffixLength(textBefore, textAfter, charsToEndAfter);
                 if (verifiedCommonSuffixLength.Value >= charsToEndAfter) // ==
                 {
-                    return new SingleSymbolEraseEditAction(positionAfterEdit, charsToEndAfter,
+                    ErasedSubString erasedSubStr = new ErasedSubString(
                         textBefore[selectionBefore.Start..^charsToEndAfter].ToString(),
-                        selectionBefore.Start);
+                        IsSpace(textBefore, selectionBefore.Start - 1),
+                        IsSpace(textBefore, textBefore.Length - charsToEndAfter)
+                    );
+
+                    return new SingleSymbolEraseEditAction(positionAfterEdit, charsToEndAfter,
+                        erasedSubStr, selectionBefore.Start);
                 }
             }
         }
@@ -186,5 +196,12 @@ public static class EditActionFactory
             new ReplaceAllEditAction.Match(x, text.Substring(x, findSubStrLength))
         ).ToList();
         return new ReplaceAllEditAction(matches, replaceWith, selectionBefore, selectionAfter);
+    }
+
+    private static bool IsSpace(ReadOnlySpan<char> text, int index)
+    {
+        if ((index < 0) || (index >= text.Length))
+            return false;
+        return text[index] == 32;
     }
 }
