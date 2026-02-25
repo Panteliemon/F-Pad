@@ -161,6 +161,12 @@ public static class EditActionFactory
             encodingAfter);
     }
 
+    public static IEditAction CreateEncodingForSave(EncodingVm encodingBefore,
+        EncodingVm encodingAfter, bool raiseModifiedFlag)
+    {
+        return new EncodingForSaveEditAction(encodingBefore, encodingAfter, raiseModifiedFlag);
+    }
+
     public static IEditAction CreatePaste(string text, Selection selection, string subStrToPaste)
     {
         return new PasteEditAction(selection.Start, text.Length - selection.End,

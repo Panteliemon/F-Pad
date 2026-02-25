@@ -34,7 +34,6 @@ namespace FPad
         EncodingVm initialEncoding = null;
         bool fileContainsPreamble;
         EncodingVm currentEncoding = null;
-        bool hasChangedEncodingForSave;
         FileWatcher currentDocumentWatcher;
         UndoManager undoManager = new();
 
@@ -174,16 +173,19 @@ namespace FPad
             }
         }
 
-        EncodingVm IEditor.Encoding
+        void IEditor.SetEncoding(EncodingVm value, bool raiseModifiedFlag)
         {
-            get => currentEncoding;
-            set
+            // We trust values from edit actions and don't check.
+            currentEncoding = value;
+            if (raiseModifiedFlag)
             {
-                // We trust values from edit actions and don't check.
-                currentEncoding = value;
-                UpdateEncodingMenuCheckboxes();
-                UpdateStatusBar();
+                currentDocumentBytes = null;
+                hasUnsavedChanges = true;
+                UpdateTitle();
             }
+
+            UpdateEncodingMenuCheckboxes();
+            UpdateStatusBar();
         }
 
         #endregion
@@ -456,11 +458,7 @@ namespace FPad
             if (undoManager.CanUndo)
             {
                 undoManager.Undo(this);
-                if (undoManager.IsInNoChangesState()
-                    // Select encoding for save: triggers unsaved changes, doesn't trigger the undo.
-                    // Check separately that it didn't happen, or the document is "new"
-                    // (for "new" documents changing encoding for save doesn't raise modification flg)
-                    && (!hasChangedEncodingForSave || isNew))
+                if (undoManager.IsInNoChangesState())
                 {
                     hasUnsavedChanges = false; // 😱
                     UpdateTitle();
@@ -476,8 +474,7 @@ namespace FPad
             if (undoManager.CanRedo)
             {
                 undoManager.Redo(this);
-                if (undoManager.IsInNoChangesState()
-                    && (!hasChangedEncodingForSave || isNew))
+                if (undoManager.IsInNoChangesState())
                 {
                     hasUnsavedChanges = false;
                     UpdateTitle();
@@ -562,6 +559,7 @@ namespace FPad
         {
             if ((encodingVm != currentEncoding) && (currentEncoding != null))
             {
+                bool raiseModifiedFlag = false;
                 if (!isNew)
                 {
                     EncodingSwitchMethod? switchMethod = EncodingSwitchDialog.ShowDialog(this, encodingVm);
@@ -594,21 +592,20 @@ namespace FPad
 
                         undoManager.TakeNewAction(decodeAction);
                         UpdateMenu();
-                        return; // avoid excessive updates below
+                        return;
                     }
                     else // Use during save
                     {
                         // Consider this an edit, although the text doesn't change
-                        currentDocumentBytes = null;
-                        hasUnsavedChanges = true;
+                        raiseModifiedFlag = true;
                     }
                 }
 
-                hasChangedEncodingForSave = true;
-                currentEncoding = encodingVm;
-                UpdateEncodingMenuCheckboxes();
-                UpdateTitle();
-                UpdateStatusBar();
+                IEditAction encodingForSaveAction = EditActionFactory.CreateEncodingForSave(
+                    currentEncoding, encodingVm, raiseModifiedFlag);
+                encodingForSaveAction.Apply(this);
+                undoManager.TakeNewAction(encodingForSaveAction);
+                UpdateMenu();
             }
         }
 
@@ -697,7 +694,6 @@ namespace FPad
             initialEncoding = null;
             currentEncoding = EncodingManager.DefaultEncoding;
             fileContainsPreamble = false; // no file
-            hasChangedEncodingForSave = false;
             UpdateEncodingMenuCheckboxes();
             UpdateStatusBar();
 
@@ -729,7 +725,6 @@ namespace FPad
                 hasUnsavedChanges = false;
                 isNew = false;
                 isExternallyModified = false;
-                hasChangedEncodingForSave = false;
                 undoManager.Reset();
                 ResetSelection();
                 UpdateTitle();
@@ -771,7 +766,6 @@ namespace FPad
                 hasUnsavedChanges = false;
                 isNew = false;
                 isExternallyModified = false;
-                hasChangedEncodingForSave = false;
                 undoManager.Reset();
                 UpdateTitle();
                 UpdateMenu();
@@ -845,7 +839,6 @@ namespace FPad
                         isExternallyModified = false;
                         currentDocumentBytes = encodedBytes;
                         initialEncoding = currentEncoding;
-                        hasChangedEncodingForSave = false;
                         fileContainsPreamble = currentEncoding.StartsWithPreamble(encodedBytes);
                         undoManager.MarkSaved();
                         UpdateTitle();
@@ -892,7 +885,6 @@ namespace FPad
                 isExternallyModified = false;
                 currentDocumentBytes = encodedBytes;
                 initialEncoding = currentEncoding;
-                hasChangedEncodingForSave = false;
                 fileContainsPreamble = currentEncoding.StartsWithPreamble(encodedBytes);
                 undoManager.MarkSaved();
             }

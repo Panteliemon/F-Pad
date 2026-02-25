@@ -18,5 +18,5 @@ public interface IEditor
     /// </summary>
     void SetTextNoUndo(string value, bool raiseModifiedFlag = true);
     Selection Selection { get; set; }
-    EncodingVm Encoding { get; set; }
+    void SetEncoding(EncodingVm value, bool raiseModifiedFlag = true);
 }

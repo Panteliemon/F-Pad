@@ -35,14 +35,14 @@ internal class DecodeEditAction : IEditAction
     {
         editor.SetTextNoUndo(textAfter, false);
         editor.Selection = new Selection(0, 0);
-        editor.Encoding = encodingAfter;
+        editor.SetEncoding(encodingAfter, false);
     }
 
     public void Rollback(IEditor editor)
     {
         editor.SetTextNoUndo(textBefore, false);
         editor.Selection = selectionBefore;
-        editor.Encoding = encodingBefore;
+        editor.SetEncoding(encodingBefore, false);
     }
 
     public bool Absorb(IEditAction nextAction)
