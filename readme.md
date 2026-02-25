@@ -2,7 +2,7 @@
 
 A minimalist text editor for Windows inspired by the classic Notepad.
 
-![F-Pad Screenshot](Img/screenshot01.png)
+![F-Pad Screenshot](Img/screenshot02.png)
 
 ## Features
 - **Unformatted Text Editing**: Every one of us needs pureness of unformatted *.txt files once in a while, F-Pad makes sure the text you put in stays unformatted.
@@ -30,6 +30,7 @@ A minimalist text editor for Windows inspired by the classic Notepad.
 FPad/                  # The app
 ├── MainWindow.cs      # Primary UI and application logic
 ├── Controls/          # Custom UI controls, if any
+├── Edit/              # Pile of classes which make Undo work
 ├── Encodings/         # Stuff related to encoding support
 ├── ExternalEditors/   # Integration with popular text editors
 ├── Interaction/       # Inter-process communication between running instances of F-Pad within one PC (did someone say it was supposed to be minimalistic and dead simple text editor?)
@@ -50,7 +51,6 @@ My thoughts on possible features and change requests:
 - **More encodings?** Yes. If someone really uses it - I would add. By now it has already more than I've ever needed.
 - **Right-to-Left writing systems?** No. I lack competence and have no experience with it. I come from country which uses cyrillic alphabet, so I have a lot of experience how text files saved on one PC are open as gibberish on another PC, and therefore I know how to do it right. With R-t-L writing I don't know how to do it right.
 - **Different languages for UI**: I would love to do it, just let me know.
-- **Ctrl+Z**: Complicated, but I would welcome this.
 
 
 ## Acknowledgments

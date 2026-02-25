@@ -1,0 +1,102 @@
+using FPad.Edit;
+using Tests.FPad;
+using Xunit;
+
+namespace Tests.FPad;
+
+public class SelectionEraseEditActionTests : IClassFixture<EncodingTestsFixture>
+{
+    private readonly EncodingTestsFixture fixture;
+
+    public SelectionEraseEditActionTests(EncodingTestsFixture fixture)
+    {
+        this.fixture = fixture;
+    }
+
+    [Fact]
+    public void Apply_Rollback_RoundTrip()
+    {
+        // Arrange
+        IEditor editor = new MockEditor(fixture);
+        string prefix = "Hello ";
+        string erased = "World";
+        string suffix = "!";
+        string initialText = prefix + erased + suffix;
+        editor.SetTextNoUndo(initialText);
+        editor.Selection = new Selection(prefix.Length, erased.Length);
+
+        IEditAction action = new SelectionEraseEditAction(prefix.Length, suffix.Length, erased);
+
+        // Act: Apply
+        action.Apply(editor);
+
+        // Assert after Apply
+        Assert.Equal(prefix + suffix, editor.Text);
+        Assert.Equal(new Selection(prefix.Length, 0), editor.Selection);
+
+        // Act: Rollback
+        action.Rollback(editor);
+
+        // Assert after Rollback
+        Assert.Equal(initialText, editor.Text);
+        Assert.Equal(new Selection(prefix.Length, erased.Length), editor.Selection);
+    }
+
+    [Fact]
+    public void Apply_Rollback_RoundTrip_EmptySuffix()
+    {
+        // Arrange
+        IEditor editor = new MockEditor(fixture);
+        string prefix = "Hello ";
+        string erased = "World";
+        string suffix = "";
+        string initialText = prefix + erased + suffix;
+        editor.SetTextNoUndo(initialText);
+        editor.Selection = new Selection(prefix.Length, erased.Length);
+
+        IEditAction action = new SelectionEraseEditAction(prefix.Length, suffix.Length, erased);
+
+        // Act: Apply
+        action.Apply(editor);
+
+        // Assert after Apply
+        Assert.Equal(prefix + suffix, editor.Text);
+        Assert.Equal(new Selection(prefix.Length, 0), editor.Selection);
+
+        // Act: Rollback
+        action.Rollback(editor);
+
+        // Assert after Rollback
+        Assert.Equal(initialText, editor.Text);
+        Assert.Equal(new Selection(prefix.Length, erased.Length), editor.Selection);
+    }
+
+    [Fact]
+    public void Apply_Rollback_RoundTrip_EmptyPrefix()
+    {
+        // Arrange
+        IEditor editor = new MockEditor(fixture);
+        string prefix = "";
+        string erased = "Hello";
+        string suffix = " World!";
+        string initialText = prefix + erased + suffix;
+        editor.SetTextNoUndo(initialText);
+        editor.Selection = new Selection(prefix.Length, erased.Length);
+
+        IEditAction action = new SelectionEraseEditAction(prefix.Length, suffix.Length, erased);
+
+        // Act: Apply
+        action.Apply(editor);
+
+        // Assert after Apply
+        Assert.Equal(prefix + suffix, editor.Text);
+        Assert.Equal(new Selection(prefix.Length, 0), editor.Selection);
+
+        // Act: Rollback
+        action.Rollback(editor);
+
+        // Assert after Rollback
+        Assert.Equal(initialText, editor.Text);
+        Assert.Equal(new Selection(prefix.Length, erased.Length), editor.Selection);
+    }
+}
