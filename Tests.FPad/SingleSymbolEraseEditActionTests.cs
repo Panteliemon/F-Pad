@@ -22,7 +22,7 @@ public class SingleSymbolEraseEditActionTests : IClassFixture<EncodingTestsFixtu
         string erased = "c";
         string suffix = "d";
         string initialText = prefix + erased + suffix;
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         int positionBeforeEdit = prefix.Length; // 2
         editor.Selection = new Selection(positionBeforeEdit, 0);
 
@@ -32,14 +32,14 @@ public class SingleSymbolEraseEditActionTests : IClassFixture<EncodingTestsFixtu
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(prefix + suffix, editor.TextNoUndo);
+        Assert.Equal(prefix + suffix, editor.Text);
         Assert.Equal(new Selection(prefix.Length, 0), editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(new Selection(positionBeforeEdit, 0), editor.Selection);
     }
 
@@ -52,7 +52,7 @@ public class SingleSymbolEraseEditActionTests : IClassFixture<EncodingTestsFixtu
         string erased = "b";
         string suffix = "cd";
         string initialText = prefix + erased + suffix;
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         int positionBeforeEdit = prefix.Length + erased.Length; // 2
         editor.Selection = new Selection(positionBeforeEdit, 0);
 
@@ -62,14 +62,14 @@ public class SingleSymbolEraseEditActionTests : IClassFixture<EncodingTestsFixtu
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(prefix + suffix, editor.TextNoUndo);
+        Assert.Equal(prefix + suffix, editor.Text);
         Assert.Equal(new Selection(prefix.Length, 0), editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(new Selection(positionBeforeEdit, 0), editor.Selection);
     }
 
@@ -79,7 +79,7 @@ public class SingleSymbolEraseEditActionTests : IClassFixture<EncodingTestsFixtu
         // Arrange
         IEditor editor = new MockEditor(fixture);
         string initialText = "abc";
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         IEditAction action1 = new SingleSymbolEraseEditAction(1, 1, "b", 1); // erase 'b'
         IEditAction action2 = new SingleSymbolEraseEditAction(1, 0, "c", 1); // erase 'c' after 'b' erased
 
@@ -90,14 +90,14 @@ public class SingleSymbolEraseEditActionTests : IClassFixture<EncodingTestsFixtu
         Assert.True(absorbed);
 
         // Test the combined action
-        var testEditor = new MockEditor(fixture);
-        testEditor.TextNoUndo = initialText;
+        IEditor testEditor = new MockEditor(fixture);
+        testEditor.SetTextNoUndo(initialText);
         action1.Apply(testEditor);
-        Assert.Equal("a", testEditor.TextNoUndo);
+        Assert.Equal("a", testEditor.Text);
         Assert.Equal(new Selection(1, 0), testEditor.Selection);
 
         action1.Rollback(testEditor);
-        Assert.Equal(initialText, testEditor.TextNoUndo);
+        Assert.Equal(initialText, testEditor.Text);
         Assert.Equal(new Selection(1, 0), testEditor.Selection);
     }
 
@@ -107,7 +107,7 @@ public class SingleSymbolEraseEditActionTests : IClassFixture<EncodingTestsFixtu
         // Arrange
         IEditor editor = new MockEditor(fixture);
         string initialText = "abc";
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         IEditAction action1 = new SingleSymbolEraseEditAction(1, 1, "b", 2); // erase 'b'
         IEditAction action2 = new SingleSymbolEraseEditAction(0, 1, "a", 1); // erase 'a' before 'b'
 
@@ -118,14 +118,14 @@ public class SingleSymbolEraseEditActionTests : IClassFixture<EncodingTestsFixtu
         Assert.True(absorbed);
 
         // Test the combined action
-        var testEditor = new MockEditor(fixture);
-        testEditor.TextNoUndo = initialText;
+        IEditor testEditor = new MockEditor(fixture);
+        testEditor.SetTextNoUndo(initialText);
         action1.Apply(testEditor);
-        Assert.Equal("c", testEditor.TextNoUndo);
+        Assert.Equal("c", testEditor.Text);
         Assert.Equal(new Selection(0, 0), testEditor.Selection); // charsBeforeChange of combined is 0
 
         action1.Rollback(testEditor);
-        Assert.Equal(initialText, testEditor.TextNoUndo);
+        Assert.Equal(initialText, testEditor.Text);
         Assert.Equal(new Selection(2, 0), testEditor.Selection); // positionBeforeEdit of action1
     }
 

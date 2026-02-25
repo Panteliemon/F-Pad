@@ -20,25 +20,25 @@ internal abstract class EraseEditAction : SubStringChangeEditAction
 
     public void Apply(IEditor editor)
     {
-        ReadOnlySpan<char> txtBefore = editor.TextNoUndo;
+        ReadOnlySpan<char> txtBefore = editor.Text;
 
         StringBuilder sb = new();
         sb.Append(txtBefore[0..charsBeforeChange]);
         sb.Append(txtBefore[^charsAfterChange..]);
 
-        editor.TextNoUndo = sb.ToString();
+        editor.SetTextNoUndo(sb.ToString());
         editor.Selection = new Selection(charsBeforeChange, 0);
     }
 
     public void Rollback(IEditor editor)
     {
-        ReadOnlySpan<char> txtAfter = editor.TextNoUndo;
+        ReadOnlySpan<char> txtAfter = editor.Text;
         StringBuilder sb = new();
         sb.Append(txtAfter[0..charsBeforeChange]);
         sb.Append(erasedSubString);
         sb.Append(txtAfter[^charsAfterChange..]);
 
-        editor.TextNoUndo = sb.ToString();
+        editor.SetTextNoUndo(sb.ToString());
         RestoreSelection(editor);
     }
 

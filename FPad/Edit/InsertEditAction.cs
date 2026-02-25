@@ -27,20 +27,20 @@ internal abstract class InsertEditAction : SubStringChangeEditAction
 
     public void Apply(IEditor editor)
     {
-        ReadOnlySpan<char> txtBefore = editor.TextNoUndo;
+        ReadOnlySpan<char> txtBefore = editor.Text;
 
         StringBuilder sb = new();
         sb.Append(txtBefore[0..charsBeforeChange]);
         sb.Append(insertedSubString);
         sb.Append(txtBefore[^charsAfterChange..]);
 
-        editor.TextNoUndo = sb.ToString();
+        editor.SetTextNoUndo(sb.ToString());
         SelectAfterApply(editor);
     }
 
     public void Rollback(IEditor editor)
     {
-        ReadOnlySpan<char> txtAfter = editor.TextNoUndo;
+        ReadOnlySpan<char> txtAfter = editor.Text;
 
         StringBuilder sb = new();
         sb.Append(txtAfter[0..charsBeforeChange]);
@@ -48,7 +48,7 @@ internal abstract class InsertEditAction : SubStringChangeEditAction
             sb.Append(erasedSubString);
         sb.Append(txtAfter[^charsAfterChange..]);
 
-        editor.TextNoUndo = sb.ToString();
+        editor.SetTextNoUndo(sb.ToString());
         if (erasedSubString == null)
             editor.Selection = new Selection(charsBeforeChange, 0);
         else

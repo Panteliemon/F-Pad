@@ -25,7 +25,7 @@ public class ReplaceAllEditActionTests : IClassFixture<EncodingTestsFixture>
     {
         // Arrange
         IEditor editor = new MockEditor(fixture);
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         editor.Selection = selectionBefore;
 
         IEditAction action = new ReplaceAllEditAction(matches, replacedWith, selectionBefore, selectionAfter);
@@ -34,14 +34,14 @@ public class ReplaceAllEditActionTests : IClassFixture<EncodingTestsFixture>
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(expectedTextAfterApply, editor.TextNoUndo);
+        Assert.Equal(expectedTextAfterApply, editor.Text);
         Assert.Equal(selectionAfter, editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(selectionBefore, editor.Selection);
     }
 

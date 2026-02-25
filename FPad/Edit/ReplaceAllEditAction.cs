@@ -41,7 +41,7 @@ internal class ReplaceAllEditAction : IEditAction
 
     public void Apply(IEditor editor)
     {
-        ReadOnlySpan<char> textBefore = editor.TextNoUndo;
+        ReadOnlySpan<char> textBefore = editor.Text;
 
         StringBuilder sb = new();
         int currentFragmentStart = 0;
@@ -55,13 +55,13 @@ internal class ReplaceAllEditAction : IEditAction
         if (currentFragmentStart < textBefore.Length)
             sb.Append(textBefore[currentFragmentStart..]);
 
-        editor.TextNoUndo = sb.ToString();
+        editor.SetTextNoUndo(sb.ToString());
         editor.Selection = selectionAfter;
     }
 
     public void Rollback(IEditor editor)
     {
-        ReadOnlySpan<char> textAfter = editor.TextNoUndo;
+        ReadOnlySpan<char> textAfter = editor.Text;
 
         StringBuilder sb = new();
         int currentFragmentStart = 0;
@@ -78,7 +78,7 @@ internal class ReplaceAllEditAction : IEditAction
         if (currentFragmentStart < textAfter.Length)
             sb.Append(textAfter[currentFragmentStart..]);
 
-        editor.TextNoUndo = sb.ToString();
+        editor.SetTextNoUndo(sb.ToString());
         editor.Selection = selectionBefore;
     }
 

@@ -22,7 +22,7 @@ public class SelectionEraseEditActionTests : IClassFixture<EncodingTestsFixture>
         string erased = "World";
         string suffix = "!";
         string initialText = prefix + erased + suffix;
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         editor.Selection = new Selection(prefix.Length, erased.Length);
 
         IEditAction action = new SelectionEraseEditAction(prefix.Length, suffix.Length, erased);
@@ -31,14 +31,14 @@ public class SelectionEraseEditActionTests : IClassFixture<EncodingTestsFixture>
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(prefix + suffix, editor.TextNoUndo);
+        Assert.Equal(prefix + suffix, editor.Text);
         Assert.Equal(new Selection(prefix.Length, 0), editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(new Selection(prefix.Length, erased.Length), editor.Selection);
     }
 
@@ -51,7 +51,7 @@ public class SelectionEraseEditActionTests : IClassFixture<EncodingTestsFixture>
         string erased = "World";
         string suffix = "";
         string initialText = prefix + erased + suffix;
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         editor.Selection = new Selection(prefix.Length, erased.Length);
 
         IEditAction action = new SelectionEraseEditAction(prefix.Length, suffix.Length, erased);
@@ -60,14 +60,14 @@ public class SelectionEraseEditActionTests : IClassFixture<EncodingTestsFixture>
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(prefix + suffix, editor.TextNoUndo);
+        Assert.Equal(prefix + suffix, editor.Text);
         Assert.Equal(new Selection(prefix.Length, 0), editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(new Selection(prefix.Length, erased.Length), editor.Selection);
     }
 
@@ -80,7 +80,7 @@ public class SelectionEraseEditActionTests : IClassFixture<EncodingTestsFixture>
         string erased = "Hello";
         string suffix = " World!";
         string initialText = prefix + erased + suffix;
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         editor.Selection = new Selection(prefix.Length, erased.Length);
 
         IEditAction action = new SelectionEraseEditAction(prefix.Length, suffix.Length, erased);
@@ -89,14 +89,14 @@ public class SelectionEraseEditActionTests : IClassFixture<EncodingTestsFixture>
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(prefix + suffix, editor.TextNoUndo);
+        Assert.Equal(prefix + suffix, editor.Text);
         Assert.Equal(new Selection(prefix.Length, 0), editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(new Selection(prefix.Length, erased.Length), editor.Selection);
     }
 }

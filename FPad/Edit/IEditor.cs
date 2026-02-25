@@ -12,15 +12,11 @@ namespace FPad.Edit;
 /// </summary>
 public interface IEditor
 {
+    string Text { get; }
     /// <summary>
-    /// Setter of this property should not generate Undo entries
+    /// Sets text without generating new Undo entries
     /// </summary>
-    string TextNoUndo { get; set; }
-    /// <summary>
-    /// Setter of this property should not generate Undo entry
-    /// and should not raise "is modified" flag.
-    /// </summary>
-    string TextNoUndoNoModifiedFlag { get; set; }
+    void SetTextNoUndo(string value, bool raiseModifiedFlag = true);
     Selection Selection { get; set; }
     EncodingVm Encoding { get; set; }
 }

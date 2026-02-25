@@ -22,7 +22,7 @@ public class SingleSymbolTypeEditActionTests : IClassFixture<EncodingTestsFixtur
         string inserted = "c";
         string suffix = "d";
         string initialText = prefix + suffix;
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         int positionBeforeEdit = prefix.Length; // 2
         editor.Selection = new Selection(positionBeforeEdit, 0);
 
@@ -32,14 +32,14 @@ public class SingleSymbolTypeEditActionTests : IClassFixture<EncodingTestsFixtur
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(prefix + inserted + suffix, editor.TextNoUndo);
+        Assert.Equal(prefix + inserted + suffix, editor.Text);
         Assert.Equal(new Selection(prefix.Length + inserted.Length, 0), editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(new Selection(positionBeforeEdit, 0), editor.Selection);
     }
 
@@ -52,7 +52,7 @@ public class SingleSymbolTypeEditActionTests : IClassFixture<EncodingTestsFixtur
         string inserted = " ";
         string suffix = "d";
         string initialText = prefix + suffix;
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         int positionBeforeEdit = prefix.Length; // 2
         editor.Selection = new Selection(positionBeforeEdit, 0);
 
@@ -62,14 +62,14 @@ public class SingleSymbolTypeEditActionTests : IClassFixture<EncodingTestsFixtur
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(prefix + inserted + suffix, editor.TextNoUndo);
+        Assert.Equal(prefix + inserted + suffix, editor.Text);
         Assert.Equal(new Selection(prefix.Length + inserted.Length, 0), editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(new Selection(positionBeforeEdit, 0), editor.Selection);
     }
 
@@ -82,7 +82,7 @@ public class SingleSymbolTypeEditActionTests : IClassFixture<EncodingTestsFixtur
         string inserted = "!";
         string suffix = "d";
         string initialText = prefix + suffix;
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         int positionBeforeEdit = prefix.Length; // 2
         editor.Selection = new Selection(positionBeforeEdit, 0);
 
@@ -92,14 +92,14 @@ public class SingleSymbolTypeEditActionTests : IClassFixture<EncodingTestsFixtur
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(prefix + inserted + suffix, editor.TextNoUndo);
+        Assert.Equal(prefix + inserted + suffix, editor.Text);
         Assert.Equal(new Selection(prefix.Length + inserted.Length, 0), editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(new Selection(positionBeforeEdit, 0), editor.Selection);
     }
 
@@ -109,7 +109,7 @@ public class SingleSymbolTypeEditActionTests : IClassFixture<EncodingTestsFixtur
         // Arrange
         IEditor editor = new MockEditor(fixture);
         string initialText = "ab";
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         IEditAction action1 = new SingleSymbolTypeEditAction(1, 1, "", "c", 2); // insert 'c' at position 1
         IEditAction action2 = new SingleSymbolTypeEditAction(2, 1, "", "d", 3); // insert 'd' at position 2 (after 'c')
 
@@ -121,13 +121,13 @@ public class SingleSymbolTypeEditActionTests : IClassFixture<EncodingTestsFixtur
 
         // Test the combined action
         IEditor testEditor = new MockEditor(fixture);
-        testEditor.TextNoUndo = initialText;
+        testEditor.SetTextNoUndo(initialText);
         action1.Apply(testEditor);
-        Assert.Equal("acdb", testEditor.TextNoUndo);
+        Assert.Equal("acdb", testEditor.Text);
         Assert.Equal(new Selection(3, 0), testEditor.Selection); // after "cd"
 
         action1.Rollback(testEditor);
-        Assert.Equal(initialText, testEditor.TextNoUndo);
+        Assert.Equal(initialText, testEditor.Text);
         Assert.Equal(new Selection(1, 0), testEditor.Selection); // position of action1
     }
 
@@ -137,7 +137,7 @@ public class SingleSymbolTypeEditActionTests : IClassFixture<EncodingTestsFixtur
         // Arrange
         IEditor editor = new MockEditor(fixture);
         string initialText = "ab";
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         IEditAction action1 = new SingleSymbolTypeEditAction(1, 1, "", "cd", 3); // insert "cd" at position 1
         IEditAction action2 = new SingleSymbolTypeEditAction(2, 2, "", "e", 3); // insert 'e' at position 2 (between 'c' and 'd')
 
@@ -149,13 +149,13 @@ public class SingleSymbolTypeEditActionTests : IClassFixture<EncodingTestsFixtur
 
         // Test the combined action
         IEditor testEditor = new MockEditor(fixture);
-        testEditor.TextNoUndo = initialText;
+        testEditor.SetTextNoUndo(initialText);
         action1.Apply(testEditor);
-        Assert.Equal("acedb", testEditor.TextNoUndo);
+        Assert.Equal("acedb", testEditor.Text);
         Assert.Equal(new Selection(3, 0), testEditor.Selection); // after "e"
 
         action1.Rollback(testEditor);
-        Assert.Equal(initialText, testEditor.TextNoUndo);
+        Assert.Equal(initialText, testEditor.Text);
         Assert.Equal(new Selection(1, 0), testEditor.Selection);
     }
 

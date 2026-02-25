@@ -152,25 +152,14 @@ namespace FPad
             }
         }
 
-        string IEditor.TextNoUndo
-        {
-            get => text.Text;
-            set
-            {
-                detectUndoOnTextChange = false;
-                text.Text = value;
-            }
-        }
+        string IEditor.Text => text.Text;
 
-        string IEditor.TextNoUndoNoModifiedFlag
+        void IEditor.SetTextNoUndo(string value, bool raiseModifiedFlag)
         {
-            get => text.Text;
-            set
-            {
+            if (!raiseModifiedFlag)
                 setModifiedOnTextChange = false;
-                detectUndoOnTextChange = false;
-                text.Text = value;
-            }
+            detectUndoOnTextChange = false;
+            text.Text = value;
         }
 
         Selection IEditor.Selection

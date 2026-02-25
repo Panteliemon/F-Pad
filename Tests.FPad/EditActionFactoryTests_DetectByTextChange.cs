@@ -16,21 +16,21 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
     private void AssertActionApplyAndRollback(IEditAction action, string textBefore, string textAfter, Selection selectionBefore, int positionAfter)
     {
         IEditor editor = new MockEditor(fixture);
-        editor.TextNoUndo = textBefore;
+        editor.SetTextNoUndo(textBefore);
         editor.Selection = selectionBefore;
 
         // Act: Apply
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(textAfter, editor.TextNoUndo);
+        Assert.Equal(textAfter, editor.Text);
         Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(textBefore, editor.TextNoUndo);
+        Assert.Equal(textBefore, editor.Text);
         Assert.Equal(selectionBefore, editor.Selection);
     }
 
@@ -657,13 +657,13 @@ public class EditActionFactoryTests_DetectByTextChange : IClassFixture<EncodingT
         Assert.IsType<GenericEditAction>(action);
 
         IEditor editor = new MockEditor(fixture);
-        editor.TextNoUndo = "1234567890";
+        editor.SetTextNoUndo("1234567890");
         editor.Selection = selectionBefore;
 
         action.Apply(editor);
 
         Assert.Equal(new Selection(positionAfter, 0), editor.Selection);
-        Assert.Equal("123567890", editor.TextNoUndo); // must erase 1 symbol and not replace 4 symbols or something
+        Assert.Equal("123567890", editor.Text); // must erase 1 symbol and not replace 4 symbols or something
     }
 
     [Fact]

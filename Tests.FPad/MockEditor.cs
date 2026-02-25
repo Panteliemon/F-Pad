@@ -21,14 +21,15 @@ internal class MockEditor : IEditor
         encoding = EncodingManager.DefaultEncoding;
     }
 
-    public string TextNoUndo
+    public string Text
     {
         get => text;
-        set
-        {
-            text = value ?? string.Empty;
-            selection = NormalizeSelection(selection);
-        }
+    }
+
+    public void SetTextNoUndo(string value, bool raiseModifiedFlag)
+    {
+        text = value ?? string.Empty;
+        selection = NormalizeSelection(selection);
     }
 
     public Selection Selection

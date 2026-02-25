@@ -23,7 +23,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         string inserted = "Beautiful ";
         string suffix = "World!";
         string initialText = prefix + erased + suffix;
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         Selection selectionBefore = new Selection(prefix.Length, erased.Length);
         Selection selectionAfter = new Selection(prefix.Length, inserted.Length);
 
@@ -33,14 +33,14 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(prefix + inserted + suffix, editor.TextNoUndo);
+        Assert.Equal(prefix + inserted + suffix, editor.Text);
         Assert.Equal(selectionAfter, editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(selectionBefore, editor.Selection);
     }
 
@@ -54,7 +54,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         string inserted = "";
         string suffix = "!";
         string initialText = prefix + erased + suffix;
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         Selection selectionBefore = new Selection(prefix.Length, erased.Length);
         Selection selectionAfter = new Selection(prefix.Length, inserted.Length);
 
@@ -64,14 +64,14 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(prefix + inserted + suffix, editor.TextNoUndo);
+        Assert.Equal(prefix + inserted + suffix, editor.Text);
         Assert.Equal(selectionAfter, editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(selectionBefore, editor.Selection);
     }
 
@@ -85,7 +85,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         string inserted = "Universe";
         string suffix = "!";
         string initialText = prefix + erased + suffix;
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         Selection selectionBefore = new Selection(prefix.Length, erased.Length);
         Selection selectionAfter = new Selection(prefix.Length, inserted.Length);
 
@@ -95,14 +95,14 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(prefix + inserted + suffix, editor.TextNoUndo);
+        Assert.Equal(prefix + inserted + suffix, editor.Text);
         Assert.Equal(selectionAfter, editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(selectionBefore, editor.Selection);
     }
 
@@ -116,7 +116,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         string inserted = "Hi";
         string suffix = " World!";
         string initialText = prefix + erased + suffix;
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         Selection selectionBefore = new Selection(prefix.Length, erased.Length);
         Selection selectionAfter = new Selection(prefix.Length, inserted.Length);
 
@@ -126,14 +126,14 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(prefix + inserted + suffix, editor.TextNoUndo);
+        Assert.Equal(prefix + inserted + suffix, editor.Text);
         Assert.Equal(selectionAfter, editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(selectionBefore, editor.Selection);
     }
 
@@ -147,7 +147,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         string inserted = "!!";
         string suffix = "";
         string initialText = prefix + erased + suffix;
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         Selection selectionBefore = new Selection(prefix.Length, erased.Length);
         Selection selectionAfter = new Selection(prefix.Length, inserted.Length);
 
@@ -157,14 +157,14 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(prefix + inserted + suffix, editor.TextNoUndo);
+        Assert.Equal(prefix + inserted + suffix, editor.Text);
         Assert.Equal(selectionAfter, editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(selectionBefore, editor.Selection);
     }
 
@@ -178,7 +178,7 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         string inserted = "Hello";
         string suffix = "";
         string initialText = prefix + erased + suffix;
-        editor.TextNoUndo = initialText;
+        editor.SetTextNoUndo(initialText);
         Selection selectionBefore = new Selection(prefix.Length, erased.Length);
         Selection selectionAfter = new Selection(prefix.Length, inserted.Length);
 
@@ -188,14 +188,14 @@ public class GenericEditActionTests : IClassFixture<EncodingTestsFixture>
         action.Apply(editor);
 
         // Assert after Apply
-        Assert.Equal(prefix + inserted + suffix, editor.TextNoUndo);
+        Assert.Equal(prefix + inserted + suffix, editor.Text);
         Assert.Equal(selectionAfter, editor.Selection);
 
         // Act: Rollback
         action.Rollback(editor);
 
         // Assert after Rollback
-        Assert.Equal(initialText, editor.TextNoUndo);
+        Assert.Equal(initialText, editor.Text);
         Assert.Equal(selectionBefore, editor.Selection);
     }
 }
