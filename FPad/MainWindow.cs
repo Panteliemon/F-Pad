@@ -122,6 +122,7 @@ namespace FPad
         {
             action.Apply(this);
             undoManager.TakeNewAction(action);
+            UpdateMenu();
 
             Activate();
             text.Focus();
@@ -358,6 +359,7 @@ namespace FPad
                     text.TextBeforeEdit, text.SelectionBeforeEdit, text.Text, text.SelectionStart
                 );
                 undoManager.TakeNewAction(action);
+                UpdateMenu();
             }
             else
             {
@@ -466,13 +468,19 @@ namespace FPad
         private void undoMenuItem_Click(object sender, EventArgs e)
         {
             if (undoManager.CanUndo)
+            {
                 undoManager.Undo(this);
+                UpdateMenu();
+            }
         }
 
         private void redoMenuItem_Click(object sender, EventArgs e)
         {
             if (undoManager.CanRedo)
+            {
                 undoManager.Redo(this);
+                UpdateMenu();
+            }
         }
 
         private void cutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -504,6 +512,7 @@ namespace FPad
                 IEditAction pasteAction = EditActionFactory.CreatePaste(text.Text, text.Selection, clipboardText);
                 pasteAction.Apply(this);
                 undoManager.TakeNewAction(pasteAction);
+                UpdateMenu();
             }
         }
 
@@ -579,6 +588,7 @@ namespace FPad
                         // Keep previous currentDocumentBytes (reinterpreted, not changed)
 
                         undoManager.TakeNewAction(decodeAction);
+                        UpdateMenu();
                         return; // avoid excessive updates below
                     }
                     else // Use during save
@@ -1067,6 +1077,11 @@ namespace FPad
                     fileItem.Enabled = !isNew;
                 }
             }
+
+            undoMenuItem.Enabled = undoManager.CanUndo;
+            undoMenuItem.Text = string.IsNullOrEmpty(undoManager.UndoActionName) ? "Undo" : $"Undo {undoManager.UndoActionName}";
+            redoMenuItem.Enabled = undoManager.CanRedo;
+            redoMenuItem.Text = string.IsNullOrEmpty(undoManager.RedoActionName) ? "Redo" : $"Redo {undoManager.RedoActionName}";
 
             cutToolStripMenuItem.Enabled = text.SelectionLength > 0;
             cutContextMenuItem.Enabled = cutToolStripMenuItem.Enabled;

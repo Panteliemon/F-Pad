@@ -239,7 +239,6 @@ namespace FPad
             undoMenuItem.Name = "undoMenuItem";
             undoMenuItem.ShortcutKeys = Keys.Control | Keys.Z;
             undoMenuItem.Size = new Size(180, 22);
-            undoMenuItem.Text = "Undo";
             undoMenuItem.Click += undoMenuItem_Click;
             // 
             // redoMenuItem
@@ -247,7 +246,6 @@ namespace FPad
             redoMenuItem.Name = "redoMenuItem";
             redoMenuItem.ShortcutKeys = Keys.Control | Keys.Y;
             redoMenuItem.Size = new Size(180, 22);
-            redoMenuItem.Text = "Redo";
             redoMenuItem.Click += redoMenuItem_Click;
             // 
             // toolStripSeparator5
