@@ -29,6 +29,8 @@ internal class DecodeEditAction : IEditAction
 
     public string DisplayName => "Decode";
 
+    public bool IsModifying => false; // 😱
+
     public void Apply(IEditor editor)
     {
         editor.SetTextNoUndo(textAfter, false);

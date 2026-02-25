@@ -28,6 +28,8 @@ internal class SingleSymbolTypeEditAction : InsertEditAction, IEditAction
 
     public string DisplayName => "Type";
 
+    public bool IsModifying => true;
+
     public bool Absorb(IEditAction nextAction)
     {
         if ((nextAction is SingleSymbolTypeEditAction next)

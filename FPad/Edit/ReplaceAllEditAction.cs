@@ -39,6 +39,8 @@ internal class ReplaceAllEditAction : IEditAction
 
     public string DisplayName => "Replace All";
 
+    public bool IsModifying => true;
+
     public void Apply(IEditor editor)
     {
         ReadOnlySpan<char> textBefore = editor.Text;

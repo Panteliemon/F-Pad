@@ -25,6 +25,8 @@ internal class SelectionEraseEditAction : EraseEditAction, IEditAction
 
     public virtual string DisplayName => "Erase Selection";
 
+    public bool IsModifying => true;
+
     public bool Absorb(IEditAction nextAction)
     {
         return false;

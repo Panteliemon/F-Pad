@@ -31,6 +31,8 @@ internal class SingleSymbolEraseEditAction : EraseEditAction, IEditAction
 
     public string DisplayName => "Erase Text";
 
+    public bool IsModifying => true;
+
     public bool Absorb(IEditAction nextAction)
     {
         if ((nextAction is SingleSymbolEraseEditAction next)

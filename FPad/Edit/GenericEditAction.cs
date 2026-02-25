@@ -31,6 +31,8 @@ internal class GenericEditAction : SubStringChangeEditAction, IEditAction
 
     public string DisplayName => "Edit";
 
+    public bool IsModifying => true;
+
     public void Apply(IEditor editor)
     {
         ReadOnlySpan<char> txtBefore = editor.Text;

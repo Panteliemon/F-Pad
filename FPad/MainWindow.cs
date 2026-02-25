@@ -1,4 +1,4 @@
-using FPad.Edit;
+﻿using FPad.Edit;
 using FPad.Encodings;
 using FPad.ExternalEditors;
 using FPad.Interaction;
@@ -34,15 +34,18 @@ namespace FPad
         EncodingVm initialEncoding = null;
         bool fileContainsPreamble;
         EncodingVm currentEncoding = null;
+        bool hasChangedEncodingForSave;
         FileWatcher currentDocumentWatcher;
         UndoManager undoManager = new();
 
         bool enableSizingHandlers = false;
         /// <summary>
+        /// Use before calling <see cref="SetText(string)"/>.
         /// If false - acts one time. Restores itself back to true after text change.
         /// </summary>
         bool setModifiedOnTextChange = true;
         /// <summary>
+        /// Use before calling <see cref="SetText(string)"/>.
         /// If false - acts one time. Restores itself back to true after text change. 
         /// </summary>
         bool detectUndoOnTextChange = true;
@@ -159,7 +162,7 @@ namespace FPad
             if (!raiseModifiedFlag)
                 setModifiedOnTextChange = false;
             detectUndoOnTextChange = false;
-            text.Text = value;
+            SetText(value);
         }
 
         Selection IEditor.Selection
@@ -338,10 +341,6 @@ namespace FPad
                 currentDocumentBytes = null;
                 UpdateTitle();
             }
-            else
-            {
-                setModifiedOnTextChange = true;
-            }
 
             if (detectUndoOnTextChange
                 && (text.TextBeforeEdit != null)) // should be always not null
@@ -351,10 +350,6 @@ namespace FPad
                 );
                 undoManager.TakeNewAction(action);
                 UpdateMenu();
-            }
-            else
-            {
-                detectUndoOnTextChange = true;
             }
 
             // Stuff like line/col - update in any case
@@ -461,6 +456,17 @@ namespace FPad
             if (undoManager.CanUndo)
             {
                 undoManager.Undo(this);
+                if (undoManager.IsInNoChangesState()
+                    // Select encoding for save: triggers unsaved changes, doesn't trigger the undo.
+                    // Check separately that it didn't happen, or the document is "new"
+                    // (for "new" documents changing encoding for save doesn't raise modification flg)
+                    && (!hasChangedEncodingForSave || isNew))
+                {
+                    hasUnsavedChanges = false; // 😱
+                    UpdateTitle();
+                    UpdateStatusBar();
+                }
+
                 UpdateMenu();
             }
         }
@@ -470,6 +476,14 @@ namespace FPad
             if (undoManager.CanRedo)
             {
                 undoManager.Redo(this);
+                if (undoManager.IsInNoChangesState()
+                    && (!hasChangedEncodingForSave || isNew))
+                {
+                    hasUnsavedChanges = false;
+                    UpdateTitle();
+                    UpdateStatusBar();
+                }
+
                 UpdateMenu();
             }
         }
@@ -590,6 +604,7 @@ namespace FPad
                     }
                 }
 
+                hasChangedEncodingForSave = true;
                 currentEncoding = encodingVm;
                 UpdateEncodingMenuCheckboxes();
                 UpdateTitle();
@@ -665,7 +680,7 @@ namespace FPad
 
             setModifiedOnTextChange = false;
             detectUndoOnTextChange = false;
-            text.Text = string.Empty;
+            SetText(string.Empty);
 
             currentDocumentFileName = "new.txt";
             currentDocumentFullPath = string.IsNullOrEmpty(lastPathToFolder)
@@ -682,6 +697,7 @@ namespace FPad
             initialEncoding = null;
             currentEncoding = EncodingManager.DefaultEncoding;
             fileContainsPreamble = false; // no file
+            hasChangedEncodingForSave = false;
             UpdateEncodingMenuCheckboxes();
             UpdateStatusBar();
 
@@ -707,12 +723,13 @@ namespace FPad
 
                 setModifiedOnTextChange = false;
                 detectUndoOnTextChange = false;
-                text.Text = currentEncoding.FileBytesToString(allBytes);
+                SetText(currentEncoding.FileBytesToString(allBytes));
 
                 currentDocumentBytes = allBytes;
                 hasUnsavedChanges = false;
                 isNew = false;
                 isExternallyModified = false;
+                hasChangedEncodingForSave = false;
                 undoManager.Reset();
                 ResetSelection();
                 UpdateTitle();
@@ -748,12 +765,13 @@ namespace FPad
 
                 setModifiedOnTextChange = false;
                 detectUndoOnTextChange = false;
-                text.Text = currentEncoding.FileBytesToString(allBytes);
+                SetText(currentEncoding.FileBytesToString(allBytes));
 
                 currentDocumentBytes = allBytes;
                 hasUnsavedChanges = false;
                 isNew = false;
                 isExternallyModified = false;
+                hasChangedEncodingForSave = false;
                 undoManager.Reset();
                 UpdateTitle();
                 UpdateMenu();
@@ -826,7 +844,9 @@ namespace FPad
                         isExternallyModified = false;
                         currentDocumentBytes = encodedBytes;
                         initialEncoding = currentEncoding;
+                        hasChangedEncodingForSave = false;
                         fileContainsPreamble = currentEncoding.StartsWithPreamble(encodedBytes);
+                        undoManager.MarkSaved();
                         UpdateTitle();
                         UpdateMenu();
                         UpdateStatusBar();
@@ -871,7 +891,9 @@ namespace FPad
                 isExternallyModified = false;
                 currentDocumentBytes = encodedBytes;
                 initialEncoding = currentEncoding;
+                hasChangedEncodingForSave = false;
                 fileContainsPreamble = currentEncoding.StartsWithPreamble(encodedBytes);
+                undoManager.MarkSaved();
             }
 
             UpdateTitle();
@@ -1030,6 +1052,15 @@ namespace FPad
             }
         }
 
+        private void SetText(string value)
+        {
+            text.Text = value;
+            // Set back to true regardless of whether handler was called or not
+            // (when setting the same value there is no handler)
+            setModifiedOnTextChange = true;
+            detectUndoOnTextChange = true;
+        }
+
         private void SetTextSelection(Selection selection)
         {
             bool changed = selection != text.Selection;
@@ -1054,9 +1085,9 @@ namespace FPad
         private void UpdateTitle()
         {
             if (hasUnsavedChanges)
-                Text = currentDocumentFileName + "* � " + App.TITLE; // Em dash
+                Text = currentDocumentFileName + "* – " + App.TITLE; // Em dash
             else
-                Text = currentDocumentFileName + " � " + App.TITLE;
+                Text = currentDocumentFileName + " – " + App.TITLE;
         }
 
         private void UpdateMenu()

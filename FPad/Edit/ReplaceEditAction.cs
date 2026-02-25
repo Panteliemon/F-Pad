@@ -23,6 +23,8 @@ internal class ReplaceEditAction : InsertEditAction, IEditAction
 
     public string DisplayName => "Replace";
 
+    public bool IsModifying => true;
+
     public bool Absorb(IEditAction nextAction)
     {
         return false;
