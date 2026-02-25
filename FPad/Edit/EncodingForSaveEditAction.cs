@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FPad.Edit;
 
-internal class EncodingForSaveEditAction : IEditAction
+internal class EncodingForSaveEditAction : IEditAction, ISaveAwareEditAction
 {
     private EncodingVm encodingBefore;
     private EncodingVm encodingAfter;
@@ -50,4 +50,9 @@ internal class EncodingForSaveEditAction : IEditAction
     }
 
     #endregion
+
+    public void DocumentSaved()
+    {
+        raiseModifiedFlag = true;
+    }
 }

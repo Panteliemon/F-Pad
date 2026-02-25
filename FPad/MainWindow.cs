@@ -840,7 +840,7 @@ namespace FPad
                         currentDocumentBytes = encodedBytes;
                         initialEncoding = currentEncoding;
                         fileContainsPreamble = currentEncoding.StartsWithPreamble(encodedBytes);
-                        undoManager.MarkSaved();
+                        undoManager.DocumentSaved();
                         UpdateTitle();
                         UpdateMenu();
                         UpdateStatusBar();
@@ -886,7 +886,7 @@ namespace FPad
                 currentDocumentBytes = encodedBytes;
                 initialEncoding = currentEncoding;
                 fileContainsPreamble = currentEncoding.StartsWithPreamble(encodedBytes);
-                undoManager.MarkSaved();
+                undoManager.DocumentSaved();
             }
 
             UpdateTitle();

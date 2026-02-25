@@ -83,10 +83,20 @@ public class UndoManager
     }
 
     /// <summary>
-    /// Mark current undo-redo state as state in which the document was saved
+    /// Signalize that the document has been just saved.
+    /// This affects how functionality "reset modified flag when all Undo is exhausted" behaves.
     /// </summary>
-    public void MarkSaved()
+    public void DocumentSaved()
     {
+        // After the document has been saved - all non-modifying "select encoding for save" actions
+        // must retroactively become modifying.
+        foreach (IEditAction action in actions)
+        {
+            if (action is ISaveAwareEditAction x)
+                x.DocumentSaved();
+        }
+
+        // Mark current undo-redo state as state in which the document was saved.
         // Position not at now, but after the latest "modifying" state
         // This way we won't lose the "saved" state if after that the user presses Ctrl+Z
         // and performs another non-modifying action.
@@ -97,7 +107,7 @@ public class UndoManager
                 break;
             else
                 indexWhenSaved--;
-        }
+        } 
     }
 
     /// <summary>
