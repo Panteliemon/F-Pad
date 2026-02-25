@@ -21,6 +21,7 @@ internal class ExternalEditorManager
     {
         TryAdd(new NotepadPlusPlus(), callback, ct);
         TryAdd(new VSCode(), callback, ct);
+        TryAdd(new SublimeText(), callback, ct);
     }
 
     private void TryAdd(IExternalEditor editor, Action<IExternalEditor> callback, CancellationToken ct)
@@ -30,6 +31,9 @@ internal class ExternalEditorManager
         if (editor.Detect(ct))
         {
             externalEditors.Add(editor);
+            // Order by alphabetical order in user's current culture
+            externalEditors = externalEditors.OrderBy(x => x.DisplayName).ToList();
+
             ct.ThrowIfCancellationRequested();
 
             if (callback != null)
