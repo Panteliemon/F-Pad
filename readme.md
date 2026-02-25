@@ -2,7 +2,7 @@
 
 A minimalist text editor for Windows inspired by the classic Notepad.
 
-![F-Pad Screenshot](Img/screenshot01.png)
+![F-Pad Screenshot](Img/screenshot02.png)
 
 ## Features
 - **Unformatted Text Editing**: Every one of us needs pureness of unformatted *.txt files once in a while, F-Pad makes sure the text you put in stays unformatted.
