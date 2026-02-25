@@ -35,12 +35,17 @@ namespace FPad
         bool fileContainsPreamble;
         EncodingVm currentEncoding = null;
         FileWatcher currentDocumentWatcher;
+        UndoManager undoManager = new();
 
         bool enableSizingHandlers = false;
         /// <summary>
         /// If false - acts one time. Restores itself back to true after text change.
         /// </summary>
         bool setModifiedOnTextChange = true;
+        /// <summary>
+        /// If false - acts one time. Restores itself back to true after text change. 
+        /// </summary>
+        bool detectUndoOnTextChange = true;
         int? setPositionOnActivate;
 
         FormWindowState prevWindowState = FormWindowState.Normal;
@@ -113,16 +118,20 @@ namespace FPad
             SetTextSelection(selection);
         }
 
+        public void ExecuteAction(IEditAction action)
+        {
+            action.Apply(this);
+            undoManager.TakeNewAction(action);
+
+            Activate();
+            text.Focus();
+        }
+
         public event EventHandler SelectionChanged;
 
         public string GetText()
         {
             return text.Text;
-        }
-
-        public void SetText(string value)
-        {
-            text.Text = value;
         }
 
         public void ChangeSearchSettings(bool matchCase, bool wholeWords)
@@ -145,7 +154,19 @@ namespace FPad
             get => text.Text;
             set
             {
-                // TODO
+                detectUndoOnTextChange = false;
+                text.Text = value;
+            }
+        }
+
+        string IEditor.TextNoUndoNoModifiedFlag
+        {
+            get => text.Text;
+            set
+            {
+                setModifiedOnTextChange = false;
+                detectUndoOnTextChange = false;
+                text.Text = value;
             }
         }
 
@@ -154,7 +175,7 @@ namespace FPad
             get => text.Selection;
             set
             {
-                // TODO
+                SetTextSelection(value);
             }
         }
 
@@ -163,7 +184,10 @@ namespace FPad
             get => currentEncoding;
             set
             {
-                // TODO
+                // We trust values from edit actions and don't check.
+                currentEncoding = value;
+                UpdateEncodingMenuCheckboxes();
+                UpdateStatusBar();
             }
         }
 
@@ -327,8 +351,22 @@ namespace FPad
                 setModifiedOnTextChange = true;
             }
 
+            if (detectUndoOnTextChange
+                && (text.TextBeforeEdit != null)) // should be always not null
+            {
+                IEditAction action = EditActionFactory.DetectByTextChange(
+                    text.TextBeforeEdit, text.SelectionBeforeEdit, text.Text, text.SelectionStart
+                );
+                undoManager.TakeNewAction(action);
+            }
+            else
+            {
+                detectUndoOnTextChange = true;
+            }
+
             // Stuff like line/col - update in any case
             UpdateStatusBar();
+            text.TextBeforeEdit = null; // allow it to be garbage collected
         }
 
         private void Text_SelectionChanged(object sender, EventArgs e)
@@ -425,20 +463,27 @@ namespace FPad
 
         #region Menu: Edit
 
+        private void undoMenuItem_Click(object sender, EventArgs e)
+        {
+            if (undoManager.CanUndo)
+                undoManager.Undo(this);
+        }
+
+        private void redoMenuItem_Click(object sender, EventArgs e)
+        {
+            if (undoManager.CanRedo)
+                undoManager.Redo(this);
+        }
+
         private void cutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (text.SelectionLength > 0)
             {
-                Clipboard.SetText(text.Text.Substring(text.SelectionStart, text.SelectionLength));
-
-                int newCursorPosition = text.SelectionStart;
-
-                StringBuilder sb = new();
-                sb.Append(text.Text.Substring(0, text.SelectionStart));
-                sb.Append(text.Text.Substring(text.SelectionStart + text.SelectionLength));
-
-                text.Text = sb.ToString();
-                SetTextSelection(new Selection(newCursorPosition, 0));
+                Clipboard.SetText(text.Text.SubString(text.Selection));
+                IEditAction cutAction = EditActionFactory.CreateCut(text.Text, text.Selection);
+                cutAction.Apply(this);
+                undoManager.TakeNewAction(cutAction);
+                UpdateMenu();
             }
         }
 
@@ -446,7 +491,7 @@ namespace FPad
         {
             if (text.SelectionLength > 0)
             {
-                Clipboard.SetText(text.Text.Substring(text.SelectionStart, text.SelectionLength));
+                Clipboard.SetText(text.Text.SubString(text.Selection));
                 UpdateMenu();
             }
         }
@@ -456,15 +501,9 @@ namespace FPad
             if (Clipboard.ContainsText() && (text.SelectionStart >= 0))
             {
                 string clipboardText = Clipboard.GetText();
-                int newCursorPosition = text.SelectionStart + clipboardText.Length;
-
-                StringBuilder sb = new();
-                sb.Append(text.Text.Substring(0, text.SelectionStart));
-                sb.Append(Clipboard.GetText());
-                sb.Append(text.Text.Substring(text.SelectionStart + text.SelectionLength));
-
-                text.Text = sb.ToString();
-                SetTextSelection(new Selection(newCursorPosition, 0));
+                IEditAction pasteAction = EditActionFactory.CreatePaste(text.Text, text.Selection, clipboardText);
+                pasteAction.Apply(this);
+                undoManager.TakeNewAction(pasteAction);
             }
         }
 
@@ -530,14 +569,17 @@ namespace FPad
                         byte[] bytes = currentDocumentBytes
                             ?? currentEncoding.StringToFileBytes(text.Text,
                                 fileContainsPreamble && (currentEncoding == initialEncoding));
+                        string decoded = encodingVm.FileBytesToString(bytes);
 
-                        setModifiedOnTextChange = false;
-                        text.Text = encodingVm.FileBytesToString(bytes);
-
+                        IEditAction decodeAction = EditActionFactory.CreateDecode(text.Text,
+                            currentEncoding, text.Selection, decoded, encodingVm);
+                        // Set text by executing the action
+                        decodeAction.Apply(this);
                         // Keep previous hasUnsavedChanges (reinterpretation != edit)
                         // Keep previous currentDocumentBytes (reinterpreted, not changed)
 
-                        ResetSelection();
+                        undoManager.TakeNewAction(decodeAction);
+                        return; // avoid excessive updates below
                     }
                     else // Use during save
                     {
@@ -621,6 +663,7 @@ namespace FPad
                 CloseCurrentDocument();
 
             setModifiedOnTextChange = false;
+            detectUndoOnTextChange = false;
             text.Text = string.Empty;
 
             currentDocumentFileName = "new.txt";
@@ -631,6 +674,7 @@ namespace FPad
             hasUnsavedChanges = false;
             isExternallyModified = false;
             currentDocumentBytes = null;
+            undoManager.Reset();
             UpdateTitle();
             UpdateMenu();
 
@@ -661,12 +705,14 @@ namespace FPad
                 UpdateEncodingMenuCheckboxes();
 
                 setModifiedOnTextChange = false;
+                detectUndoOnTextChange = false;
                 text.Text = currentEncoding.FileBytesToString(allBytes);
 
                 currentDocumentBytes = allBytes;
                 hasUnsavedChanges = false;
                 isNew = false;
                 isExternallyModified = false;
+                undoManager.Reset();
                 ResetSelection();
                 UpdateTitle();
                 UpdateMenu();
@@ -700,12 +746,14 @@ namespace FPad
                 UpdateEncodingMenuCheckboxes();
 
                 setModifiedOnTextChange = false;
+                detectUndoOnTextChange = false;
                 text.Text = currentEncoding.FileBytesToString(allBytes);
 
                 currentDocumentBytes = allBytes;
                 hasUnsavedChanges = false;
                 isNew = false;
                 isExternallyModified = false;
+                undoManager.Reset();
                 UpdateTitle();
                 UpdateMenu();
                 UpdateStatusBar();

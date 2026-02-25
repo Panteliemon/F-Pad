@@ -167,9 +167,18 @@ public static class EditActionFactory
             text.SubString(selection), subStrToPaste);
     }
 
-    public static IEditAction CreateReplace(string text, Selection selection, string replaceTo)
+    public static IEditAction CreateReplace(string text, Selection selection, string replaceWith)
     {
         return new ReplaceEditAction(selection.Start, text.Length - selection.End,
-            text.SubString(selection), replaceTo);
+            text.SubString(selection), replaceWith);
+    }
+
+    public static IEditAction CreateReplaceAll(string text, List<int> nonIntersectingMatches,
+        int findSubStrLength, string replaceWith, Selection selectionBefore, Selection selectionAfter)
+    {
+        List<ReplaceAllEditAction.Match> matches = nonIntersectingMatches.Select(x =>
+            new ReplaceAllEditAction.Match(x, text.Substring(x, findSubStrLength))
+        ).ToList();
+        return new ReplaceAllEditAction(matches, replaceWith, selectionBefore, selectionAfter);
     }
 }

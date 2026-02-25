@@ -29,6 +29,9 @@ public class UndoManager
 
     public void TakeNewAction(IEditAction action)
     {
+        if (action == null)
+            return;
+
         // Try glue to the topmost
         if ((nextActionIndex > 0)
             // Only if we didn't undo right before that

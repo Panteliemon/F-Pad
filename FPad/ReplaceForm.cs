@@ -264,15 +264,8 @@ public partial class ReplaceForm : Form
             Selection selection = owner.GetTextSelection();
             if (selection.Length > 0)
             {
-                ReadOnlySpan<char> textSpan = owner.GetText().AsSpan();
-
-                StringBuilder sb = new();
-                sb.Append(textSpan[..selection.Start]);
-                sb.Append(tbReplaceWith.Text);
-                sb.Append(textSpan[selection.End..]);
-
-                owner.SetText(sb.ToString());
-                owner.ActivateAndSetTextSelection(new Selection(selection.Start, tbReplaceWith.Text.Length));
+                IEditAction replaceAction = EditActionFactory.CreateReplace(owner.GetText(), selection, tbReplaceWith.Text);
+                owner.ExecuteAction(replaceAction);
 
                 App.LastReplaceToStr = tbReplaceWith.Text;
             }
@@ -391,23 +384,13 @@ public partial class ReplaceForm : Form
 
         if (matches.Count > 0)
         {
-            StringBuilder sb = new();
-            int currentFragmentStart = 0;
-            foreach (int match in matches)
-            {
-                sb.Append(text[currentFragmentStart..match]);
-                sb.Append(tbReplaceWith.Text);
-                currentFragmentStart = match + tbFind.Text.Length;
-            }
-
-            if (currentFragmentStart < text.Length)
-                sb.Append(text[currentFragmentStart..]);
-
             int selStart = GetPositionAfterReplace(selection.Start, matches, tbFind.Text.Length, tbReplaceWith.Text.Length);
             selEnd = GetPositionAfterReplace(selEnd, matches, tbFind.Text.Length, tbReplaceWith.Text.Length);
+            Selection selectionAfter = Selection.FromStartEnd(selStart, selEnd);
 
-            owner.SetText(sb.ToString());
-            owner.ActivateAndSetTextSelection(Selection.FromStartEnd(selStart, selEnd));
+            IEditAction replaceAllAction = EditActionFactory.CreateReplaceAll(owner.GetText(),
+                matches, tbFind.Text.Length, tbReplaceWith.Text, selection, selectionAfter);
+            owner.ExecuteAction(replaceAllAction);
 
             labelResult.Text = withinSelection
                 ? $"{matches.Count} occurences replaced within selection"

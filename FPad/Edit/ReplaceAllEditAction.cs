@@ -22,15 +22,15 @@ internal class ReplaceAllEditAction : IEditAction
     /// Indexes here are in text before applying "replace all" to it.
     /// </summary>
     private IReadOnlyList<Match> foundMatches;
-    private string replacedWith;
+    private string replaceWith;
     private Selection selectionBefore;
     private Selection selectionAfter;
 
-    internal ReplaceAllEditAction(IReadOnlyList<Match> foundMatches, string replacedWith,
+    internal ReplaceAllEditAction(IReadOnlyList<Match> foundMatches, string replaceWith,
         Selection selectionBefore, Selection selectionAfter)
     {
         this.foundMatches = foundMatches;
-        this.replacedWith = replacedWith;
+        this.replaceWith = replaceWith;
         this.selectionBefore = selectionBefore;
         this.selectionAfter = selectionAfter;
     }
@@ -48,7 +48,7 @@ internal class ReplaceAllEditAction : IEditAction
         foreach (Match match in foundMatches)
         {
             sb.Append(textBefore[currentFragmentStart..match.Start]);
-            sb.Append(replacedWith);
+            sb.Append(replaceWith);
             currentFragmentStart = match.Start + match.SubStr.Length;
         }
 
@@ -71,8 +71,8 @@ internal class ReplaceAllEditAction : IEditAction
             int translatedMatchStart = match.Start + translationShift;
             sb.Append(textAfter[currentFragmentStart..translatedMatchStart]);
             sb.Append(match.SubStr);
-            currentFragmentStart = translatedMatchStart + replacedWith.Length;
-            translationShift += replacedWith.Length - match.SubStr.Length;
+            currentFragmentStart = translatedMatchStart + replaceWith.Length;
+            translationShift += replaceWith.Length - match.SubStr.Length;
         }
 
         if (currentFragmentStart < textAfter.Length)

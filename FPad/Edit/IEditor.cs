@@ -16,6 +16,11 @@ public interface IEditor
     /// Setter of this property should not generate Undo entries
     /// </summary>
     string TextNoUndo { get; set; }
+    /// <summary>
+    /// Setter of this property should not generate Undo entry
+    /// and should not raise "is modified" flag.
+    /// </summary>
+    string TextNoUndoNoModifiedFlag { get; set; }
     Selection Selection { get; set; }
     EncodingVm Encoding { get; set; }
 }

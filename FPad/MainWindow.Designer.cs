@@ -52,6 +52,9 @@ namespace FPad
             externalEditorsSeparator = new ToolStripSeparator();
             exitToolStripMenuItem = new ToolStripMenuItem();
             editToolStripMenuItem = new ToolStripMenuItem();
+            undoMenuItem = new ToolStripMenuItem();
+            redoMenuItem = new ToolStripMenuItem();
+            toolStripSeparator5 = new ToolStripSeparator();
             cutToolStripMenuItem = new ToolStripMenuItem();
             copyToolStripMenuItem = new ToolStripMenuItem();
             pasteToolStripMenuItem = new ToolStripMenuItem();
@@ -226,16 +229,37 @@ namespace FPad
             // 
             // editToolStripMenuItem
             // 
-            editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { cutToolStripMenuItem, copyToolStripMenuItem, pasteToolStripMenuItem, toolStripSeparator2, findToolStripMenuItem, replaceToolStripMenuItem, goToLineMenuItem, toolStripSeparator3, wrapLinesMenuItem, encodingToolStripMenuItem, toolStripSeparator4, preferencesToolStripMenuItem });
+            editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { undoMenuItem, redoMenuItem, toolStripSeparator5, cutToolStripMenuItem, copyToolStripMenuItem, pasteToolStripMenuItem, toolStripSeparator2, findToolStripMenuItem, replaceToolStripMenuItem, goToLineMenuItem, toolStripSeparator3, wrapLinesMenuItem, encodingToolStripMenuItem, toolStripSeparator4, preferencesToolStripMenuItem });
             editToolStripMenuItem.Name = "editToolStripMenuItem";
             editToolStripMenuItem.Size = new Size(39, 20);
             editToolStripMenuItem.Text = "&Edit";
+            // 
+            // undoMenuItem
+            // 
+            undoMenuItem.Name = "undoMenuItem";
+            undoMenuItem.ShortcutKeys = Keys.Control | Keys.Z;
+            undoMenuItem.Size = new Size(180, 22);
+            undoMenuItem.Text = "Undo";
+            undoMenuItem.Click += undoMenuItem_Click;
+            // 
+            // redoMenuItem
+            // 
+            redoMenuItem.Name = "redoMenuItem";
+            redoMenuItem.ShortcutKeys = Keys.Control | Keys.Y;
+            redoMenuItem.Size = new Size(180, 22);
+            redoMenuItem.Text = "Redo";
+            redoMenuItem.Click += redoMenuItem_Click;
+            // 
+            // toolStripSeparator5
+            // 
+            toolStripSeparator5.Name = "toolStripSeparator5";
+            toolStripSeparator5.Size = new Size(177, 6);
             // 
             // cutToolStripMenuItem
             // 
             cutToolStripMenuItem.Name = "cutToolStripMenuItem";
             cutToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.X;
-            cutToolStripMenuItem.Size = new Size(170, 22);
+            cutToolStripMenuItem.Size = new Size(180, 22);
             cutToolStripMenuItem.Text = "Cu&t";
             cutToolStripMenuItem.Click += cutToolStripMenuItem_Click;
             // 
@@ -243,7 +267,7 @@ namespace FPad
             // 
             copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             copyToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.C;
-            copyToolStripMenuItem.Size = new Size(170, 22);
+            copyToolStripMenuItem.Size = new Size(180, 22);
             copyToolStripMenuItem.Text = "&Copy";
             copyToolStripMenuItem.Click += copyToolStripMenuItem_Click;
             // 
@@ -251,20 +275,20 @@ namespace FPad
             // 
             pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
             pasteToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.V;
-            pasteToolStripMenuItem.Size = new Size(170, 22);
+            pasteToolStripMenuItem.Size = new Size(180, 22);
             pasteToolStripMenuItem.Text = "&Paste";
             pasteToolStripMenuItem.Click += pasteToolStripMenuItem_Click;
             // 
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(167, 6);
+            toolStripSeparator2.Size = new Size(177, 6);
             // 
             // findToolStripMenuItem
             // 
             findToolStripMenuItem.Name = "findToolStripMenuItem";
             findToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.F;
-            findToolStripMenuItem.Size = new Size(170, 22);
+            findToolStripMenuItem.Size = new Size(180, 22);
             findToolStripMenuItem.Text = "&Find";
             findToolStripMenuItem.Click += findToolStripMenuItem_Click;
             // 
@@ -272,7 +296,7 @@ namespace FPad
             // 
             replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
             replaceToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.H;
-            replaceToolStripMenuItem.Size = new Size(170, 22);
+            replaceToolStripMenuItem.Size = new Size(180, 22);
             replaceToolStripMenuItem.Text = "&Replace";
             replaceToolStripMenuItem.Click += replaceToolStripMenuItem_Click;
             // 
@@ -280,37 +304,37 @@ namespace FPad
             // 
             goToLineMenuItem.Name = "goToLineMenuItem";
             goToLineMenuItem.ShortcutKeys = Keys.Control | Keys.G;
-            goToLineMenuItem.Size = new Size(170, 22);
+            goToLineMenuItem.Size = new Size(180, 22);
             goToLineMenuItem.Text = "Go to Line";
             goToLineMenuItem.Click += goToLineMenuItem_Click;
             // 
             // toolStripSeparator3
             // 
             toolStripSeparator3.Name = "toolStripSeparator3";
-            toolStripSeparator3.Size = new Size(167, 6);
+            toolStripSeparator3.Size = new Size(177, 6);
             // 
             // wrapLinesMenuItem
             // 
             wrapLinesMenuItem.Name = "wrapLinesMenuItem";
-            wrapLinesMenuItem.Size = new Size(170, 22);
+            wrapLinesMenuItem.Size = new Size(180, 22);
             wrapLinesMenuItem.Text = "&Wrap Lines";
             wrapLinesMenuItem.Click += wrapLinesMenuItem_Click;
             // 
             // encodingToolStripMenuItem
             // 
             encodingToolStripMenuItem.Name = "encodingToolStripMenuItem";
-            encodingToolStripMenuItem.Size = new Size(170, 22);
+            encodingToolStripMenuItem.Size = new Size(180, 22);
             encodingToolStripMenuItem.Text = "&Encoding";
             // 
             // toolStripSeparator4
             // 
             toolStripSeparator4.Name = "toolStripSeparator4";
-            toolStripSeparator4.Size = new Size(167, 6);
+            toolStripSeparator4.Size = new Size(177, 6);
             // 
             // preferencesToolStripMenuItem
             // 
             preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
-            preferencesToolStripMenuItem.Size = new Size(170, 22);
+            preferencesToolStripMenuItem.Size = new Size(180, 22);
             preferencesToolStripMenuItem.Text = "Preference&s";
             preferencesToolStripMenuItem.Click += preferencesToolStripMenuItem_Click;
             // 
@@ -353,6 +377,7 @@ namespace FPad
             text.ScrollBars = ScrollBars.Both;
             text.Size = new Size(794, 396);
             text.TabIndex = 3;
+            text.TextBeforeEdit = "";
             text.SelectionChanged += Text_SelectionChanged;
             text.TextChanged += textBox1_TextChanged;
             // 
@@ -464,5 +489,8 @@ namespace FPad
         private ToolStripMenuItem cutContextMenuItem;
         private ToolStripMenuItem copyContextMenuItem;
         private ToolStripMenuItem pasteContextMenuItem;
+        private ToolStripMenuItem undoMenuItem;
+        private ToolStripMenuItem redoMenuItem;
+        private ToolStripSeparator toolStripSeparator5;
     }
 }

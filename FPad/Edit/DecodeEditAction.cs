@@ -31,14 +31,14 @@ internal class DecodeEditAction : IEditAction
 
     public void Apply(IEditor editor)
     {
-        editor.TextNoUndo = textAfter;
+        editor.TextNoUndoNoModifiedFlag = textAfter;
         editor.Selection = new Selection(0, 0);
         editor.Encoding = encodingAfter;
     }
 
     public void Rollback(IEditor editor)
     {
-        editor.TextNoUndo = textBefore;
+        editor.TextNoUndoNoModifiedFlag = textBefore;
         editor.Selection = selectionBefore;
         editor.Encoding = encodingBefore;
     }
