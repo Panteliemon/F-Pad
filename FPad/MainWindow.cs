@@ -804,6 +804,7 @@ namespace FPad
             sfd.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
             sfd.FilterIndex = 0;
             sfd.InitialDirectory = Path.GetDirectoryName(currentDocumentFullPath);
+            sfd.OverwritePrompt = false;
             sfd.RestoreDirectory = false;
             sfd.ShowHiddenFiles = true;
             sfd.Title = "Save File - " + App.TITLE;
