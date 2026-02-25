@@ -62,6 +62,8 @@ namespace FPad
             openToolStripMenuItem.Image = App.LoadImage("b16_open.png");
             saveToolStripMenuItem.Image = App.LoadImage("b16_save.png");
             saveAsToolStripMenuItem.Image = App.LoadImage("b16_saveas.png");
+            undoMenuItem.Image = App.LoadImage("b16_undo.png");
+            redoMenuItem.Image = App.LoadImage("b16_redo.png");
             cutToolStripMenuItem.Image = App.LoadImage("b16_cut.png");
             cutContextMenuItem.Image = cutToolStripMenuItem.Image;
             copyToolStripMenuItem.Image = App.LoadImage("b16_copy.png");
