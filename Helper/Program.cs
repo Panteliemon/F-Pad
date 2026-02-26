@@ -20,13 +20,13 @@ public static class Program
 
     public static void Main()
     {
-        Console.WriteLine("1");
+        Console.WriteLine("3");
 
-        string encodingManagerLines = string.Join(Environment.NewLine, GenerateScoreCalculatorLines());
+        //string encodingManagerLines = string.Join(Environment.NewLine, GenerateScoreCalculatorLines());
 
         //TestEvents();
 
-        //MakeIcon();
+        MakeIcon();
 
         //WatchFiles();
 
@@ -125,7 +125,8 @@ public static class Program
     {
         string folder = @"D:\Bn\Src\FPad\Local";
         //string[] srcFiles = ["fpad16_bilinear.png", "fpad32_.png", "fpad48_.png", "fpad64_.png"];
-        string[] srcFiles = ["new16.png", "new32.png", "new48.png", "new64.png"];
+        //string[] srcFiles = ["new16.png", "new32.png", "new48.png", "new64.png"];
+        string[] srcFiles = ["txtfile_16.png", "txtfile_32.png", "txtfile_48.png", "txtfile_64.png", "txtfile_128.png"];
         int[] sizes = srcFiles.Select(x => int.Parse(new string(x.ToCharArray().Where(c => char.IsAsciiDigit(c)).ToArray()))).ToArray();
 
         List<byte[]> bytes = new();
@@ -142,7 +143,7 @@ public static class Program
             offsets[i] = offsets[i - 1] + bytes[i - 1].Length;
         }
 
-        string outPath = Path.Combine(folder, "new.ico");
+        string outPath = Path.Combine(folder, "txtfile.ico");
         using (FileStream fs = new FileStream(outPath, FileMode.Create, FileAccess.Write, FileShare.None, 262144))
         {
             using (BinaryWriter bw = new BinaryWriter(fs))

@@ -4,7 +4,6 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <ApplicationIcon>Resources\f-pad.ico</ApplicationIcon>
     <Version>1.1.0</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
@@ -22,6 +21,10 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Tests.FPad" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <Win32Resource>Resources\f-pad.res</Win32Resource>
+  </PropertyGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\f-pad.ico" />
