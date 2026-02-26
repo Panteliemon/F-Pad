@@ -50,4 +50,5 @@ jobs:
         with:
           tag_name: v${{github.event.inputs.version}}-${{github.event.inputs.platform}}
           name: Release v${{github.event.inputs.version}} ${{github.event.inputs.platform}} (zip archive)
+          body_path: release-notes.md
           files: ${{env.ZIP_NAME}}
