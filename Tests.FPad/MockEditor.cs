@@ -18,7 +18,7 @@ internal class MockEditor : IEditor
     {
         // Param "fixture" not used itself, but it is required to make sure that
         // encoding manager has been initialized.
-        encoding = EncodingManager.DefaultEncoding;
+        encoding = EncodingManager.GetDefaultEncoding();
     }
 
     public string Text

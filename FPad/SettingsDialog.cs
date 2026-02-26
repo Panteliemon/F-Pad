@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FPad.Encodings;
 using FPad.Settings;
 
 namespace FPad;
@@ -18,6 +19,7 @@ public partial class SettingsDialog : Form
     private FontFamily[] fontFamilies;
     private FontFamily selectedFontFamily;
     private int selectedFontSize;
+    private EncodingVm[] encodings;
 
     public bool Result { get; private set; }
 
@@ -36,6 +38,12 @@ public partial class SettingsDialog : Form
         cbFonts.Items.AddRange(fontFamilies);
         cbFonts.DisplayMember = nameof(FontFamily.Name);
         cbFonts.SelectedIndex = Array.FindIndex(fontFamilies, x => x == selectedFontFamily);
+
+        encodings = EncodingManager.Encodings.ToArray();
+        EncodingVm currentDefaultEncoding = EncodingManager.GetDefaultEncoding();
+        cbEncodings.Items.AddRange(encodings);
+        cbEncodings.DisplayMember = nameof(EncodingVm.DisplayName);
+        cbEncodings.SelectedIndex = Array.FindIndex(encodings, x => x == currentDefaultEncoding);
 
         chBold.Checked = App.Settings.IsBold;
         chItalic.Checked = App.Settings.IsItalic;
@@ -94,6 +102,8 @@ public partial class SettingsDialog : Form
         App.Settings.IsBold = chBold.Checked;
         App.Settings.IsItalic = chItalic.Checked;
         App.Settings.AutoReload = chAutoReload.Checked;
+        App.Settings.DefaultEncodingWebName = (cbEncodings.SelectedIndex >= 0)
+            ? encodings[cbEncodings.SelectedIndex].Encoding.WebName : null;
         Close();
     }
 

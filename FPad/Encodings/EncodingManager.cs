@@ -35,7 +35,16 @@ public static class EncodingManager
     /// </summary>
     public static IReadOnlyList<EncodingVm> Encodings { get; private set; }
 
-    public static EncodingVm DefaultEncoding => vmUnicode;
+    public static EncodingVm GetDefaultEncoding()
+    {
+        if (!string.IsNullOrEmpty(App.Settings?.DefaultEncodingWebName))
+        {
+            EncodingVm byWebName = Encodings.FirstOrDefault(x => x.Encoding.WebName == App.Settings.DefaultEncodingWebName);
+            return byWebName ?? vmUnicode;
+        }
+
+        return vmUnicode;
+    }
 
     public static void Init()
     {
@@ -161,9 +170,9 @@ public static class EncodingManager
 
     public static EncodingVm DetectEncoding(byte[] textFileBytes)
     {
-        // Empty file is Unicode because I said so.
+        // Empty file is "default encoding" because I said so.
         if (textFileBytes.Length == 0)
-            return DefaultEncoding;
+            return GetDefaultEncoding();
 
         // Ude, if detects preamble, returns encoding immediately with 100% certainty,
         // but for some reason it only works if file size is >= 4 bytes.

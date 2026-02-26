@@ -79,6 +79,7 @@ namespace FPad
                 if ((flags & SettingsFlags.General) != 0)
                 {
                     destSettings.AutoReload = Settings.AutoReload;
+                    destSettings.DefaultEncodingWebName = Settings.DefaultEncodingWebName;
                 }
 
                 if ((flags & SettingsFlags.Font) != 0)

@@ -11,4 +11,6 @@ public class GeneralDto
 {
     [XmlAttribute]
     public string AutoReload { get; set; }
+    [XmlAttribute]
+    public string Encoding { get; set; }
 }

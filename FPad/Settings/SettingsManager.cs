@@ -165,7 +165,8 @@ public static class SettingsManager
         {
             General = new GeneralDto()
             {
-                AutoReload = settings.AutoReload ? "1" : null
+                AutoReload = settings.AutoReload ? "1" : null,
+                Encoding = settings.DefaultEncodingWebName
             },
             Font = new FontDto()
             {
@@ -199,6 +200,7 @@ public static class SettingsManager
         if (dto.General != null)
         {
             dest.AutoReload = dto.General.AutoReload == "1";
+            dest.DefaultEncodingWebName = dto.General.Encoding;
         }
 
         if (dto.Font != null)

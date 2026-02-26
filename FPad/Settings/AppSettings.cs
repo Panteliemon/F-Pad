@@ -16,6 +16,7 @@ public class AppSettings
     public bool FindMatchCase { get; set; }
     public bool FindWholeWords { get; set; }
     public bool AutoReload { get; set; }
+    public string DefaultEncodingWebName { get; set; }
 
     /// <summary>
     /// "Default" window position

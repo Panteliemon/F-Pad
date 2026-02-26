@@ -692,7 +692,7 @@ namespace FPad
             UpdateMenu();
 
             initialEncoding = null;
-            currentEncoding = EncodingManager.DefaultEncoding;
+            currentEncoding = EncodingManager.GetDefaultEncoding();
             fileContainsPreamble = false; // no file
             UpdateEncodingMenuCheckboxes();
             UpdateStatusBar();

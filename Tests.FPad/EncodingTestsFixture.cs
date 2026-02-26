@@ -28,7 +28,7 @@ public class EncodingTestsFixture
         bool isFirstInit = false;
         lock (lockObj)
         {
-            if (EncodingManager.DefaultEncoding == null)
+            if (EncodingManager.GetDefaultEncoding() == null)
             {
                 EncodingManager.Init();
                 isFirstInit = true;

@@ -44,6 +44,8 @@ partial class SettingsDialog
         bCancel = new System.Windows.Forms.Button();
         chAutoReload = new System.Windows.Forms.CheckBox();
         toolTip = new System.Windows.Forms.ToolTip(components);
+        label4 = new System.Windows.Forms.Label();
+        cbEncodings = new System.Windows.Forms.ComboBox();
         groupBox1.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)tbFontSize).BeginInit();
         ((System.ComponentModel.ISupportInitialize)slFontSize).BeginInit();
@@ -179,10 +181,10 @@ partial class SettingsDialog
         // bSave
         // 
         bSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-        bSave.Location = new System.Drawing.Point(387, 359);
+        bSave.Location = new System.Drawing.Point(387, 381);
         bSave.Name = "bSave";
         bSave.Size = new System.Drawing.Size(96, 32);
-        bSave.TabIndex = 9;
+        bSave.TabIndex = 10;
         bSave.Text = "OK";
         bSave.UseVisualStyleBackColor = true;
         bSave.Click += bSave_Click;
@@ -190,24 +192,43 @@ partial class SettingsDialog
         // bCancel
         // 
         bCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-        bCancel.Location = new System.Drawing.Point(489, 359);
+        bCancel.Location = new System.Drawing.Point(489, 381);
         bCancel.Name = "bCancel";
         bCancel.Size = new System.Drawing.Size(96, 32);
-        bCancel.TabIndex = 10;
+        bCancel.TabIndex = 11;
         bCancel.Text = "Cancel";
         bCancel.UseVisualStyleBackColor = true;
         bCancel.Click += bCancel_Click;
         // 
         // chAutoReload
         // 
+        chAutoReload.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
         chAutoReload.AutoSize = true;
-        chAutoReload.Location = new System.Drawing.Point(12, 330);
+        chAutoReload.Location = new System.Drawing.Point(387, 349);
         chAutoReload.Name = "chAutoReload";
         chAutoReload.Size = new System.Drawing.Size(121, 19);
-        chAutoReload.TabIndex = 8;
+        chAutoReload.TabIndex = 9;
         chAutoReload.Text = "Automatic Reload";
         toolTip.SetToolTip(chAutoReload, "Automatically reload opened file, if another program modifies it and there are no unsaved changes in current editor.");
         chAutoReload.UseVisualStyleBackColor = true;
+        // 
+        // label4
+        // 
+        label4.AutoSize = true;
+        label4.Location = new System.Drawing.Point(12, 327);
+        label4.Name = "label4";
+        label4.Size = new System.Drawing.Size(101, 15);
+        label4.TabIndex = 11;
+        label4.Text = "Default Encoding:";
+        // 
+        // cbEncodings
+        // 
+        cbEncodings.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+        cbEncodings.FormattingEnabled = true;
+        cbEncodings.Location = new System.Drawing.Point(12, 345);
+        cbEncodings.Name = "cbEncodings";
+        cbEncodings.Size = new System.Drawing.Size(271, 23);
+        cbEncodings.TabIndex = 8;
         // 
         // SettingsDialog
         // 
@@ -215,7 +236,9 @@ partial class SettingsDialog
         AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         CancelButton = bCancel;
-        ClientSize = new System.Drawing.Size(597, 403);
+        ClientSize = new System.Drawing.Size(597, 425);
+        Controls.Add(cbEncodings);
+        Controls.Add(label4);
         Controls.Add(chAutoReload);
         Controls.Add(bCancel);
         Controls.Add(bSave);
@@ -249,4 +272,6 @@ partial class SettingsDialog
     private System.Windows.Forms.CheckBox chWrap;
     private System.Windows.Forms.CheckBox chAutoReload;
     private System.Windows.Forms.ToolTip toolTip;
+    private System.Windows.Forms.Label label4;
+    private System.Windows.Forms.ComboBox cbEncodings;
 }
