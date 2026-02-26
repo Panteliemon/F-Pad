@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,6 +13,13 @@ namespace FPad.Controls;
 
 public class GoodTextBox : TextBox
 {
+    [DllImport("user32.dll")]
+    private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
+
+    private const int EM_GETFIRSTVISIBLELINE = 0xCE;
+    private const int EM_LINESCROLL = 0xB6;
+    private const int WM_SETREDRAW = 0xB;
+
     private const int WM_LBUTTONDBLCLK = 0x0203;
 
     private Selection prevSelection;
@@ -49,7 +57,20 @@ public class GoodTextBox : TextBox
         {
             selectionBeforeEdit = Selection;
             TextBeforeEdit = base.Text;
-            base.Text = value;
+
+            // TextBox internally resets scroll position to 0 when Text property is changed,
+            // and then ScrollToCaret scrolls from zero to that line, making the line the bottommost
+            // (the line jumps to bottom). Here is how to avoid:
+            
+            SendMessage(Handle, WM_SETREDRAW, 0, 0); // prevent flicker
+
+            int firstVisibleLine = SendMessage(Handle, EM_GETFIRSTVISIBLELINE, 0, 0);
+            base.Text = value; // this resets scroll to 0
+            SendMessage(Handle, EM_LINESCROLL, 0, firstVisibleLine); // "scroll" back to where we were - might be out of range
+            ScrollToCaret(); // restore caret position not from 0, but from where we were before
+
+            SendMessage(Handle, WM_SETREDRAW, 1, 0);
+            Refresh(); // this is because Refresh was disabled entire time
         }
     }
 
