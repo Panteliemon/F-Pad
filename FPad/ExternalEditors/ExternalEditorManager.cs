@@ -9,8 +9,6 @@ namespace FPad.ExternalEditors;
 
 internal class ExternalEditorManager
 {
-    private List<IExternalEditor> externalEditors = new();
-
     /// <summary>
     /// Detect all supported external editors. Raises <see cref="ExternalEditorsChanged"/> as it goes.
     /// </summary>
@@ -19,9 +17,12 @@ internal class ExternalEditorManager
     /// <exception cref="OperationCanceledException">Thrown if canceled</exception>
     public void Load(Action<IExternalEditor> callback, CancellationToken ct)
     {
-        TryAdd(new NotepadPlusPlus(), callback, ct);
-        TryAdd(new VSCode(), callback, ct);
-        TryAdd(new SublimeText(), callback, ct);
+        List<IExternalEditor> editorsToDetect = [new NotepadPlusPlus(), new VSCode(), new SublimeText()];
+        // Order by alphabetical order in user's current culture
+        foreach (IExternalEditor editor in editorsToDetect.OrderBy(x => x.DisplayName))
+        {
+            TryAdd(editor, callback, ct);
+        }
     }
 
     private void TryAdd(IExternalEditor editor, Action<IExternalEditor> callback, CancellationToken ct)
@@ -30,10 +31,6 @@ internal class ExternalEditorManager
 
         if (editor.Detect(ct))
         {
-            externalEditors.Add(editor);
-            // Order by alphabetical order in user's current culture
-            externalEditors = externalEditors.OrderBy(x => x.DisplayName).ToList();
-
             ct.ThrowIfCancellationRequested();
 
             if (callback != null)

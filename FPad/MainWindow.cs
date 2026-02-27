@@ -903,8 +903,41 @@ namespace FPad
                 string decoded = currentEncoding.FileBytesToString(result);
                 if (decoded != allText)
                 {
+                    // Find the problem
+                    int positionWhereDiffer = -1;
+                    int minLength = Math.Min(decoded.Length, allText.Length);
+                    for (int i=0; i< minLength; i++)
+                    {
+                        if (decoded[i] != allText[i])
+                        {
+                            positionWhereDiffer = i;
+                            break;
+                        }
+                    }
+
+                    string lossMessage;
+                    if (positionWhereDiffer >= 0)
+                    {
+                        (int lineIndex, int charIndex) = StringUtils.GetLineAndCol(allText, positionWhereDiffer);
+
+                        char problemChar = allText[positionWhereDiffer];
+                        if ((problemChar >= 0xD800) && (problemChar < 0xDC00) // Surrogate pair start
+                            && (positionWhereDiffer + 1 < allText.Length))
+                        {
+                            lossMessage = $"Some characters will be lost ({allText.Substring(positionWhereDiffer, 2)} at line {lineIndex + 1} col {charIndex + 1}).";
+                        }
+                        else
+                        {
+                            lossMessage = $"Some characters will be lost ({problemChar} at line {lineIndex + 1} col {charIndex + 1}).";
+                        }
+                    }
+                    else
+                    {
+                        lossMessage = "Some characters will be lost.";
+                    }
+
                     bool lossConfirmation = App.WarningQuestion($"Encoding {currentEncoding.DisplayName}"
-                        + Environment.NewLine + "Some characters will be lost."
+                        + Environment.NewLine + lossMessage
                         + Environment.NewLine + "Save anyway?");
                     if (!lossConfirmation)
                         return (false, null);
