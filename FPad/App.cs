@@ -247,31 +247,17 @@ namespace FPad
                     txtKey.SetValue("", fpadTxtName);
                 }
 
-                // Exe and icon
+                // Exe and icon in Classes
                 using (RegistryKey fpadTxtKey = classesKey.CreateSubKey(fpadTxtName))
                 {
                     if (fpadTxtKey == null)
                         throw new ApplicationException($"Unable to open registry {fpadTxtName} key.");
 
-                    fpadTxtKey.SetValue("", "Txt File");
-                    using (RegistryKey iconKey = fpadTxtKey.CreateSubKey("DefaultIcon"))
-                    {
-                        if (iconKey == null)
-                            throw new ApplicationException("Could not set DefaultIcon");
-
-                        iconKey.SetValue("", $"\"{exePath}\",1");
-                    }
-
-                    using (RegistryKey shellKey = fpadTxtKey.CreateSubKey(@"Shell\Open\Command"))
-                    {
-                        if (shellKey == null)
-                            throw new ApplicationException(@"Could not set Shell\Open\Command");
-
-                        shellKey.SetValue("", $"\"{exePath}\" \"%1\"");
-                    }
+                    fpadTxtKey.SetValue("", "Txt File"); // ignored when set in HKLM
+                    WriteShellAndIcon(fpadTxtKey, exePath);
                 }
 
-                // Friendly app name
+                // Exe and icon in Applications + Friendly app name
                 string appKeyPath = $@"Software\Classes\Applications\{exeName}";
                 using (RegistryKey appKey = baseKey.CreateSubKey(appKeyPath))
                 {
@@ -280,13 +266,7 @@ namespace FPad
 
                     appKey.SetValue("FriendlyAppName", TITLE);
 
-                    using (RegistryKey shellKey = appKey.CreateSubKey(@"shell\open\command"))
-                    {
-                        if (shellKey == null)
-                            throw new ApplicationException(@"Could not set shell\open\command");
-
-                        shellKey.SetValue("", $"\"{exePath}\" \"%1\"");
-                    }
+                    WriteShellAndIcon(appKey, exePath);
 
                     using (RegistryKey supportedTypesKey = appKey.CreateSubKey("SupportedTypes"))
                     {
@@ -295,6 +275,25 @@ namespace FPad
 
                         supportedTypesKey.SetValue(".txt", "");
                     }
+                }
+            }
+
+            static void WriteShellAndIcon(RegistryKey appClassKey, string exePath)
+            {
+                using (RegistryKey iconKey = appClassKey.CreateSubKey("DefaultIcon"))
+                {
+                    if (iconKey == null)
+                        throw new ApplicationException("Could not set DefaultIcon");
+
+                    iconKey.SetValue("", $"\"{exePath}\",1");
+                }
+
+                using (RegistryKey shellKey = appClassKey.CreateSubKey(@"Shell\Open\Command"))
+                {
+                    if (shellKey == null)
+                        throw new ApplicationException(@"Could not set Shell\Open\Command");
+
+                    shellKey.SetValue("", $"\"{exePath}\" \"%1\"");
                 }
             }
         }
