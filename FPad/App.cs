@@ -151,6 +151,7 @@ namespace FPad
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    Environment.ExitCode = 1;
                 }
 
                 Interactor.Shutdown();
@@ -223,9 +224,13 @@ namespace FPad
             return null;
         }
 
+        /// <summary>
+        /// Creates registry entries for txt association and icon
+        /// </summary>
         public static void AssociateTxt(bool forAllUsers)
         {
             string exePath = Process.GetCurrentProcess().MainModule.FileName;
+            string exeName = Path.GetFileName(exePath);
             string fpadTxtName = "F-Pad.txt";
 
             RegistryKey baseKey = forAllUsers ? Registry.LocalMachine : Registry.CurrentUser;
@@ -242,6 +247,7 @@ namespace FPad
                     txtKey.SetValue("", fpadTxtName);
                 }
 
+                // Exe and icon
                 using (RegistryKey fpadTxtKey = classesKey.CreateSubKey(fpadTxtName))
                 {
                     if (fpadTxtKey == null)
@@ -264,12 +270,33 @@ namespace FPad
                         shellKey.SetValue("", $"\"{exePath}\" \"%1\"");
                     }
                 }
-            }
 
-            // Notify Explorer about association changes
-            const uint SHCNE_ASSOCCHANGED = 0x08000000;
-            const uint SHCNF_IDLIST = 0x0000;
-            WinApi.SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, 0, 0);
+                // Friendly app name
+                string appKeyPath = $@"Software\Classes\Applications\{exeName}";
+                using (RegistryKey appKey = baseKey.CreateSubKey(appKeyPath))
+                {
+                    if (appKey == null)
+                        throw new ApplicationException($"Could not set DefaultIcon ({appKeyPath})");
+
+                    appKey.SetValue("FriendlyAppName", TITLE);
+
+                    using (RegistryKey shellKey = appKey.CreateSubKey(@"shell\open\command"))
+                    {
+                        if (shellKey == null)
+                            throw new ApplicationException(@"Could not set shell\open\command");
+
+                        shellKey.SetValue("", $"\"{exePath}\" \"%1\"");
+                    }
+
+                    using (RegistryKey supportedTypesKey = appKey.CreateSubKey("SupportedTypes"))
+                    {
+                        if (supportedTypesKey == null)
+                            throw new ApplicationException(@"Could not set SupportedTypes");
+
+                        supportedTypesKey.SetValue(".txt", "");
+                    }
+                }
+            }
         }
 
         private static void ParseCommandLine()

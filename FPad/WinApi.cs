@@ -27,11 +27,4 @@ public static class WinApi
 
     [DllImport("user32.dll", SetLastError = true)]
     public static extern bool DestroyIcon(nint hIcon);
-
-    [DllImport("shell32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-    public static extern void SHChangeNotify(
-        uint wEventId,
-        uint uFlags,
-        nint dwItem1,
-        nint dwItem2);
 }
