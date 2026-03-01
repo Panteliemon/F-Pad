@@ -1,14 +1,16 @@
-﻿using System;
+﻿using FPad.Controls;
+using FPad.Encodings;
+using FPad.Settings;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FPad.Encodings;
-using FPad.Settings;
 
 namespace FPad;
 
@@ -57,6 +59,9 @@ public partial class SettingsDialog : Form
             + Environment.NewLine + "Maecenas in rutrum massa, a dictum leo."
             + Environment.NewLine + "Sed pellentesque, massa tincidunt pulvinar vulputate, nibh dignissim nisi, ac rhoncus urna neque eget arcu.";
 
+        label5.Text = $"Associate txt files with {App.TITLE} (takes effect immediately, Cancel button doesn't roll back):";
+        UacIconBehavior _ = new(bAssociateAllUsers);
+
         enableHandlers = true;
     }
 
@@ -85,7 +90,7 @@ public partial class SettingsDialog : Form
         ApplyFont();
 
         exampleText.Select(0, 0);
-        BeginInvoke(() => cbFonts.Focus());
+        BeginInvoke(() => tabControl1.Focus());        
     }
 
     private void bCancel_Click(object sender, EventArgs e)
@@ -164,5 +169,42 @@ public partial class SettingsDialog : Form
         exampleText.WordWrap = chWrap.Checked;
     }
 
+    private void bAssociateAllUsers_Click(object sender, EventArgs e)
+    {
+        //if (IsAdmin())
+        //{
+            ExecuteAssociate(true);
+        //}
+        //else
+        //{
+
+        //}
+    }
+
+    private void bAssociateCurrentUser_Click(object sender, EventArgs e)
+    {
+        ExecuteAssociate(false);
+    }
+
     #endregion
+
+    private void ExecuteAssociate(bool forAllUsers)
+    {
+        try
+        {
+            App.AssociateTxt(forAllUsers);
+            MessageBox.Show("Associated successfully", App.TITLE, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            App.ShowError(ex);
+        }
+    }
+
+    private static bool IsAdmin()
+    {
+        WindowsIdentity identity = WindowsIdentity.GetCurrent();
+        WindowsPrincipal principal = new(identity);
+        return principal.IsInRole(WindowsBuiltInRole.Administrator);
+    }
 }

@@ -2,8 +2,10 @@
 using FPad.ExternalEditors;
 using FPad.Interaction;
 using FPad.Settings;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -26,6 +28,7 @@ namespace FPad
         public static string CmdLineFile { get; private set; }
         public static int? CmdLineLineIndex { get; private set; }
         public static int? CmdLineCharIndex { get; private set; }
+        public static bool CmdLineAssociateTxt { get; private set; }
 
         public static string LastSearchStr { get; set; }
         public static string LastReplaceToStr { get; set; }
@@ -138,6 +141,22 @@ namespace FPad
             ApplicationConfiguration.Initialize();
 
             ParseCommandLine();
+
+            if (CmdLineAssociateTxt)
+            {
+                try
+                {
+                    AssociateTxt(true);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
+                Interactor.Shutdown();
+                return;
+            }
+
             if (!string.IsNullOrWhiteSpace(CmdLineFile))
             {
                 if (Interactor.FindAndActivateByCurrentDocumentPath(Path.GetFullPath(CmdLineFile), CmdLineLineIndex, CmdLineCharIndex))
@@ -204,6 +223,55 @@ namespace FPad
             return null;
         }
 
+        public static void AssociateTxt(bool forAllUsers)
+        {
+            string exePath = Process.GetCurrentProcess().MainModule.FileName;
+            string fpadTxtName = "F-Pad.txt";
+
+            RegistryKey baseKey = forAllUsers ? Registry.LocalMachine : Registry.CurrentUser;
+            using (RegistryKey classesKey = baseKey.CreateSubKey(@"Software\Classes"))
+            {
+                if (classesKey == null)
+                    throw new ApplicationException("Unable to open registry Classes key.");
+
+                using (RegistryKey txtKey = classesKey.CreateSubKey(".txt"))
+                {
+                    if (txtKey == null)
+                        throw new ApplicationException("Unable to open registry .txt key.");
+
+                    txtKey.SetValue("", fpadTxtName);
+                }
+
+                using (RegistryKey fpadTxtKey = classesKey.CreateSubKey(fpadTxtName))
+                {
+                    if (fpadTxtKey == null)
+                        throw new ApplicationException($"Unable to open registry {fpadTxtName} key.");
+
+                    fpadTxtKey.SetValue("", "Txt File");
+                    using (RegistryKey iconKey = fpadTxtKey.CreateSubKey("DefaultIcon"))
+                    {
+                        if (iconKey == null)
+                            throw new ApplicationException("Could not set DefaultIcon");
+
+                        iconKey.SetValue("", $"\"{exePath}\",1");
+                    }
+
+                    using (RegistryKey shellKey = fpadTxtKey.CreateSubKey(@"Shell\Open\Command"))
+                    {
+                        if (shellKey == null)
+                            throw new ApplicationException(@"Could not set Shell\Open\Command");
+
+                        shellKey.SetValue("", $"\"{exePath}\" \"%1\"");
+                    }
+                }
+            }
+
+            // Notify Explorer about association changes
+            const uint SHCNE_ASSOCCHANGED = 0x08000000;
+            const uint SHCNF_IDLIST = 0x0000;
+            WinApi.SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, 0, 0);
+        }
+
         private static void ParseCommandLine()
         {
             string[] cmdLineArgs = Environment.GetCommandLineArgs();
@@ -223,6 +291,10 @@ namespace FPad
                 {
                     if (parsedCharNumber >= 1)
                         CmdLineCharIndex = parsedCharNumber - 1;
+                }
+                else if (arg.Equals("-associate_txt", StringComparison.InvariantCulture))
+                {
+                    CmdLineAssociateTxt = true;
                 }
                 else
                 {

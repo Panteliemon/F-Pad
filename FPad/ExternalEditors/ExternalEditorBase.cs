@@ -10,18 +10,6 @@ namespace FPad.ExternalEditors;
 
 internal class ExternalEditorBase
 {
-    [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
-    private static extern uint ExtractIconExW(
-        string lpszFile,
-        int nIconIndex,
-        nint[] phiconLarge,
-        nint[] phiconSmall,
-        uint nIcons
-    );
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool DestroyIcon(nint hIcon);
-
     public Bitmap Icon { get; protected set; }
     public string PathToExe { get; protected set; }
 
@@ -64,7 +52,7 @@ internal class ExternalEditorBase
 
         Bitmap result = null;
         nint[] handles = new nint[1];
-        int nIcons = (int)ExtractIconExW(pathToExe, 0, null, handles, 1);
+        int nIcons = (int)WinApi.ExtractIconExW(pathToExe, 0, null, handles, 1);
         if ((nIcons == 1) && (handles[0] != 0))
         {
             try
@@ -79,7 +67,7 @@ internal class ExternalEditorBase
                 App.Discard(ex);
             }
 
-            DestroyIcon(handles[0]);
+            WinApi.DestroyIcon(handles[0]);
         }
 
         return result;
