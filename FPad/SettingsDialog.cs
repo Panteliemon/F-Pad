@@ -1,14 +1,16 @@
-﻿using System;
+﻿using FPad.Controls;
+using FPad.Encodings;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FPad.Encodings;
-using FPad.Settings;
 
 namespace FPad;
 
@@ -57,6 +59,9 @@ public partial class SettingsDialog : Form
             + Environment.NewLine + "Maecenas in rutrum massa, a dictum leo."
             + Environment.NewLine + "Sed pellentesque, massa tincidunt pulvinar vulputate, nibh dignissim nisi, ac rhoncus urna neque eget arcu.";
 
+        label5.Text = $"Associate txt files with {App.TITLE} (takes effect immediately, Cancel button doesn't roll back):";
+        UacIconBehavior _ = new(bAssociateAllUsers);
+
         enableHandlers = true;
     }
 
@@ -85,7 +90,7 @@ public partial class SettingsDialog : Form
         ApplyFont();
 
         exampleText.Select(0, 0);
-        BeginInvoke(() => cbFonts.Focus());
+        BeginInvoke(() => tabControl1.Focus());        
     }
 
     private void bCancel_Click(object sender, EventArgs e)
@@ -164,5 +169,80 @@ public partial class SettingsDialog : Form
         exampleText.WordWrap = chWrap.Checked;
     }
 
+    private void bAssociateAllUsers_Click(object sender, EventArgs e)
+    {
+        if (IsAdmin())
+        {
+            ExecuteAssociate(true);
+        }
+        else
+        {
+            try
+            {
+                string exePath = Process.GetCurrentProcess().MainModule.FileName;
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = exePath,
+                    Arguments = "-associate_txt",
+                    Verb = "runas",
+                    UseShellExecute = true
+                };
+
+                bool success = false;
+                using (Process process = Process.Start(psi))
+                {
+                    if (process != null)
+                    {
+                        process.WaitForExit();
+                        success = process.ExitCode == 0;
+                    }
+                }
+
+                if (success)
+                {
+                    EmbarrassmentWindow.ShowDialog1(this);
+                }
+                else
+                {
+                    MessageBox.Show($"An error occured. Try to re-run {App.TITLE} as administrator and repeat this action manually to see more details on the error.",
+                        App.TITLE, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Win32Exception ex) when (ex.NativeErrorCode == 1223) // ERROR_CANCELLED
+            {
+                // User cancelled the UAC prompt, do nothing
+            }
+            catch (Exception ex)
+            {
+                App.ShowError(ex);
+            }
+        }
+    }
+
+    private void bAssociateCurrentUser_Click(object sender, EventArgs e)
+    {
+        ExecuteAssociate(false);
+    }
+
     #endregion
+
+    private void ExecuteAssociate(bool forAllUsers)
+    {
+        try
+        {
+            App.AssociateTxt(forAllUsers);
+            EmbarrassmentWindow.ShowDialog1(this);
+        }
+        catch (Exception ex)
+        {
+            App.ShowError(ex);
+        }
+    }
+
+    private static bool IsAdmin()
+    {
+        WindowsIdentity identity = WindowsIdentity.GetCurrent();
+        WindowsPrincipal principal = new(identity);
+        return principal.IsInRole(WindowsBuiltInRole.Administrator);
+    }
 }

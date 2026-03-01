@@ -42,6 +42,12 @@
     <EmbeddedResource Include="Resources\b16_encoding.png" />
     <EmbeddedResource Include="Resources\b16_settings.png" />
     <EmbeddedResource Include="Resources\b16_about.png" />
+
+    <EmbeddedResource Include="Resources\howto_1_1.png" />
+    <EmbeddedResource Include="Resources\howto_1_2.png" />
+    <EmbeddedResource Include="Resources\howto_1_3.png" />
+    <EmbeddedResource Include="Resources\howto_2_1.png" />
+    <EmbeddedResource Include="Resources\howto_2_2.png" />
   </ItemGroup>
 
   <ItemGroup>

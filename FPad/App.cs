@@ -2,8 +2,10 @@
 using FPad.ExternalEditors;
 using FPad.Interaction;
 using FPad.Settings;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -26,6 +28,7 @@ namespace FPad
         public static string CmdLineFile { get; private set; }
         public static int? CmdLineLineIndex { get; private set; }
         public static int? CmdLineCharIndex { get; private set; }
+        public static bool CmdLineAssociateTxt { get; private set; }
 
         public static string LastSearchStr { get; set; }
         public static string LastReplaceToStr { get; set; }
@@ -138,6 +141,23 @@ namespace FPad
             ApplicationConfiguration.Initialize();
 
             ParseCommandLine();
+
+            if (CmdLineAssociateTxt)
+            {
+                try
+                {
+                    AssociateTxt(true);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Environment.ExitCode = 1;
+                }
+
+                Interactor.Shutdown();
+                return;
+            }
+
             if (!string.IsNullOrWhiteSpace(CmdLineFile))
             {
                 if (Interactor.FindAndActivateByCurrentDocumentPath(Path.GetFullPath(CmdLineFile), CmdLineLineIndex, CmdLineCharIndex))
@@ -204,6 +224,81 @@ namespace FPad
             return null;
         }
 
+        /// <summary>
+        /// Creates registry entries for txt association and icon
+        /// </summary>
+        public static void AssociateTxt(bool forAllUsers)
+        {
+            string exePath = Process.GetCurrentProcess().MainModule.FileName;
+            string exeName = Path.GetFileName(exePath);
+            string fpadTxtName = "F-Pad.txt";
+
+            RegistryKey baseKey = forAllUsers ? Registry.LocalMachine : Registry.CurrentUser;
+            using (RegistryKey classesKey = baseKey.CreateSubKey(@"Software\Classes"))
+            {
+                if (classesKey == null)
+                    throw new ApplicationException("Unable to open registry Classes key.");
+
+                using (RegistryKey txtKey = classesKey.CreateSubKey(".txt"))
+                {
+                    if (txtKey == null)
+                        throw new ApplicationException("Unable to open registry .txt key.");
+
+                    txtKey.SetValue("", fpadTxtName);
+                }
+
+                // Exe and icon
+                using (RegistryKey fpadTxtKey = classesKey.CreateSubKey(fpadTxtName))
+                {
+                    if (fpadTxtKey == null)
+                        throw new ApplicationException($"Unable to open registry {fpadTxtName} key.");
+
+                    fpadTxtKey.SetValue("", "Txt File");
+                    using (RegistryKey iconKey = fpadTxtKey.CreateSubKey("DefaultIcon"))
+                    {
+                        if (iconKey == null)
+                            throw new ApplicationException("Could not set DefaultIcon");
+
+                        iconKey.SetValue("", $"\"{exePath}\",1");
+                    }
+
+                    using (RegistryKey shellKey = fpadTxtKey.CreateSubKey(@"Shell\Open\Command"))
+                    {
+                        if (shellKey == null)
+                            throw new ApplicationException(@"Could not set Shell\Open\Command");
+
+                        shellKey.SetValue("", $"\"{exePath}\" \"%1\"");
+                    }
+                }
+
+                // Friendly app name
+                string appKeyPath = $@"Software\Classes\Applications\{exeName}";
+                using (RegistryKey appKey = baseKey.CreateSubKey(appKeyPath))
+                {
+                    if (appKey == null)
+                        throw new ApplicationException($"Could not set DefaultIcon ({appKeyPath})");
+
+                    appKey.SetValue("FriendlyAppName", TITLE);
+
+                    using (RegistryKey shellKey = appKey.CreateSubKey(@"shell\open\command"))
+                    {
+                        if (shellKey == null)
+                            throw new ApplicationException(@"Could not set shell\open\command");
+
+                        shellKey.SetValue("", $"\"{exePath}\" \"%1\"");
+                    }
+
+                    using (RegistryKey supportedTypesKey = appKey.CreateSubKey("SupportedTypes"))
+                    {
+                        if (supportedTypesKey == null)
+                            throw new ApplicationException(@"Could not set SupportedTypes");
+
+                        supportedTypesKey.SetValue(".txt", "");
+                    }
+                }
+            }
+        }
+
         private static void ParseCommandLine()
         {
             string[] cmdLineArgs = Environment.GetCommandLineArgs();
@@ -223,6 +318,10 @@ namespace FPad
                 {
                     if (parsedCharNumber >= 1)
                         CmdLineCharIndex = parsedCharNumber - 1;
+                }
+                else if (arg.Equals("-associate_txt", StringComparison.InvariantCulture))
+                {
+                    CmdLineAssociateTxt = true;
                 }
                 else
                 {

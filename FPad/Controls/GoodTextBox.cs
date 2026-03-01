@@ -13,9 +13,6 @@ namespace FPad.Controls;
 
 public class GoodTextBox : TextBox
 {
-    [DllImport("user32.dll")]
-    private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
-
     private const int EM_GETFIRSTVISIBLELINE = 0xCE;
     private const int EM_LINESCROLL = 0xB6;
     private const int WM_SETREDRAW = 0xB;
@@ -62,14 +59,14 @@ public class GoodTextBox : TextBox
             // and then ScrollToCaret scrolls from zero to that line, making the line the bottommost
             // (the line jumps to bottom). Here is how to avoid:
             
-            SendMessage(Handle, WM_SETREDRAW, 0, 0); // prevent flicker
+            WinApi.SendMessageW(Handle, WM_SETREDRAW, 0, 0); // prevent flicker
 
-            int firstVisibleLine = SendMessage(Handle, EM_GETFIRSTVISIBLELINE, 0, 0);
+            nint firstVisibleLine = WinApi.SendMessageW(Handle, EM_GETFIRSTVISIBLELINE, 0, 0);
             base.Text = value; // this resets scroll to 0
-            SendMessage(Handle, EM_LINESCROLL, 0, firstVisibleLine); // "scroll" back to where we were - might be out of range
+            WinApi.SendMessageW(Handle, EM_LINESCROLL, 0, firstVisibleLine); // "scroll" back to where we were - might be out of range
             ScrollToCaret(); // restore caret position not from 0, but from where we were before
 
-            SendMessage(Handle, WM_SETREDRAW, 1, 0);
+            WinApi.SendMessageW(Handle, WM_SETREDRAW, 1, 0);
             Refresh(); // this is because Refresh was disabled entire time
         }
     }
