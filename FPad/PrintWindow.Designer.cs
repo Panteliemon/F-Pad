@@ -28,6 +28,7 @@ partial class PrintWindow
     /// </summary>
     private void InitializeComponent()
     {
+        components = new System.ComponentModel.Container();
         groupBox1 = new System.Windows.Forms.GroupBox();
         chPrintToFile = new System.Windows.Forms.CheckBox();
         bPrinterProperties = new System.Windows.Forms.Button();
@@ -55,6 +56,7 @@ partial class PrintWindow
         printPreview = new System.Windows.Forms.PrintPreviewControl();
         bOk = new System.Windows.Forms.Button();
         bCancel = new System.Windows.Forms.Button();
+        timer1 = new System.Windows.Forms.Timer(components);
         groupBox1.SuspendLayout();
         groupBox2.SuspendLayout();
         groupBox3.SuspendLayout();
@@ -77,7 +79,7 @@ partial class PrintWindow
         groupBox1.Controls.Add(label1);
         groupBox1.Location = new System.Drawing.Point(6, 6);
         groupBox1.Name = "groupBox1";
-        groupBox1.Size = new System.Drawing.Size(353, 139);
+        groupBox1.Size = new System.Drawing.Size(353, 183);
         groupBox1.TabIndex = 0;
         groupBox1.TabStop = false;
         groupBox1.Text = "Printer";
@@ -85,7 +87,7 @@ partial class PrintWindow
         // chPrintToFile
         // 
         chPrintToFile.AutoSize = true;
-        chPrintToFile.Location = new System.Drawing.Point(209, 88);
+        chPrintToFile.Location = new System.Drawing.Point(175, 54);
         chPrintToFile.Name = "chPrintToFile";
         chPrintToFile.Size = new System.Drawing.Size(86, 19);
         chPrintToFile.TabIndex = 11;
@@ -94,9 +96,9 @@ partial class PrintWindow
         // 
         // bPrinterProperties
         // 
-        bPrinterProperties.Location = new System.Drawing.Point(209, 49);
+        bPrinterProperties.Location = new System.Drawing.Point(6, 46);
         bPrinterProperties.Name = "bPrinterProperties";
-        bPrinterProperties.Size = new System.Drawing.Size(138, 32);
+        bPrinterProperties.Size = new System.Drawing.Size(157, 32);
         bPrinterProperties.TabIndex = 10;
         bPrinterProperties.Text = "Properties";
         bPrinterProperties.UseVisualStyleBackColor = true;
@@ -105,34 +107,34 @@ partial class PrintWindow
         // lComment
         // 
         lComment.AutoSize = true;
-        lComment.Location = new System.Drawing.Point(80, 110);
+        lComment.Location = new System.Drawing.Point(80, 155);
         lComment.Name = "lComment";
-        lComment.Size = new System.Drawing.Size(15, 15);
+        lComment.Size = new System.Drawing.Size(16, 15);
         lComment.TabIndex = 9;
-        lComment.Text = "=";
+        lComment.Text = "...";
         // 
         // lWhere
         // 
         lWhere.AutoSize = true;
-        lWhere.Location = new System.Drawing.Point(80, 88);
+        lWhere.Location = new System.Drawing.Point(80, 133);
         lWhere.Name = "lWhere";
-        lWhere.Size = new System.Drawing.Size(15, 15);
+        lWhere.Size = new System.Drawing.Size(16, 15);
         lWhere.TabIndex = 8;
-        lWhere.Text = "=";
+        lWhere.Text = "...";
         // 
         // lType
         // 
         lType.AutoSize = true;
-        lType.Location = new System.Drawing.Point(80, 66);
+        lType.Location = new System.Drawing.Point(80, 111);
         lType.Name = "lType";
-        lType.Size = new System.Drawing.Size(15, 15);
+        lType.Size = new System.Drawing.Size(16, 15);
         lType.TabIndex = 7;
-        lType.Text = "=";
+        lType.Text = "...";
         // 
         // label5
         // 
         label5.AutoSize = true;
-        label5.Location = new System.Drawing.Point(6, 110);
+        label5.Location = new System.Drawing.Point(6, 155);
         label5.Name = "label5";
         label5.Size = new System.Drawing.Size(64, 15);
         label5.TabIndex = 6;
@@ -141,7 +143,7 @@ partial class PrintWindow
         // label4
         // 
         label4.AutoSize = true;
-        label4.Location = new System.Drawing.Point(6, 88);
+        label4.Location = new System.Drawing.Point(6, 133);
         label4.Name = "label4";
         label4.Size = new System.Drawing.Size(44, 15);
         label4.TabIndex = 5;
@@ -150,7 +152,7 @@ partial class PrintWindow
         // label3
         // 
         label3.AutoSize = true;
-        label3.Location = new System.Drawing.Point(6, 66);
+        label3.Location = new System.Drawing.Point(6, 111);
         label3.Name = "label3";
         label3.Size = new System.Drawing.Size(35, 15);
         label3.TabIndex = 4;
@@ -159,7 +161,7 @@ partial class PrintWindow
         // label2
         // 
         label2.AutoSize = true;
-        label2.Location = new System.Drawing.Point(6, 44);
+        label2.Location = new System.Drawing.Point(6, 89);
         label2.Name = "label2";
         label2.Size = new System.Drawing.Size(42, 15);
         label2.TabIndex = 3;
@@ -168,11 +170,11 @@ partial class PrintWindow
         // lStatus
         // 
         lStatus.AutoSize = true;
-        lStatus.Location = new System.Drawing.Point(80, 44);
+        lStatus.Location = new System.Drawing.Point(80, 89);
         lStatus.Name = "lStatus";
-        lStatus.Size = new System.Drawing.Size(15, 15);
+        lStatus.Size = new System.Drawing.Size(16, 15);
         lStatus.TabIndex = 2;
-        lStatus.Text = "=";
+        lStatus.Text = "...";
         // 
         // cbPrinter
         // 
@@ -201,7 +203,7 @@ partial class PrintWindow
         groupBox2.Controls.Add(tbFrom);
         groupBox2.Controls.Add(rbPageRange);
         groupBox2.Controls.Add(rbAll);
-        groupBox2.Location = new System.Drawing.Point(6, 151);
+        groupBox2.Location = new System.Drawing.Point(6, 195);
         groupBox2.Name = "groupBox2";
         groupBox2.Size = new System.Drawing.Size(163, 119);
         groupBox2.TabIndex = 1;
@@ -269,7 +271,7 @@ partial class PrintWindow
         groupBox3.Controls.Add(tbNumberOfCopies);
         groupBox3.Controls.Add(chCollate);
         groupBox3.Controls.Add(label7);
-        groupBox3.Location = new System.Drawing.Point(175, 151);
+        groupBox3.Location = new System.Drawing.Point(175, 195);
         groupBox3.Name = "groupBox3";
         groupBox3.Size = new System.Drawing.Size(184, 119);
         groupBox3.TabIndex = 2;
@@ -334,6 +336,11 @@ partial class PrintWindow
         bCancel.UseVisualStyleBackColor = true;
         bCancel.Click += bCancel_Click;
         // 
+        // timer1
+        // 
+        timer1.Interval = 2000;
+        timer1.Tick += timer1_Tick;
+        // 
         // PrintWindow
         // 
         AcceptButton = bOk;
@@ -350,6 +357,7 @@ partial class PrintWindow
         MinimizeBox = false;
         Name = "PrintWindow";
         StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+        FormClosing += PrintWindow_FormClosing;
         groupBox1.ResumeLayout(false);
         groupBox1.PerformLayout();
         groupBox2.ResumeLayout(false);
@@ -389,4 +397,5 @@ partial class PrintWindow
     private System.Windows.Forms.NumericUpDown tbNumberOfCopies;
     private System.Windows.Forms.Button bOk;
     private System.Windows.Forms.Button bCancel;
+    private System.Windows.Forms.Timer timer1;
 }

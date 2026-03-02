@@ -20,14 +20,17 @@ public partial class PrintWindow : Form
     private const int DM_IN_BUFFER = 8;
 
     private Printer printer;
+    private PrintDocument document;
     private List<string> installedPrinters;
     private string selectedPrinter;
 
     private bool enableHandlers;
+    private int updatePrinterAttributesCallId = 0;
 
     private PrintWindow(Printer printer)
     {
         this.printer = printer;
+        document = printer.Document;
 
         InitializeComponent();
 
@@ -42,17 +45,19 @@ public partial class PrintWindow : Form
             installedPrinters.Add(printerName);
             cbPrinter.Items.Add(printerName);
         }
-        selectedPrinter = printer.Document.PrinterSettings.PrinterName;
+        selectedPrinter = document.PrinterSettings.PrinterName;
         cbPrinter.SelectedIndex = installedPrinters.IndexOf(selectedPrinter);
 
-        printPreview.Document = printer.Document;
+        printPreview.Document = document;
         _ = new DigitOnlyBehavior(tbFrom);
         _ = new DigitOnlyBehavior(tbTo);
 
         rbAll.Checked = true;
         rbPageRange.Checked = false;
         UpdatePagesEnabled();
+        UpdatePrinterAttributes();
 
+        timer1.Enabled = true;
         enableHandlers = true;
     }
 
@@ -80,6 +85,9 @@ public partial class PrintWindow : Form
         if (enableHandlers)
         {
             selectedPrinter = installedPrinters[cbPrinter.SelectedIndex];
+            document.PrinterSettings.PrinterName = selectedPrinter;
+
+            UpdatePrinterAttributes();
             printPreview.InvalidatePreview();
         }
     }
@@ -122,8 +130,8 @@ public partial class PrintWindow : Form
                         if (result == 1) // OK
                         {
                             // Apply updated DEVMODE back to PrintDocument
-                            printer.Document.PrinterSettings.SetHdevmode(pDevMode);
-                            printer.Document.DefaultPageSettings.SetHdevmode(pDevMode);
+                            document.PrinterSettings.SetHdevmode(pDevMode);
+                            document.DefaultPageSettings.SetHdevmode(pDevMode);
 
                             printPreview.InvalidatePreview();
                         }
@@ -145,6 +153,16 @@ public partial class PrintWindow : Form
         }
     }
 
+    private void timer1_Tick(object sender, EventArgs e)
+    {
+        UpdatePrinterAttributes();
+    }
+
+    private void PrintWindow_FormClosing(object sender, FormClosingEventArgs e)
+    {
+        timer1.Enabled = false;
+    }
+
     #endregion
 
     private void UpdatePagesEnabled()
@@ -153,5 +171,126 @@ public partial class PrintWindow : Form
         tbTo.Enabled = rbPageRange.Checked;
         lFrom.Enabled = rbPageRange.Checked;
         lTo.Enabled = rbPageRange.Checked;
+    }
+
+    private void UpdatePrinterAttributes()
+    {
+        // MSDN advises to not run GetPrinter on UI thread
+        string localPrinterName = selectedPrinter;
+        int localCallId = ++updatePrinterAttributesCallId;
+        Task.Run(() =>
+        {
+            WinApi.PRINTER_INFO_2? printerInfo = GetPrinterInfo(localPrinterName);
+            BeginInvoke(() =>
+            {
+                if (localCallId == updatePrinterAttributesCallId)
+                {
+                    if (printerInfo.HasValue)
+                    {
+                        lStatus.Text = PrinterStatusToStr(printerInfo.Value.Status);
+                        lType.Text = printerInfo.Value.pDriverName;
+                        lWhere.Text = printerInfo.Value.pPortName;
+                        lComment.Text = printerInfo.Value.pComment;
+                    }
+                    else
+                    {
+                        lStatus.Text = "< error >";
+                        lType.Text = "< error >";
+                        lWhere.Text = "< error >";
+                        lComment.Text = "< error >";
+                    }
+                }
+            });
+        });
+    }
+
+    private static WinApi.PRINTER_INFO_2? GetPrinterInfo(string printerName)
+    {
+        if (string.IsNullOrEmpty(printerName))
+            return null;
+
+        WinApi.PRINTER_INFO_2? result = null;
+        if (WinApi.OpenPrinterW(printerName, out nint hPrinter, 0))
+        {
+            try
+            {
+                WinApi.GetPrinter(hPrinter, 2, 0, 0, out uint size);
+                if (size > 0)
+                {
+                    nint pPrinterInfo = Marshal.AllocHGlobal((int)size);
+                    try
+                    {
+                        if (WinApi.GetPrinter(hPrinter, 2, pPrinterInfo, size, out uint _))
+                        {
+                            result = Marshal.PtrToStructure<WinApi.PRINTER_INFO_2>(pPrinterInfo);
+                        }
+                    }
+                    finally
+                    {
+                        Marshal.FreeHGlobal(pPrinterInfo);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                App.Discard(ex);
+            }
+            finally
+            {
+                WinApi.ClosePrinter(hPrinter);
+            }
+        }
+
+        return result;
+    }
+
+    private static string PrinterStatusToStr(WinApi.PrinterStatus value)
+    {
+        if (value == 0)
+            return "Ready";
+
+        if (value.HasFlag(WinApi.PrinterStatus.Offline))
+            return "Offline";
+
+        // Errors
+        if (value.HasFlag(WinApi.PrinterStatus.PaperJam))
+            return "Paper jam";
+
+        if (value.HasFlag(WinApi.PrinterStatus.PaperOut))
+            return "Out of paper";
+
+        if (value.HasFlag(WinApi.PrinterStatus.DoorOpen))
+            return "Door open";
+
+        if (value.HasFlag(WinApi.PrinterStatus.NoToner))
+            return "No toner";
+
+        if (value.HasFlag(WinApi.PrinterStatus.OutputBinFull))
+            return "Output bin full";
+
+        if (value.HasFlag(WinApi.PrinterStatus.Error))
+            return "Error";
+
+        // Normal operation
+        if (value.HasFlag(WinApi.PrinterStatus.Paused))
+            return "Paused";
+
+        if (value.HasFlag(WinApi.PrinterStatus.Printing))
+            return "Printing";
+
+        if (value.HasFlag(WinApi.PrinterStatus.WarmingUp))
+            return "Warming up";
+
+        if (value.HasFlag(WinApi.PrinterStatus.Initializing))
+            return "Initializing";
+
+        if (value.HasFlag(WinApi.PrinterStatus.Busy))
+            return "Busy";
+
+        // Warnings (only if no "normal operation" flags and no errors)
+        if (value.HasFlag(WinApi.PrinterStatus.TonerLow))
+            return "Toner low";
+
+        return "Unknown";
     }
 }
