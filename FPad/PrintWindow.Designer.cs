@@ -357,6 +357,7 @@ partial class PrintWindow
         MinimizeBox = false;
         Name = "PrintWindow";
         StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+        Activated += PrintWindow_Activated;
         FormClosing += PrintWindow_FormClosing;
         groupBox1.ResumeLayout(false);
         groupBox1.PerformLayout();

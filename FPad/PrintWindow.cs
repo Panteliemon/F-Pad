@@ -24,6 +24,7 @@ public partial class PrintWindow : Form
     private List<string> installedPrinters;
     private string selectedPrinter;
 
+    private bool isFirstActivate = true;
     private bool enableHandlers;
     private int updatePrinterAttributesCallId = 0;
 
@@ -34,7 +35,7 @@ public partial class PrintWindow : Form
 
         InitializeComponent();
 
-        Text = "Print – " + App.TITLE;
+        Text = "Print Options – " + App.TITLE;
         Icon = App.Icon;
 
         DialogResult = DialogResult.Cancel;
@@ -55,9 +56,7 @@ public partial class PrintWindow : Form
         rbAll.Checked = true;
         rbPageRange.Checked = false;
         UpdatePagesEnabled();
-        UpdatePrinterAttributes();
 
-        timer1.Enabled = true;
         enableHandlers = true;
     }
 
@@ -156,6 +155,17 @@ public partial class PrintWindow : Form
     private void timer1_Tick(object sender, EventArgs e)
     {
         UpdatePrinterAttributes();
+    }
+
+    private void PrintWindow_Activated(object sender, EventArgs e)
+    {
+        if (isFirstActivate)
+        {
+            isFirstActivate = false;
+            timer1.Enabled = true;
+
+            UpdatePrinterAttributes(); // don't start in constructor, because sometimes too fast
+        }
     }
 
     private void PrintWindow_FormClosing(object sender, FormClosingEventArgs e)
