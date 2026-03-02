@@ -6,8 +6,10 @@ using FPad.Settings;
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -418,6 +420,46 @@ namespace FPad
         {
             ExecuteSaveAs();
         }
+
+        private void printToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Printer printer = new(text.Text, text.Font);
+            if (PrintWindow.ShowDialog(printer))
+            {
+                // printer.Print();
+            }
+        }
+
+        int currentCharIndex = 0;
+        private void PrintDocument_PrintPage_Crude(object sender, PrintPageEventArgs e)
+        {
+            Font printFont = text.Font;
+
+            RectangleF printableArea = e.MarginBounds;
+            
+            int charsFitted;
+            int linesFilled;
+            //e.
+            e.Graphics.MeasureString(
+                text.Text.Substring(currentCharIndex),
+                printFont,
+                printableArea.Size,
+                StringFormat.GenericDefault,
+                out charsFitted,
+                out linesFilled);
+
+            e.Graphics.DrawString(
+                text.Text.Substring(currentCharIndex),
+                printFont,
+                Brushes.Black,
+                printableArea,
+                StringFormat.GenericDefault);
+
+            currentCharIndex += charsFitted;
+
+            e.HasMorePages = currentCharIndex < text.Text.Length;
+        }
+
 
         private void openInExternalEditorMenuItem_Click(object sender, EventArgs e)
         {
@@ -906,7 +948,7 @@ namespace FPad
                     // Find the problem
                     int positionWhereDiffer = -1;
                     int minLength = Math.Min(decoded.Length, allText.Length);
-                    for (int i=0; i< minLength; i++)
+                    for (int i = 0; i < minLength; i++)
                     {
                         if (decoded[i] != allText[i])
                         {

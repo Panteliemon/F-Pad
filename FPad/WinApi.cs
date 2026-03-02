@@ -27,4 +27,24 @@ public static class WinApi
 
     [DllImport("user32.dll", SetLastError = true)]
     public static extern bool DestroyIcon(nint hIcon);
+
+    [DllImport("winspool.drv", CharSet = CharSet.Unicode)]
+    public static extern bool OpenPrinterW(
+        string pPrinterName,
+        out nint phPrinter,
+        nint pDefault
+    );
+
+    [DllImport("winspool.drv", CharSet = CharSet.Unicode)]
+    public static extern int DocumentPropertiesW(
+        nint hwnd,
+        nint hPrinter,
+        string pDeviceName,
+        nint pDevModeOutput,
+        nint pDevModeInput,
+        int fMode
+    );
+
+    [DllImport("winspool.drv")]
+    public static extern bool ClosePrinter(nint hPrinter);
 }

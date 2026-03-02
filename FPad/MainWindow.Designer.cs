@@ -48,6 +48,8 @@ namespace FPad
             openToolStripMenuItem = new ToolStripMenuItem();
             saveToolStripMenuItem = new ToolStripMenuItem();
             saveAsToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator6 = new ToolStripSeparator();
+            printToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator1 = new ToolStripSeparator();
             externalEditorsSeparator = new ToolStripSeparator();
             exitToolStripMenuItem = new ToolStripMenuItem();
@@ -85,9 +87,9 @@ namespace FPad
             // statusBar
             // 
             statusBar.Items.AddRange(new ToolStripItem[] { msgLabel, labelExternallyModified, toolStripButtonReload, modifiedLabel, lineAndColLabel, labelSelection, wrapLabel, encodingLabel });
-            statusBar.Location = new Point(0, 426);
+            statusBar.Location = new Point(0, 464);
             statusBar.Name = "statusBar";
-            statusBar.Size = new Size(800, 24);
+            statusBar.Size = new Size(753, 24);
             statusBar.TabIndex = 0;
             statusBar.Text = "statusStrip1";
             // 
@@ -97,7 +99,7 @@ namespace FPad
             msgLabel.BorderStyle = Border3DStyle.SunkenOuter;
             msgLabel.Margin = new Padding(2, 3, 0, 2);
             msgLabel.Name = "msgLabel";
-            msgLabel.Size = new Size(321, 19);
+            msgLabel.Size = new Size(274, 19);
             msgLabel.Spring = true;
             msgLabel.TextAlign = ContentAlignment.MiddleLeft;
             // 
@@ -166,13 +168,13 @@ namespace FPad
             mainMenu.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, editToolStripMenuItem, helpToolStripMenuItem });
             mainMenu.Location = new Point(0, 0);
             mainMenu.Name = "mainMenu";
-            mainMenu.Size = new Size(800, 24);
+            mainMenu.Size = new Size(753, 24);
             mainMenu.TabIndex = 1;
             mainMenu.Text = "menuStrip1";
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { newToolStripMenuItem, openToolStripMenuItem, saveToolStripMenuItem, saveAsToolStripMenuItem, toolStripSeparator1, externalEditorsSeparator, exitToolStripMenuItem });
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { newToolStripMenuItem, openToolStripMenuItem, saveToolStripMenuItem, saveAsToolStripMenuItem, toolStripSeparator6, printToolStripMenuItem, toolStripSeparator1, externalEditorsSeparator, exitToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "&File";
@@ -209,6 +211,19 @@ namespace FPad
             saveAsToolStripMenuItem.Text = "Save &As";
             saveAsToolStripMenuItem.Click += saveAsToolStripMenuItem_Click;
             // 
+            // toolStripSeparator6
+            // 
+            toolStripSeparator6.Name = "toolStripSeparator6";
+            toolStripSeparator6.Size = new Size(183, 6);
+            // 
+            // printToolStripMenuItem
+            // 
+            printToolStripMenuItem.Name = "printToolStripMenuItem";
+            printToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.P;
+            printToolStripMenuItem.Size = new Size(186, 22);
+            printToolStripMenuItem.Text = "Print";
+            printToolStripMenuItem.Click += printToolStripMenuItem_Click;
+            // 
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
@@ -238,26 +253,26 @@ namespace FPad
             // 
             undoMenuItem.Name = "undoMenuItem";
             undoMenuItem.ShortcutKeys = Keys.Control | Keys.Z;
-            undoMenuItem.Size = new Size(180, 22);
+            undoMenuItem.Size = new Size(170, 22);
             undoMenuItem.Click += undoMenuItem_Click;
             // 
             // redoMenuItem
             // 
             redoMenuItem.Name = "redoMenuItem";
             redoMenuItem.ShortcutKeys = Keys.Control | Keys.Y;
-            redoMenuItem.Size = new Size(180, 22);
+            redoMenuItem.Size = new Size(170, 22);
             redoMenuItem.Click += redoMenuItem_Click;
             // 
             // toolStripSeparator5
             // 
             toolStripSeparator5.Name = "toolStripSeparator5";
-            toolStripSeparator5.Size = new Size(177, 6);
+            toolStripSeparator5.Size = new Size(167, 6);
             // 
             // cutToolStripMenuItem
             // 
             cutToolStripMenuItem.Name = "cutToolStripMenuItem";
             cutToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.X;
-            cutToolStripMenuItem.Size = new Size(180, 22);
+            cutToolStripMenuItem.Size = new Size(170, 22);
             cutToolStripMenuItem.Text = "Cu&t";
             cutToolStripMenuItem.Click += cutToolStripMenuItem_Click;
             // 
@@ -265,7 +280,7 @@ namespace FPad
             // 
             copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             copyToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.C;
-            copyToolStripMenuItem.Size = new Size(180, 22);
+            copyToolStripMenuItem.Size = new Size(170, 22);
             copyToolStripMenuItem.Text = "&Copy";
             copyToolStripMenuItem.Click += copyToolStripMenuItem_Click;
             // 
@@ -273,20 +288,20 @@ namespace FPad
             // 
             pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
             pasteToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.V;
-            pasteToolStripMenuItem.Size = new Size(180, 22);
+            pasteToolStripMenuItem.Size = new Size(170, 22);
             pasteToolStripMenuItem.Text = "&Paste";
             pasteToolStripMenuItem.Click += pasteToolStripMenuItem_Click;
             // 
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(177, 6);
+            toolStripSeparator2.Size = new Size(167, 6);
             // 
             // findToolStripMenuItem
             // 
             findToolStripMenuItem.Name = "findToolStripMenuItem";
             findToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.F;
-            findToolStripMenuItem.Size = new Size(180, 22);
+            findToolStripMenuItem.Size = new Size(170, 22);
             findToolStripMenuItem.Text = "&Find";
             findToolStripMenuItem.Click += findToolStripMenuItem_Click;
             // 
@@ -294,7 +309,7 @@ namespace FPad
             // 
             replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
             replaceToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.H;
-            replaceToolStripMenuItem.Size = new Size(180, 22);
+            replaceToolStripMenuItem.Size = new Size(170, 22);
             replaceToolStripMenuItem.Text = "&Replace";
             replaceToolStripMenuItem.Click += replaceToolStripMenuItem_Click;
             // 
@@ -302,37 +317,37 @@ namespace FPad
             // 
             goToLineMenuItem.Name = "goToLineMenuItem";
             goToLineMenuItem.ShortcutKeys = Keys.Control | Keys.G;
-            goToLineMenuItem.Size = new Size(180, 22);
+            goToLineMenuItem.Size = new Size(170, 22);
             goToLineMenuItem.Text = "Go to Line";
             goToLineMenuItem.Click += goToLineMenuItem_Click;
             // 
             // toolStripSeparator3
             // 
             toolStripSeparator3.Name = "toolStripSeparator3";
-            toolStripSeparator3.Size = new Size(177, 6);
+            toolStripSeparator3.Size = new Size(167, 6);
             // 
             // wrapLinesMenuItem
             // 
             wrapLinesMenuItem.Name = "wrapLinesMenuItem";
-            wrapLinesMenuItem.Size = new Size(180, 22);
+            wrapLinesMenuItem.Size = new Size(170, 22);
             wrapLinesMenuItem.Text = "&Wrap Lines";
             wrapLinesMenuItem.Click += wrapLinesMenuItem_Click;
             // 
             // encodingToolStripMenuItem
             // 
             encodingToolStripMenuItem.Name = "encodingToolStripMenuItem";
-            encodingToolStripMenuItem.Size = new Size(180, 22);
+            encodingToolStripMenuItem.Size = new Size(170, 22);
             encodingToolStripMenuItem.Text = "&Encoding";
             // 
             // toolStripSeparator4
             // 
             toolStripSeparator4.Name = "toolStripSeparator4";
-            toolStripSeparator4.Size = new Size(177, 6);
+            toolStripSeparator4.Size = new Size(167, 6);
             // 
             // preferencesToolStripMenuItem
             // 
             preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
-            preferencesToolStripMenuItem.Size = new Size(180, 22);
+            preferencesToolStripMenuItem.Size = new Size(170, 22);
             preferencesToolStripMenuItem.Text = "Preference&s";
             preferencesToolStripMenuItem.Click += preferencesToolStripMenuItem_Click;
             // 
@@ -359,7 +374,7 @@ namespace FPad
             panel1.Location = new Point(3, 24);
             panel1.Margin = new Padding(0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(794, 399);
+            panel1.Size = new Size(747, 437);
             panel1.TabIndex = 3;
             // 
             // text
@@ -373,7 +388,7 @@ namespace FPad
             text.Multiline = true;
             text.Name = "text";
             text.ScrollBars = ScrollBars.Both;
-            text.Size = new Size(794, 396);
+            text.Size = new Size(747, 434);
             text.TabIndex = 3;
             text.TextBeforeEdit = "";
             text.SelectionChanged += Text_SelectionChanged;
@@ -418,7 +433,7 @@ namespace FPad
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(753, 488);
             Controls.Add(panel1);
             Controls.Add(statusBar);
             Controls.Add(mainMenu);
@@ -490,5 +505,7 @@ namespace FPad
         private ToolStripMenuItem undoMenuItem;
         private ToolStripMenuItem redoMenuItem;
         private ToolStripSeparator toolStripSeparator5;
+        private ToolStripSeparator toolStripSeparator6;
+        private ToolStripMenuItem printToolStripMenuItem;
     }
 }
