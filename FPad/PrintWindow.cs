@@ -191,26 +191,29 @@ public partial class PrintWindow : Form
         Task.Run(() =>
         {
             WinApi.PRINTER_INFO_2? printerInfo = GetPrinterInfo(localPrinterName);
-            BeginInvoke(() =>
+            if (!IsDisposed)
             {
-                if (localCallId == updatePrinterAttributesCallId)
+                BeginInvoke(() =>
                 {
-                    if (printerInfo.HasValue)
+                    if (localCallId == updatePrinterAttributesCallId)
                     {
-                        lStatus.Text = PrinterStatusToStr(printerInfo.Value.Status);
-                        lType.Text = printerInfo.Value.pDriverName;
-                        lWhere.Text = printerInfo.Value.pPortName;
-                        lComment.Text = printerInfo.Value.pComment;
+                        if (printerInfo.HasValue)
+                        {
+                            lStatus.Text = PrinterStatusToStr(printerInfo.Value.Status);
+                            lType.Text = printerInfo.Value.pDriverName;
+                            lWhere.Text = printerInfo.Value.pPortName;
+                            lComment.Text = printerInfo.Value.pComment;
+                        }
+                        else
+                        {
+                            lStatus.Text = "< error >";
+                            lType.Text = "< error >";
+                            lWhere.Text = "< error >";
+                            lComment.Text = "< error >";
+                        }
                     }
-                    else
-                    {
-                        lStatus.Text = "< error >";
-                        lType.Text = "< error >";
-                        lWhere.Text = "< error >";
-                        lComment.Text = "< error >";
-                    }
-                }
-            });
+                });
+            }
         });
     }
 
