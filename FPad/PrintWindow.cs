@@ -28,6 +28,10 @@ public partial class PrintWindow : Form
     private bool enableHandlers;
     private int updatePrinterAttributesCallId = 0;
 
+    private int pageFrom;
+    private int pageTo;
+    private int pagesCount;
+
     private PrintWindow(Printer printer)
     {
         this.printer = printer;
@@ -52,10 +56,14 @@ public partial class PrintWindow : Form
         printPreview.Document = document;
         _ = new DigitOnlyBehavior(tbFrom);
         _ = new DigitOnlyBehavior(tbTo);
+        _ = new DigitOnlyBehavior(tbCurrentPage);
 
         rbAll.Checked = true;
         rbPageRange.Checked = false;
         UpdatePagesEnabled();
+        UpdatePrevNextEnabled();
+
+        printer.PagesCountChanged += Printer_PagesCountChanged;
 
         enableHandlers = true;
     }
@@ -152,9 +160,44 @@ public partial class PrintWindow : Form
         }
     }
 
+    private void bPrevPage_Click(object sender, EventArgs e)
+    {
+        if (pagesCount > 0 && (printPreview.StartPage > 0))
+        {
+            SetCurrentPage(printPreview.StartPage - 1);
+        }
+    }
+
+    private void pNextPage_Click(object sender, EventArgs e)
+    {
+        if (pagesCount > 0 && (printPreview.StartPage + 1 < pagesCount))
+        {
+            SetCurrentPage(printPreview.StartPage + 1);
+        }
+    }
+
     private void timer1_Tick(object sender, EventArgs e)
     {
         UpdatePrinterAttributes();
+    }
+
+    private void Printer_PagesCountChanged(object sender, EventArgs e)
+    {
+        int? pagesCountLocal = printer.PagesCount;
+        if (!IsDisposed)
+        {
+            BeginInvoke(() =>
+            {
+                pagesCount = pagesCountLocal ?? 1;
+                pageFrom = 1;
+                pageTo = pagesCount;
+                ShowPagesFromTo();
+
+                lOfPageCount.Text = $"of {pagesCount}";
+
+                SetCurrentPage(0);
+            });
+        }
     }
 
     private void PrintWindow_Activated(object sender, EventArgs e)
@@ -171,6 +214,7 @@ public partial class PrintWindow : Form
     private void PrintWindow_FormClosing(object sender, FormClosingEventArgs e)
     {
         timer1.Enabled = false;
+        printer.PagesCountChanged -= Printer_PagesCountChanged;
     }
 
     #endregion
@@ -181,6 +225,31 @@ public partial class PrintWindow : Form
         tbTo.Enabled = rbPageRange.Checked;
         lFrom.Enabled = rbPageRange.Checked;
         lTo.Enabled = rbPageRange.Checked;
+    }
+
+    private void UpdatePrevNextEnabled()
+    {
+        bPrevPage.Enabled = pagesCount > 0 && (printPreview.StartPage > 0);
+        pNextPage.Enabled = pagesCount > 0 && (printPreview.StartPage + 1 < pagesCount);
+    }
+
+    private void ShowPagesFromTo()
+    {
+        enableHandlers = false;
+        tbFrom.Text = pageFrom.ToString();
+        tbTo.Text = pageTo.ToString();
+        enableHandlers = true;
+    }
+
+    private void SetCurrentPage(int pageIndex)
+    {
+        printPreview.StartPage = pageIndex;
+
+        enableHandlers = false;
+        tbCurrentPage.Text = (pageIndex + 1).ToString();
+        enableHandlers = true;
+
+        UpdatePrevNextEnabled();
     }
 
     private void UpdatePrinterAttributes()

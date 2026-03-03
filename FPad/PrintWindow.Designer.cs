@@ -57,10 +57,19 @@ partial class PrintWindow
         bOk = new System.Windows.Forms.Button();
         bCancel = new System.Windows.Forms.Button();
         timer1 = new System.Windows.Forms.Timer(components);
+        bPrevPage = new System.Windows.Forms.Button();
+        pNextPage = new System.Windows.Forms.Button();
+        label6 = new System.Windows.Forms.Label();
+        groupBox4 = new System.Windows.Forms.GroupBox();
+        panel1 = new System.Windows.Forms.Panel();
+        tbCurrentPage = new System.Windows.Forms.TextBox();
+        lOfPageCount = new System.Windows.Forms.Label();
         groupBox1.SuspendLayout();
         groupBox2.SuspendLayout();
         groupBox3.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)tbNumberOfCopies).BeginInit();
+        groupBox4.SuspendLayout();
+        panel1.SuspendLayout();
         SuspendLayout();
         // 
         // groupBox1
@@ -309,9 +318,9 @@ partial class PrintWindow
         // printPreview
         // 
         printPreview.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-        printPreview.Location = new System.Drawing.Point(365, 13);
+        printPreview.Location = new System.Drawing.Point(6, 55);
         printPreview.Name = "printPreview";
-        printPreview.Size = new System.Drawing.Size(499, 622);
+        printPreview.Size = new System.Drawing.Size(487, 568);
         printPreview.TabIndex = 3;
         // 
         // bOk
@@ -341,6 +350,75 @@ partial class PrintWindow
         timer1.Interval = 2000;
         timer1.Tick += timer1_Tick;
         // 
+        // bPrevPage
+        // 
+        bPrevPage.Location = new System.Drawing.Point(0, 0);
+        bPrevPage.Name = "bPrevPage";
+        bPrevPage.Size = new System.Drawing.Size(75, 32);
+        bPrevPage.TabIndex = 6;
+        bPrevPage.Text = "<< Prev";
+        bPrevPage.UseVisualStyleBackColor = true;
+        bPrevPage.Click += bPrevPage_Click;
+        // 
+        // pNextPage
+        // 
+        pNextPage.Location = new System.Drawing.Point(236, 0);
+        pNextPage.Name = "pNextPage";
+        pNextPage.Size = new System.Drawing.Size(75, 32);
+        pNextPage.TabIndex = 7;
+        pNextPage.Text = "Next >>";
+        pNextPage.UseVisualStyleBackColor = true;
+        pNextPage.Click += pNextPage_Click;
+        // 
+        // label6
+        // 
+        label6.AutoSize = true;
+        label6.Location = new System.Drawing.Point(81, 9);
+        label6.Name = "label6";
+        label6.Size = new System.Drawing.Size(36, 15);
+        label6.TabIndex = 8;
+        label6.Text = "Page:";
+        // 
+        // groupBox4
+        // 
+        groupBox4.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        groupBox4.Controls.Add(panel1);
+        groupBox4.Controls.Add(printPreview);
+        groupBox4.Location = new System.Drawing.Point(365, 6);
+        groupBox4.Name = "groupBox4";
+        groupBox4.Size = new System.Drawing.Size(499, 629);
+        groupBox4.TabIndex = 9;
+        groupBox4.TabStop = false;
+        groupBox4.Text = "Preview";
+        // 
+        // panel1
+        // 
+        panel1.Controls.Add(tbCurrentPage);
+        panel1.Controls.Add(bPrevPage);
+        panel1.Controls.Add(label6);
+        panel1.Controls.Add(pNextPage);
+        panel1.Controls.Add(lOfPageCount);
+        panel1.Location = new System.Drawing.Point(6, 17);
+        panel1.Name = "panel1";
+        panel1.Size = new System.Drawing.Size(311, 32);
+        panel1.TabIndex = 9;
+        // 
+        // tbCurrentPage
+        // 
+        tbCurrentPage.Location = new System.Drawing.Point(135, 6);
+        tbCurrentPage.Name = "tbCurrentPage";
+        tbCurrentPage.Size = new System.Drawing.Size(54, 23);
+        tbCurrentPage.TabIndex = 9;
+        // 
+        // lOfPageCount
+        // 
+        lOfPageCount.AutoSize = true;
+        lOfPageCount.Location = new System.Drawing.Point(195, 9);
+        lOfPageCount.Name = "lOfPageCount";
+        lOfPageCount.Size = new System.Drawing.Size(16, 15);
+        lOfPageCount.TabIndex = 10;
+        lOfPageCount.Text = "...";
+        // 
         // PrintWindow
         // 
         AcceptButton = bOk;
@@ -348,9 +426,9 @@ partial class PrintWindow
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         CancelButton = bCancel;
         ClientSize = new System.Drawing.Size(870, 680);
+        Controls.Add(groupBox4);
         Controls.Add(bCancel);
         Controls.Add(bOk);
-        Controls.Add(printPreview);
         Controls.Add(groupBox3);
         Controls.Add(groupBox2);
         Controls.Add(groupBox1);
@@ -366,6 +444,9 @@ partial class PrintWindow
         groupBox3.ResumeLayout(false);
         groupBox3.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)tbNumberOfCopies).EndInit();
+        groupBox4.ResumeLayout(false);
+        panel1.ResumeLayout(false);
+        panel1.PerformLayout();
         ResumeLayout(false);
     }
 
@@ -399,4 +480,11 @@ partial class PrintWindow
     private System.Windows.Forms.Button bOk;
     private System.Windows.Forms.Button bCancel;
     private System.Windows.Forms.Timer timer1;
+    private System.Windows.Forms.Button bPrevPage;
+    private System.Windows.Forms.Button pNextPage;
+    private System.Windows.Forms.Label label6;
+    private System.Windows.Forms.GroupBox groupBox4;
+    private System.Windows.Forms.Panel panel1;
+    private System.Windows.Forms.Label lOfPageCount;
+    private System.Windows.Forms.TextBox tbCurrentPage;
 }
