@@ -323,6 +323,55 @@ public static class StringUtils
         callback(allText[currentLineStart..], currentLineIndex, currentLineStart, allText.Length, true);
     }
 
+    /// <summary>
+    /// Cut line on the nearest space for Word Wrap
+    /// </summary>
+    /// <param name="line"></param>
+    /// <param name="maxLength"></param>
+    /// <param name="nextPartStart"></param>
+    /// <returns></returns>
+    public static ReadOnlySpan<char> CutOnSpaceToFit(ReadOnlySpan<char> line, int maxLength, out int nextPartStart)
+    {
+        if (line.Length <= maxLength)
+        {
+            nextPartStart = line.Length;
+            return line.TrimEnd();
+        }
+
+        if (GetCharType(line[maxLength]) == ConseqCharType.Space)
+        {
+            // Find next non-space
+            for (int i = maxLength + 1; i < line.Length; i++)
+            {
+                if (GetCharType(line[i]) != ConseqCharType.Space)
+                {
+                    nextPartStart = i;
+                    return line[0..maxLength].TrimEnd();
+                }
+            }
+
+            // Only spaces after: report as if there is nothing left in current string after cut
+            nextPartStart = line.Length;
+            return line.TrimEnd();
+        }
+        else
+        {
+            // Find space before [maxLength]
+            for (int i = maxLength - 1; i >= 0; i--)
+            {
+                if (GetCharType(line[i]) == ConseqCharType.Space)
+                {
+                    nextPartStart = i + 1;
+                    return line[0..i].TrimEnd();
+                }
+            }
+
+            // No spaces: force cut at max length
+            nextPartStart = maxLength;
+            return line[0..maxLength];
+        }    
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static ConseqCharType GetCharType(char c)
     {
