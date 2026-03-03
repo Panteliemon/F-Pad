@@ -57,6 +57,12 @@ public partial class PrintWindow : Form
         _ = new DigitOnlyBehavior(tbFrom);
         _ = new DigitOnlyBehavior(tbTo);
         _ = new DigitOnlyBehavior(tbCurrentPage);
+        EditFinishedBehavior tbFromEditFinished = new(tbFrom);
+        EditFinishedBehavior tbToEditFinished = new(tbTo);
+        EditFinishedBehavior tbCurrentPageEditFinished = new(tbCurrentPage);
+        tbFromEditFinished.EditFinished += TbFrom_EditFinished;
+        tbToEditFinished.EditFinished += TbTo_EditFinished;
+        tbCurrentPageEditFinished.EditFinished += TbCurrentPage_EditFinished;
 
         rbAll.Checked = true;
         rbPageRange.Checked = false;
@@ -174,6 +180,90 @@ public partial class PrintWindow : Form
         {
             SetCurrentPage(printPreview.StartPage + 1);
         }
+    }
+
+    private void TbFrom_EditFinished(object sender, string e)
+    {
+        bool isGood = false;
+        if (int.TryParse(e, out int parsed))
+        {
+            if (parsed < 1)
+            {
+                pageFrom = 1;
+            }
+            else if (parsed > pagesCount)
+            {
+                pageFrom = pagesCount;
+            }
+            else
+            {
+                pageFrom = parsed;
+                isGood = true;
+            }
+
+            if (pageTo < pageFrom)
+                pageTo = pageFrom;
+        }
+
+        ShowPagesFromTo();
+        if (!isGood)
+            tbFrom.SelectAll();
+    }
+
+    private void TbTo_EditFinished(object sender, string e)
+    {
+        bool isGood = false;
+        if (int.TryParse(e, out int parsed))
+        {
+            if (parsed < 1)
+            {
+                pageTo = 1;
+            }
+            else if (parsed > pagesCount)
+            {
+                pageTo = pagesCount;
+            }
+            else
+            {
+                pageTo = parsed;
+                isGood = true;
+            }
+
+            if (pageFrom > pageTo)
+                pageFrom = pageTo;
+        }
+
+        ShowPagesFromTo();
+        if (!isGood)
+            tbTo.SelectAll();
+    }
+
+    private void TbCurrentPage_EditFinished(object sender, string e)
+    {
+        bool isGood = false;
+        if (int.TryParse(e, out int parsed))
+        {
+            if (parsed < 1)
+            {
+                SetCurrentPage(0);
+            }
+            else if (parsed > pagesCount)
+            {
+                SetCurrentPage(pagesCount - 1);
+            }
+            else
+            {
+                SetCurrentPage(parsed - 1);
+                isGood = true;
+            }
+        }
+        else
+        {
+            SetCurrentPage(printPreview.StartPage);
+        }
+
+        if (!isGood)
+            tbCurrentPage.SelectAll();
     }
 
     private void timer1_Tick(object sender, EventArgs e)
