@@ -421,7 +421,6 @@ partial class PrintWindow
         // 
         // PrintWindow
         // 
-        AcceptButton = bOk;
         AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         CancelButton = bCancel;
@@ -432,11 +431,13 @@ partial class PrintWindow
         Controls.Add(groupBox3);
         Controls.Add(groupBox2);
         Controls.Add(groupBox1);
+        KeyPreview = true;
         MinimizeBox = false;
         Name = "PrintWindow";
         StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
         Activated += PrintWindow_Activated;
         FormClosing += PrintWindow_FormClosing;
+        KeyDown += PrintWindow_KeyDown;
         groupBox1.ResumeLayout(false);
         groupBox1.PerformLayout();
         groupBox2.ResumeLayout(false);

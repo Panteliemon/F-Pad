@@ -207,6 +207,7 @@ public partial class PrintWindow : Form
             isFirstActivate = false;
             timer1.Enabled = true;
 
+            bOk.Focus();
             UpdatePrinterAttributes(); // don't start in constructor, because sometimes too fast
         }
     }
@@ -215,6 +216,12 @@ public partial class PrintWindow : Form
     {
         timer1.Enabled = false;
         printer.PagesCountChanged -= Printer_PagesCountChanged;
+    }
+
+    private void PrintWindow_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Control && (e.KeyCode == Keys.P))
+            bOk_Click(this, e);
     }
 
     #endregion
