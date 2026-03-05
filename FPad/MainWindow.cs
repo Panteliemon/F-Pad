@@ -426,7 +426,9 @@ namespace FPad
             Printer printer = new(text.Text, text.Font);
             if (PrintWindow.ShowDialog(printer))
             {
-                // printer.Print();
+                // They told us it only "starts" printing process, in reality it starts and waits.
+                // TODO Need indication and cancellation on exit app
+                Task.Run(() => printer.Print());
             }
         }
 

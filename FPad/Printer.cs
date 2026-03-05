@@ -13,10 +13,15 @@ public class Printer
 {
     private string allText;
     private int currentStartPosition;
+    private int documentCopiesLeft;
+    private int pageCopiesLeft;
     private int pagesCount;
     private Font font;
 
     public PrintDocument Document { get; }
+
+    public int NumberOfCopies { get; set; } = 1;
+    public bool Collate { get; set; } = true;
 
     public int? PagesCount { get; set; }
     public event EventHandler PagesCountChanged;
@@ -37,6 +42,8 @@ public class Printer
         currentStartPosition = 0;
         pagesCount = 0;
         PagesCount = null;
+        documentCopiesLeft = NumberOfCopies;
+        pageCopiesLeft = NumberOfCopies;
     }
 
     private void Document_PrintPage(object sender, PrintPageEventArgs e)
@@ -49,6 +56,7 @@ public class Printer
 
         float lineHeight = font.GetHeight(e.Graphics);
         float verticalOffset = 0f;
+        int startPositionForCurrentPage = currentStartPosition;
 
         do
         {
@@ -100,8 +108,39 @@ public class Printer
         while (((float)e.MarginBounds.Height - verticalOffset >= lineHeight) // enough space for the next line on current page
                && (currentStartPosition < allText.Length));
 
-        pagesCount++;
-        e.HasMorePages = currentStartPosition < allText.Length;
+        if (Collate) // All pages of the document, then next document
+        {
+            // Count pages only if the last copy
+            if (documentCopiesLeft >= 0)
+                pagesCount++;
+
+            if (currentStartPosition >= allText.Length) // ==
+            {
+                documentCopiesLeft--;
+                currentStartPosition = 0; // restart the document on next iteration
+                e.HasMorePages = documentCopiesLeft > 0;
+            }
+            else
+            {
+                e.HasMorePages = true;
+            }
+        }
+        else // All copies of the page, then next page
+        {
+            pageCopiesLeft--;
+            if (pageCopiesLeft > 0)
+            {
+                currentStartPosition = startPositionForCurrentPage; // restart the page on next iteration
+                e.HasMorePages = true;
+            }
+            else
+            {
+                // Next page on next iteration
+                pagesCount++;
+                pageCopiesLeft = NumberOfCopies;
+                e.HasMorePages = currentStartPosition < allText.Length;
+            }
+        }
     }
 
     private void Document_EndPrint(object sender, PrintEventArgs e)

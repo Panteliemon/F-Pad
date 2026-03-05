@@ -102,6 +102,7 @@ partial class PrintWindow
         chPrintToFile.TabIndex = 11;
         chPrintToFile.Text = "Print to File";
         chPrintToFile.UseVisualStyleBackColor = true;
+        chPrintToFile.Visible = false;
         // 
         // bPrinterProperties
         // 
@@ -243,8 +244,6 @@ partial class PrintWindow
         tbTo.Name = "tbTo";
         tbTo.Size = new System.Drawing.Size(43, 23);
         tbTo.TabIndex = 3;
-
-
         // 
         // tbFrom
         // 
@@ -252,8 +251,6 @@ partial class PrintWindow
         tbFrom.Name = "tbFrom";
         tbFrom.Size = new System.Drawing.Size(43, 23);
         tbFrom.TabIndex = 2;
- 
-       
         // 
         // rbPageRange
         // 
@@ -413,8 +410,6 @@ partial class PrintWindow
         tbCurrentPage.Name = "tbCurrentPage";
         tbCurrentPage.Size = new System.Drawing.Size(54, 23);
         tbCurrentPage.TabIndex = 9;
-
-      
         // 
         // lOfPageCount
         // 

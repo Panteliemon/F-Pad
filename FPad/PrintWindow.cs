@@ -64,6 +64,10 @@ public partial class PrintWindow : Form
         tbToEditFinished.EditFinished += TbTo_EditFinished;
         tbCurrentPageEditFinished.EditFinished += TbCurrentPage_EditFinished;
 
+        chPrintToFile.Checked = document.PrinterSettings.PrintToFile; // not supported, hidden
+        tbNumberOfCopies.Value = printer.NumberOfCopies;
+        chCollate.Checked = printer.Collate;
+
         rbAll.Checked = true;
         rbPageRange.Checked = false;
         UpdatePagesEnabled();
@@ -85,6 +89,23 @@ public partial class PrintWindow : Form
     private void bOk_Click(object sender, EventArgs e)
     {
         DialogResult = DialogResult.OK;
+
+        printPreview.Document = null; // to avoid possible future calls from the control
+
+        document.PrinterSettings.PrintToFile = chPrintToFile.Checked;
+        printer.NumberOfCopies = (short)tbNumberOfCopies.Value;
+        printer.Collate = chCollate.Checked;
+        if (rbPageRange.Checked)
+        {
+            document.PrinterSettings.FromPage = pageFrom;
+            document.PrinterSettings.ToPage = pageTo;
+        }
+        else
+        {
+            document.PrinterSettings.FromPage = 0;
+            document.PrinterSettings.ToPage = 0;
+        }
+
         Close();
     }
 
