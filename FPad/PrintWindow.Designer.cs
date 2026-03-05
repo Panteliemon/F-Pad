@@ -50,6 +50,7 @@ partial class PrintWindow
         rbPageRange = new System.Windows.Forms.RadioButton();
         rbAll = new System.Windows.Forms.RadioButton();
         groupBox3 = new System.Windows.Forms.GroupBox();
+        collatePic = new System.Windows.Forms.PictureBox();
         tbNumberOfCopies = new System.Windows.Forms.NumericUpDown();
         chCollate = new System.Windows.Forms.CheckBox();
         label7 = new System.Windows.Forms.Label();
@@ -67,6 +68,7 @@ partial class PrintWindow
         groupBox1.SuspendLayout();
         groupBox2.SuspendLayout();
         groupBox3.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)collatePic).BeginInit();
         ((System.ComponentModel.ISupportInitialize)tbNumberOfCopies).BeginInit();
         groupBox4.SuspendLayout();
         panel1.SuspendLayout();
@@ -215,7 +217,7 @@ partial class PrintWindow
         groupBox2.Controls.Add(rbAll);
         groupBox2.Location = new System.Drawing.Point(6, 195);
         groupBox2.Name = "groupBox2";
-        groupBox2.Size = new System.Drawing.Size(163, 119);
+        groupBox2.Size = new System.Drawing.Size(163, 137);
         groupBox2.TabIndex = 1;
         groupBox2.TabStop = false;
         groupBox2.Text = "Print Range";
@@ -278,15 +280,25 @@ partial class PrintWindow
         // 
         // groupBox3
         // 
+        groupBox3.Controls.Add(collatePic);
         groupBox3.Controls.Add(tbNumberOfCopies);
         groupBox3.Controls.Add(chCollate);
         groupBox3.Controls.Add(label7);
         groupBox3.Location = new System.Drawing.Point(175, 195);
         groupBox3.Name = "groupBox3";
-        groupBox3.Size = new System.Drawing.Size(184, 119);
+        groupBox3.Size = new System.Drawing.Size(184, 137);
         groupBox3.TabIndex = 2;
         groupBox3.TabStop = false;
         groupBox3.Text = "Copies";
+        // 
+        // collatePic
+        // 
+        collatePic.Location = new System.Drawing.Point(6, 72);
+        collatePic.Name = "collatePic";
+        collatePic.Size = new System.Drawing.Size(172, 58);
+        collatePic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+        collatePic.TabIndex = 4;
+        collatePic.TabStop = false;
         // 
         // tbNumberOfCopies
         // 
@@ -306,6 +318,7 @@ partial class PrintWindow
         chCollate.TabIndex = 2;
         chCollate.Text = "Collate";
         chCollate.UseVisualStyleBackColor = true;
+        chCollate.CheckedChanged += chCollate_CheckedChanged;
         // 
         // label7
         // 
@@ -445,6 +458,7 @@ partial class PrintWindow
         groupBox2.PerformLayout();
         groupBox3.ResumeLayout(false);
         groupBox3.PerformLayout();
+        ((System.ComponentModel.ISupportInitialize)collatePic).EndInit();
         ((System.ComponentModel.ISupportInitialize)tbNumberOfCopies).EndInit();
         groupBox4.ResumeLayout(false);
         panel1.ResumeLayout(false);
@@ -489,4 +503,5 @@ partial class PrintWindow
     private System.Windows.Forms.Panel panel1;
     private System.Windows.Forms.Label lOfPageCount;
     private System.Windows.Forms.TextBox tbCurrentPage;
+    private System.Windows.Forms.PictureBox collatePic;
 }

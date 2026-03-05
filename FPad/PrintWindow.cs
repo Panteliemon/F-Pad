@@ -32,6 +32,9 @@ public partial class PrintWindow : Form
     private int pageTo;
     private int pagesCount;
 
+    private Image imgCollateOn;
+    private Image imgCollateOff;
+
     private PrintWindow(Printer printer)
     {
         this.printer = printer;
@@ -41,6 +44,8 @@ public partial class PrintWindow : Form
 
         Text = "Print Options – " + App.TITLE;
         Icon = App.Icon;
+        imgCollateOn = App.LoadImage("collate_on_172.png");
+        imgCollateOff = App.LoadImage("collate_off_172.png");
 
         DialogResult = DialogResult.Cancel;
 
@@ -72,6 +77,7 @@ public partial class PrintWindow : Form
         rbPageRange.Checked = false;
         UpdatePagesEnabled();
         UpdatePrevNextEnabled();
+        UpdateCollatePic();
 
         printer.PagesCountChanged += Printer_PagesCountChanged;
 
@@ -259,6 +265,12 @@ public partial class PrintWindow : Form
             tbTo.SelectAll();
     }
 
+    private void chCollate_CheckedChanged(object sender, EventArgs e)
+    {
+        if (enableHandlers)
+            UpdateCollatePic();
+    }
+
     private void TbCurrentPage_EditFinished(object sender, string e)
     {
         bool isGood = false;
@@ -349,6 +361,11 @@ public partial class PrintWindow : Form
     {
         bPrevPage.Enabled = pagesCount > 0 && (printPreview.StartPage > 0);
         pNextPage.Enabled = pagesCount > 0 && (printPreview.StartPage + 1 < pagesCount);
+    }
+
+    private void UpdateCollatePic()
+    {
+        collatePic.Image = chCollate.Checked ? imgCollateOn : imgCollateOff;
     }
 
     private void ShowPagesFromTo()

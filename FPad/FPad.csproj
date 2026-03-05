@@ -48,6 +48,8 @@
     <EmbeddedResource Include="Resources\howto_1_3.png" />
     <EmbeddedResource Include="Resources\howto_2_1.png" />
     <EmbeddedResource Include="Resources\howto_2_2.png" />
+    <EmbeddedResource Include="Resources\collate_on_172.png" />
+    <EmbeddedResource Include="Resources\collate_off_172.png" />
   </ItemGroup>
 
   <ItemGroup>
