@@ -97,13 +97,13 @@ public partial class PrintWindow : Form
         printer.Collate = chCollate.Checked;
         if (rbPageRange.Checked)
         {
-            document.PrinterSettings.FromPage = pageFrom;
-            document.PrinterSettings.ToPage = pageTo;
+            printer.PageFrom = pageFrom;
+            printer.PageTo = pageTo;
         }
         else
         {
-            document.PrinterSettings.FromPage = 0;
-            document.PrinterSettings.ToPage = 0;
+            printer.PageFrom = 0;
+            printer.PageTo = 0;
         }
 
         Close();
