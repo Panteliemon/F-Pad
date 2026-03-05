@@ -66,7 +66,7 @@ public class Printer
         ReadOnlySpan<char> allTextSpan = allText.AsSpan();
 
         // Outer cycle skips over pages excluded from printing
-        bool anythingPrinted = false;
+        bool printed = false;
         do
         {
             // DrawString line by line, because multiline one reports like lines fit, while
@@ -76,6 +76,7 @@ public class Printer
             float lineHeight = font.GetHeight(e.Graphics);
             float verticalOffset = 0f;
             int startPositionForCurrentPage = currentStartPosition;
+            bool isCurrentPageIncluded = IsPageIncluded(currentPage);
 
             do
             {
@@ -109,11 +110,10 @@ public class Printer
                                 }
                             }
 
-                            if (IsPageIncluded(currentPage))
+                            if (isCurrentPageIncluded)
                             {
                                 e.Graphics.DrawString(printableLine, font, Brushes.Black,
                                     new PointF(e.MarginBounds.Left, e.MarginBounds.Top + verticalOffset));
-                                anythingPrinted = true;
                             }
                         }
 
@@ -130,6 +130,9 @@ public class Printer
             }
             while (((float)e.MarginBounds.Height - verticalOffset >= lineHeight) // enough space for the next line on current page
                    && (currentStartPosition < allText.Length));
+
+            if (isCurrentPageIncluded)
+                printed = true;
 
             if (Collate) // All pages of the document, then next document
             {
@@ -149,7 +152,7 @@ public class Printer
                     currentPage++;
                     e.HasMorePages = true;
                     // Went out of printable range when printing last copy:
-                    if (anythingPrinted && !IsPageIncluded(currentPage) && (documentCopiesLeft <= 1))
+                    if (isCurrentPageIncluded && !IsPageIncluded(currentPage) && (documentCopiesLeft <= 1))
                         e.HasMorePages = false;
                 }
             }
@@ -169,11 +172,11 @@ public class Printer
                     pageCopiesLeft = NumberOfCopies;
                     e.HasMorePages = currentStartPosition < allText.Length;
                     // Went out of printable range
-                    if (anythingPrinted && !IsPageIncluded(currentPage))
+                    if (isCurrentPageIncluded && !IsPageIncluded(currentPage))
                         e.HasMorePages = false;
                 }
             }
-        } while (!anythingPrinted && e.HasMorePages);
+        } while (!printed && e.HasMorePages);
     }
 
     private void Document_EndPrint(object sender, PrintEventArgs e)
