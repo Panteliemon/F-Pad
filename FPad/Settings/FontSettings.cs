@@ -8,6 +8,9 @@ namespace FPad.Settings;
 
 public class FontSettings
 {
+    public const int MIN_SIZE = 5;
+    public const int MAX_SIZE = 128;
+
     public string Family { get; set; }
     public int Size { get; set; }
     public bool IsBold { get; set; }

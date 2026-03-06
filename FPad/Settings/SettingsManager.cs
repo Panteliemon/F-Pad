@@ -317,7 +317,7 @@ public static class SettingsManager
             if (!string.IsNullOrEmpty(dto.Name))
                 dest.Family = dto.Name;
 
-            if ((dto.Size >= 5) && (dto.Size <= 128))
+            if ((dto.Size >= FontSettings.MIN_SIZE) && (dto.Size <= FontSettings.MAX_SIZE))
                 dest.Size = dto.Size;
 
             dest.IsBold = dto.IsBold == "1";
