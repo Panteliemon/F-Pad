@@ -126,7 +126,7 @@ partial class FontPicker
         Controls.Add(cbFontName);
         Controls.Add(label1);
         Name = "FontPicker";
-        Size = new System.Drawing.Size(339, 101);
+        Size = new System.Drawing.Size(339, 103);
         ((System.ComponentModel.ISupportInitialize)tbSize).EndInit();
         ((System.ComponentModel.ISupportInitialize)slSize).EndInit();
         ResumeLayout(false);

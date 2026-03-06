@@ -65,7 +65,7 @@ partial class SettingsDialog
         // label2
         // 
         label2.AutoSize = true;
-        label2.Location = new System.Drawing.Point(6, 110);
+        label2.Location = new System.Drawing.Point(6, 112);
         label2.Name = "label2";
         label2.Size = new System.Drawing.Size(51, 15);
         label2.TabIndex = 3;
@@ -75,11 +75,11 @@ partial class SettingsDialog
         // 
         exampleText.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
         exampleText.BackColor = System.Drawing.SystemColors.Window;
-        exampleText.Location = new System.Drawing.Point(6, 128);
+        exampleText.Location = new System.Drawing.Point(6, 130);
         exampleText.Multiline = true;
         exampleText.Name = "exampleText";
         exampleText.ReadOnly = true;
-        exampleText.Size = new System.Drawing.Size(544, 147);
+        exampleText.Size = new System.Drawing.Size(544, 145);
         exampleText.TabIndex = 6;
         // 
         // bSave
@@ -208,7 +208,7 @@ partial class SettingsDialog
         // 
         fontPickerMain.Location = new System.Drawing.Point(6, 6);
         fontPickerMain.Name = "fontPickerMain";
-        fontPickerMain.Size = new System.Drawing.Size(348, 101);
+        fontPickerMain.Size = new System.Drawing.Size(348, 103);
         fontPickerMain.TabIndex = 8;
         fontPickerMain.Changed += fontPickerMain_Changed;
         // 
