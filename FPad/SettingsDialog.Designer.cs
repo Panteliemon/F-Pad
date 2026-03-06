@@ -30,14 +30,7 @@ partial class SettingsDialog
     {
         components = new System.ComponentModel.Container();
         chWrap = new System.Windows.Forms.CheckBox();
-        chItalic = new System.Windows.Forms.CheckBox();
-        chBold = new System.Windows.Forms.CheckBox();
-        tbFontSize = new System.Windows.Forms.NumericUpDown();
-        label3 = new System.Windows.Forms.Label();
-        slFontSize = new System.Windows.Forms.TrackBar();
         label2 = new System.Windows.Forms.Label();
-        cbFonts = new System.Windows.Forms.ComboBox();
-        label1 = new System.Windows.Forms.Label();
         exampleText = new System.Windows.Forms.TextBox();
         bSave = new System.Windows.Forms.Button();
         bCancel = new System.Windows.Forms.Button();
@@ -51,8 +44,7 @@ partial class SettingsDialog
         bAssociateCurrentUser = new System.Windows.Forms.Button();
         bAssociateAllUsers = new System.Windows.Forms.Button();
         tabPage2 = new System.Windows.Forms.TabPage();
-        ((System.ComponentModel.ISupportInitialize)tbFontSize).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)slFontSize).BeginInit();
+        fontPickerMain = new FPad.Controls.FontPicker();
         tabControl1.SuspendLayout();
         tabPage1.SuspendLayout();
         tabPage2.SuspendLayout();
@@ -70,100 +62,24 @@ partial class SettingsDialog
         chWrap.UseVisualStyleBackColor = true;
         chWrap.CheckedChanged += chWrap_CheckedChanged;
         // 
-        // chItalic
-        // 
-        chItalic.AutoSize = true;
-        chItalic.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic);
-        chItalic.Location = new System.Drawing.Point(380, 23);
-        chItalic.Name = "chItalic";
-        chItalic.Size = new System.Drawing.Size(51, 19);
-        chItalic.TabIndex = 3;
-        chItalic.Text = "Italic";
-        chItalic.UseVisualStyleBackColor = true;
-        chItalic.CheckedChanged += chItalic_CheckedChanged;
-        // 
-        // chBold
-        // 
-        chBold.AutoSize = true;
-        chBold.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-        chBold.Location = new System.Drawing.Point(291, 23);
-        chBold.Name = "chBold";
-        chBold.Size = new System.Drawing.Size(51, 19);
-        chBold.TabIndex = 2;
-        chBold.Text = "Bold";
-        chBold.UseVisualStyleBackColor = true;
-        chBold.CheckedChanged += chBold_CheckedChanged;
-        // 
-        // tbFontSize
-        // 
-        tbFontSize.Location = new System.Drawing.Point(60, 50);
-        tbFontSize.Maximum = new decimal(new int[] { 128, 0, 0, 0 });
-        tbFontSize.Minimum = new decimal(new int[] { 5, 0, 0, 0 });
-        tbFontSize.Name = "tbFontSize";
-        tbFontSize.Size = new System.Drawing.Size(73, 23);
-        tbFontSize.TabIndex = 4;
-        tbFontSize.Value = new decimal(new int[] { 5, 0, 0, 0 });
-        tbFontSize.ValueChanged += tbFontSize_ValueChanged;
-        // 
-        // label3
-        // 
-        label3.AutoSize = true;
-        label3.Location = new System.Drawing.Point(6, 52);
-        label3.Name = "label3";
-        label3.Size = new System.Drawing.Size(30, 15);
-        label3.TabIndex = 5;
-        label3.Text = "Size:";
-        // 
-        // slFontSize
-        // 
-        slFontSize.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-        slFontSize.BackColor = System.Drawing.SystemColors.Control;
-        slFontSize.Location = new System.Drawing.Point(6, 79);
-        slFontSize.Maximum = 36;
-        slFontSize.Minimum = 5;
-        slFontSize.Name = "slFontSize";
-        slFontSize.Size = new System.Drawing.Size(492, 45);
-        slFontSize.TabIndex = 5;
-        slFontSize.Value = 5;
-        slFontSize.Scroll += slFontSize_Scroll;
-        // 
         // label2
         // 
         label2.AutoSize = true;
-        label2.Location = new System.Drawing.Point(6, 133);
+        label2.Location = new System.Drawing.Point(6, 110);
         label2.Name = "label2";
         label2.Size = new System.Drawing.Size(51, 15);
         label2.TabIndex = 3;
         label2.Text = "Preview:";
         // 
-        // cbFonts
-        // 
-        cbFonts.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-        cbFonts.FormattingEnabled = true;
-        cbFonts.Location = new System.Drawing.Point(6, 21);
-        cbFonts.Name = "cbFonts";
-        cbFonts.Size = new System.Drawing.Size(265, 23);
-        cbFonts.TabIndex = 1;
-        cbFonts.SelectedIndexChanged += cbFonts_SelectedIndexChanged;
-        // 
-        // label1
-        // 
-        label1.AutoSize = true;
-        label1.Location = new System.Drawing.Point(6, 3);
-        label1.Name = "label1";
-        label1.Size = new System.Drawing.Size(42, 15);
-        label1.TabIndex = 1;
-        label1.Text = "Name:";
-        // 
         // exampleText
         // 
         exampleText.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
         exampleText.BackColor = System.Drawing.SystemColors.Window;
-        exampleText.Location = new System.Drawing.Point(6, 151);
+        exampleText.Location = new System.Drawing.Point(6, 128);
         exampleText.Multiline = true;
         exampleText.Name = "exampleText";
         exampleText.ReadOnly = true;
-        exampleText.Size = new System.Drawing.Size(492, 124);
+        exampleText.Size = new System.Drawing.Size(544, 147);
         exampleText.TabIndex = 6;
         // 
         // bSave
@@ -277,22 +193,24 @@ partial class SettingsDialog
         // tabPage2
         // 
         tabPage2.BackColor = System.Drawing.SystemColors.Control;
+        tabPage2.Controls.Add(fontPickerMain);
         tabPage2.Controls.Add(chWrap);
-        tabPage2.Controls.Add(label1);
         tabPage2.Controls.Add(exampleText);
         tabPage2.Controls.Add(label2);
-        tabPage2.Controls.Add(slFontSize);
-        tabPage2.Controls.Add(tbFontSize);
-        tabPage2.Controls.Add(chItalic);
-        tabPage2.Controls.Add(label3);
-        tabPage2.Controls.Add(cbFonts);
-        tabPage2.Controls.Add(chBold);
         tabPage2.Location = new System.Drawing.Point(4, 24);
         tabPage2.Name = "tabPage2";
         tabPage2.Padding = new System.Windows.Forms.Padding(3);
         tabPage2.Size = new System.Drawing.Size(556, 329);
         tabPage2.TabIndex = 1;
         tabPage2.Text = "Font";
+        // 
+        // fontPickerMain
+        // 
+        fontPickerMain.Location = new System.Drawing.Point(6, 6);
+        fontPickerMain.Name = "fontPickerMain";
+        fontPickerMain.Size = new System.Drawing.Size(348, 101);
+        fontPickerMain.TabIndex = 8;
+        fontPickerMain.Changed += fontPickerMain_Changed;
         // 
         // SettingsDialog
         // 
@@ -308,8 +226,6 @@ partial class SettingsDialog
         Name = "SettingsDialog";
         StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
         Load += SettingsDialog_Load;
-        ((System.ComponentModel.ISupportInitialize)tbFontSize).EndInit();
-        ((System.ComponentModel.ISupportInitialize)slFontSize).EndInit();
         tabControl1.ResumeLayout(false);
         tabPage1.ResumeLayout(false);
         tabPage1.PerformLayout();
@@ -323,13 +239,6 @@ partial class SettingsDialog
     private System.Windows.Forms.Button bCancel;
     private System.Windows.Forms.TextBox exampleText;
     private System.Windows.Forms.Label label2;
-    private System.Windows.Forms.ComboBox cbFonts;
-    private System.Windows.Forms.Label label1;
-    private System.Windows.Forms.NumericUpDown tbFontSize;
-    private System.Windows.Forms.Label label3;
-    private System.Windows.Forms.TrackBar slFontSize;
-    private System.Windows.Forms.CheckBox chItalic;
-    private System.Windows.Forms.CheckBox chBold;
     private System.Windows.Forms.CheckBox chWrap;
     private System.Windows.Forms.CheckBox chAutoReload;
     private System.Windows.Forms.ToolTip toolTip;
@@ -341,4 +250,5 @@ partial class SettingsDialog
     private System.Windows.Forms.TabPage tabPage2;
     private System.Windows.Forms.Button bAssociateAllUsers;
     private System.Windows.Forms.Button bAssociateCurrentUser;
+    private Controls.FontPicker fontPickerMain;
 }

@@ -37,7 +37,7 @@ public partial class FontPicker : UserControl
         enableHandlers = true;
     }
 
-    public void DisplaySettings(FontSettings fontSettings)
+    public void DisplayFont(FontSettings fontSettings)
     {
         enableHandlers = false;
 
@@ -51,7 +51,7 @@ public partial class FontPicker : UserControl
         enableHandlers = true;
     }
 
-    public void SaveSettings(FontSettings dest)
+    public void SaveFont(FontSettings dest)
     {
         if (cbFontName.SelectedIndex >= 0)
             dest.Family = families[cbFontName.SelectedIndex].Name;

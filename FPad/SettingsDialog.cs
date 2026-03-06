@@ -1,5 +1,6 @@
 ﻿using FPad.Controls;
 using FPad.Encodings;
+using FPad.Settings;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,11 +17,12 @@ namespace FPad;
 
 public partial class SettingsDialog : Form
 {
+    /// <summary>
+    /// For display in this window only.
+    /// </summary>
+    private FontSettings innerFontSettings = FontSettings.Default();
     private bool enableHandlers = false;
 
-    private FontFamily[] fontFamilies;
-    private FontFamily selectedFontFamily;
-    private int selectedFontSize;
     private EncodingVm[] encodings;
 
     public bool Result { get; private set; }
@@ -30,16 +32,7 @@ public partial class SettingsDialog : Form
         InitializeComponent();
         Icon = App.Icon;
 
-        selectedFontSize = App.Settings.Font.Size;
-        SetSliderValue();
-        tbFontSize.Value = selectedFontSize;
-
-        fontFamilies = FontFamily.Families.OrderBy(x => x.Name).ToArray();
-        selectedFontFamily = FontUtils.GetFontFamilyByString(App.Settings.Font.Family, fontFamilies, FontCategory.Monospace);
-
-        cbFonts.Items.AddRange(fontFamilies);
-        cbFonts.DisplayMember = nameof(FontFamily.Name);
-        cbFonts.SelectedIndex = Array.FindIndex(fontFamilies, x => x == selectedFontFamily);
+        fontPickerMain.DisplayFont(App.Settings.Font);
 
         encodings = EncodingManager.Encodings.ToArray();
         EncodingVm currentDefaultEncoding = EncodingManager.GetDefaultEncoding();
@@ -47,8 +40,6 @@ public partial class SettingsDialog : Form
         cbEncodings.DisplayMember = nameof(EncodingVm.DisplayName);
         cbEncodings.SelectedIndex = Array.FindIndex(encodings, x => x == currentDefaultEncoding);
 
-        chBold.Checked = App.Settings.Font.IsBold;
-        chItalic.Checked = App.Settings.Font.IsItalic;
         chAutoReload.Checked = App.Settings.AutoReload;
 
         chWrap.Checked = App.Settings.Wrap;
@@ -74,13 +65,8 @@ public partial class SettingsDialog : Form
 
     private void ApplyFont()
     {
-        exampleText.Font = FontUtils.GetFontByParameters(selectedFontFamily, selectedFontSize, chBold.Checked, chItalic.Checked);
-    }
-
-    private void SetSliderValue()
-    {
-        slFontSize.Value = (selectedFontSize > slFontSize.Maximum)
-            ? slFontSize.Maximum : selectedFontSize;
+        fontPickerMain.SaveFont(innerFontSettings);
+        exampleText.Font = FontUtils.GetFontBySettings(innerFontSettings, FontCategory.Monospace);
     }
 
     #region Event Handlers
@@ -90,7 +76,7 @@ public partial class SettingsDialog : Form
         ApplyFont();
 
         exampleText.Select(0, 0);
-        BeginInvoke(() => tabControl1.Focus());        
+        BeginInvoke(() => tabControl1.Focus());
     }
 
     private void bCancel_Click(object sender, EventArgs e)
@@ -102,66 +88,16 @@ public partial class SettingsDialog : Form
     private void bSave_Click(object sender, EventArgs e)
     {
         Result = true;
-        App.Settings.Font.Family = selectedFontFamily.Name;
-        App.Settings.Font.Size = selectedFontSize;
-        App.Settings.Font.IsBold = chBold.Checked;
-        App.Settings.Font.IsItalic = chItalic.Checked;
+        fontPickerMain.SaveFont(App.Settings.Font);
         App.Settings.AutoReload = chAutoReload.Checked;
         App.Settings.DefaultEncodingWebName = (cbEncodings.SelectedIndex >= 0)
             ? encodings[cbEncodings.SelectedIndex].Encoding.WebName : null;
         Close();
     }
 
-    private void cbFonts_SelectedIndexChanged(object sender, EventArgs e)
+    private void fontPickerMain_Changed(object sender, EventArgs e)
     {
-        if (!enableHandlers)
-            return;
-
-        selectedFontFamily = fontFamilies[cbFonts.SelectedIndex];
         ApplyFont();
-    }
-
-    private void tbFontSize_ValueChanged(object sender, EventArgs e)
-    {
-        if (enableHandlers)
-        {
-            selectedFontSize = (int)Math.Round(tbFontSize.Value);
-
-            enableHandlers = false;
-            SetSliderValue();
-            enableHandlers = true;
-
-            ApplyFont();
-        }
-    }
-
-    private void slFontSize_Scroll(object sender, EventArgs e)
-    {
-        if (enableHandlers)
-        {
-            enableHandlers = false;
-            tbFontSize.Value = slFontSize.Value;
-            enableHandlers = true;
-
-            selectedFontSize = slFontSize.Value;
-            ApplyFont();
-        }
-    }
-
-    private void chBold_CheckedChanged(object sender, EventArgs e)
-    {
-        if (enableHandlers)
-        {
-            ApplyFont();
-        }
-    }
-
-    private void chItalic_CheckedChanged(object sender, EventArgs e)
-    {
-        if (enableHandlers)
-        {
-            ApplyFont();
-        }
     }
 
     private void chWrap_CheckedChanged(object sender, EventArgs e)
