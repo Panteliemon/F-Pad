@@ -45,9 +45,15 @@ partial class SettingsDialog
         bAssociateAllUsers = new System.Windows.Forms.Button();
         tabPage2 = new System.Windows.Forms.TabPage();
         fontPickerMain = new FPad.Controls.FontPicker();
+        tabPage3 = new System.Windows.Forms.TabPage();
+        gbPrintSettingsPreview = new System.Windows.Forms.GroupBox();
+        pPrintSettingsContainer = new System.Windows.Forms.Panel();
+        printSettingsEditor1 = new FPad.Controls.PrintSettingsEditor();
         tabControl1.SuspendLayout();
         tabPage1.SuspendLayout();
         tabPage2.SuspendLayout();
+        tabPage3.SuspendLayout();
+        pPrintSettingsContainer.SuspendLayout();
         SuspendLayout();
         // 
         // chWrap
@@ -135,8 +141,9 @@ partial class SettingsDialog
         // 
         // label5
         // 
+        label5.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
         label5.AutoSize = true;
-        label5.Location = new System.Drawing.Point(6, 137);
+        label5.Location = new System.Drawing.Point(6, 273);
         label5.Name = "label5";
         label5.Size = new System.Drawing.Size(31, 15);
         label5.TabIndex = 12;
@@ -147,6 +154,7 @@ partial class SettingsDialog
         tabControl1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
         tabControl1.Controls.Add(tabPage1);
         tabControl1.Controls.Add(tabPage2);
+        tabControl1.Controls.Add(tabPage3);
         tabControl1.Location = new System.Drawing.Point(6, 6);
         tabControl1.Name = "tabControl1";
         tabControl1.SelectedIndex = 0;
@@ -171,7 +179,8 @@ partial class SettingsDialog
         // 
         // bAssociateCurrentUser
         // 
-        bAssociateCurrentUser.Location = new System.Drawing.Point(177, 155);
+        bAssociateCurrentUser.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+        bAssociateCurrentUser.Location = new System.Drawing.Point(177, 291);
         bAssociateCurrentUser.Name = "bAssociateCurrentUser";
         bAssociateCurrentUser.Size = new System.Drawing.Size(166, 32);
         bAssociateCurrentUser.TabIndex = 14;
@@ -181,8 +190,9 @@ partial class SettingsDialog
         // 
         // bAssociateAllUsers
         // 
+        bAssociateAllUsers.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
         bAssociateAllUsers.FlatStyle = System.Windows.Forms.FlatStyle.System;
-        bAssociateAllUsers.Location = new System.Drawing.Point(6, 155);
+        bAssociateAllUsers.Location = new System.Drawing.Point(6, 291);
         bAssociateAllUsers.Name = "bAssociateAllUsers";
         bAssociateAllUsers.Size = new System.Drawing.Size(165, 32);
         bAssociateAllUsers.TabIndex = 13;
@@ -212,6 +222,47 @@ partial class SettingsDialog
         fontPickerMain.TabIndex = 8;
         fontPickerMain.Changed += fontPickerMain_Changed;
         // 
+        // tabPage3
+        // 
+        tabPage3.BackColor = System.Drawing.SystemColors.Control;
+        tabPage3.Controls.Add(gbPrintSettingsPreview);
+        tabPage3.Controls.Add(pPrintSettingsContainer);
+        tabPage3.Location = new System.Drawing.Point(4, 24);
+        tabPage3.Name = "tabPage3";
+        tabPage3.Padding = new System.Windows.Forms.Padding(3);
+        tabPage3.Size = new System.Drawing.Size(556, 329);
+        tabPage3.TabIndex = 2;
+        tabPage3.Text = "Print";
+        // 
+        // gbPrintSettingsPreview
+        // 
+        gbPrintSettingsPreview.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        gbPrintSettingsPreview.Location = new System.Drawing.Point(6, 244);
+        gbPrintSettingsPreview.Name = "gbPrintSettingsPreview";
+        gbPrintSettingsPreview.Size = new System.Drawing.Size(544, 79);
+        gbPrintSettingsPreview.TabIndex = 1;
+        gbPrintSettingsPreview.TabStop = false;
+        gbPrintSettingsPreview.Text = "Preview";
+        // 
+        // pPrintSettingsContainer
+        // 
+        pPrintSettingsContainer.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        pPrintSettingsContainer.AutoScroll = true;
+        pPrintSettingsContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+        pPrintSettingsContainer.Controls.Add(printSettingsEditor1);
+        pPrintSettingsContainer.Location = new System.Drawing.Point(6, 6);
+        pPrintSettingsContainer.Name = "pPrintSettingsContainer";
+        pPrintSettingsContainer.Size = new System.Drawing.Size(544, 232);
+        pPrintSettingsContainer.TabIndex = 0;
+        // 
+        // printSettingsEditor1
+        // 
+        printSettingsEditor1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        printSettingsEditor1.Location = new System.Drawing.Point(3, 3);
+        printSettingsEditor1.Name = "printSettingsEditor1";
+        printSettingsEditor1.Size = new System.Drawing.Size(536, 44);
+        printSettingsEditor1.TabIndex = 0;
+        // 
         // SettingsDialog
         // 
         AcceptButton = bSave;
@@ -231,6 +282,8 @@ partial class SettingsDialog
         tabPage1.PerformLayout();
         tabPage2.ResumeLayout(false);
         tabPage2.PerformLayout();
+        tabPage3.ResumeLayout(false);
+        pPrintSettingsContainer.ResumeLayout(false);
         ResumeLayout(false);
     }
 
@@ -251,4 +304,8 @@ partial class SettingsDialog
     private System.Windows.Forms.Button bAssociateAllUsers;
     private System.Windows.Forms.Button bAssociateCurrentUser;
     private Controls.FontPicker fontPickerMain;
+    private System.Windows.Forms.TabPage tabPage3;
+    private System.Windows.Forms.GroupBox gbPrintSettingsPreview;
+    private System.Windows.Forms.Panel pPrintSettingsContainer;
+    private Controls.PrintSettingsEditor printSettingsEditor1;
 }
