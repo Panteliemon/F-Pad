@@ -87,10 +87,10 @@ namespace FPad
 
                 if ((flags & SettingsFlags.Font) != 0)
                 {
-                    destSettings.FontFamily = Settings.FontFamily;
-                    destSettings.FontSize = Settings.FontSize;
-                    destSettings.IsBold = Settings.IsBold;
-                    destSettings.IsItalic = Settings.IsItalic;
+                    destSettings.Font.Family = Settings.Font.Family;
+                    destSettings.Font.Size = Settings.Font.Size;
+                    destSettings.Font.IsBold = Settings.Font.IsBold;
+                    destSettings.Font.IsItalic = Settings.Font.IsItalic;
                 }
 
                 if ((flags & SettingsFlags.Wrap) != 0)

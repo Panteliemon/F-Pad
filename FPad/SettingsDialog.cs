@@ -30,12 +30,12 @@ public partial class SettingsDialog : Form
         InitializeComponent();
         Icon = App.Icon;
 
-        selectedFontSize = App.Settings.FontSize;
+        selectedFontSize = App.Settings.Font.Size;
         SetSliderValue();
         tbFontSize.Value = selectedFontSize;
 
         fontFamilies = FontFamily.Families.OrderBy(x => x.Name).ToArray();
-        selectedFontFamily = FontUtils.GetFontFamilyByString(App.Settings.FontFamily, fontFamilies);
+        selectedFontFamily = FontUtils.GetFontFamilyByString(App.Settings.Font.Family, fontFamilies, FontCategory.Monospace);
 
         cbFonts.Items.AddRange(fontFamilies);
         cbFonts.DisplayMember = nameof(FontFamily.Name);
@@ -47,8 +47,8 @@ public partial class SettingsDialog : Form
         cbEncodings.DisplayMember = nameof(EncodingVm.DisplayName);
         cbEncodings.SelectedIndex = Array.FindIndex(encodings, x => x == currentDefaultEncoding);
 
-        chBold.Checked = App.Settings.IsBold;
-        chItalic.Checked = App.Settings.IsItalic;
+        chBold.Checked = App.Settings.Font.IsBold;
+        chItalic.Checked = App.Settings.Font.IsItalic;
         chAutoReload.Checked = App.Settings.AutoReload;
 
         chWrap.Checked = App.Settings.Wrap;
@@ -102,10 +102,10 @@ public partial class SettingsDialog : Form
     private void bSave_Click(object sender, EventArgs e)
     {
         Result = true;
-        App.Settings.FontFamily = selectedFontFamily.Name;
-        App.Settings.FontSize = selectedFontSize;
-        App.Settings.IsBold = chBold.Checked;
-        App.Settings.IsItalic = chItalic.Checked;
+        App.Settings.Font.Family = selectedFontFamily.Name;
+        App.Settings.Font.Size = selectedFontSize;
+        App.Settings.Font.IsBold = chBold.Checked;
+        App.Settings.Font.IsItalic = chItalic.Checked;
         App.Settings.AutoReload = chAutoReload.Checked;
         App.Settings.DefaultEncodingWebName = (cbEncodings.SelectedIndex >= 0)
             ? encodings[cbEncodings.SelectedIndex].Encoding.WebName : null;

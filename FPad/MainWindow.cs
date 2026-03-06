@@ -1101,7 +1101,7 @@ namespace FPad
 
         private void ApplySettings()
         {
-            text.Font = FontUtils.GetFontBySettings(App.Settings);
+            text.Font = FontUtils.GetFontBySettings(App.Settings.Font, FontCategory.Monospace);
 
             text.WordWrap = App.Settings.Wrap;
             wrapLinesMenuItem.Checked = App.Settings.Wrap;

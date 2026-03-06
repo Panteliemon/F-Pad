@@ -168,13 +168,7 @@ public static class SettingsManager
                 AutoReload = settings.AutoReload ? "1" : null,
                 Encoding = settings.DefaultEncodingWebName
             },
-            Font = new FontDto()
-            {
-                Name = settings.FontFamily,
-                Size = settings.FontSize,
-                IsBold = settings.IsBold ? "1" : null,
-                IsItalic = settings.IsItalic ? "1" : null
-            },
+            Font = FontSettingsToDto(settings.Font),
             Text = new TextDto()
             {
                 Wrap = settings.Wrap ? "1" : null,
@@ -203,17 +197,7 @@ public static class SettingsManager
             dest.DefaultEncodingWebName = dto.General.Encoding;
         }
 
-        if (dto.Font != null)
-        {
-            if (!string.IsNullOrEmpty(dto.Font.Name))
-                dest.FontFamily = dto.Font.Name;
-
-            if ((dto.Font.Size >= 5) && (dto.Font.Size <= 128))
-                dest.FontSize = dto.Font.Size;
-
-            dest.IsBold = dto.Font.IsBold == "1";
-            dest.IsItalic = dto.Font.IsItalic == "1";
-        }
+        DtoToFontSettings(dto.Font, dest.Font);
 
         if (dto.Text != null)
         {
@@ -313,6 +297,32 @@ public static class SettingsManager
         }
 
         return null;
+    }
+
+    private static FontDto FontSettingsToDto(FontSettings fontSettings)
+    {
+        return new FontDto()
+        {
+            Name = fontSettings.Family,
+            Size = fontSettings.Size,
+            IsBold = fontSettings.IsBold ? "1" : null,
+            IsItalic = fontSettings.IsItalic ? "1" : null
+        };
+    }
+
+    private static void DtoToFontSettings(FontDto dto, FontSettings dest)
+    {
+        if (dto != null)
+        {
+            if (!string.IsNullOrEmpty(dto.Name))
+                dest.Family = dto.Name;
+
+            if ((dto.Size >= 5) && (dto.Size <= 128))
+                dest.Size = dto.Size;
+
+            dest.IsBold = dto.IsBold == "1";
+            dest.IsItalic = dto.IsItalic == "1";
+        }
     }
 
     #endregion

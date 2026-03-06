@@ -8,10 +8,7 @@ namespace FPad.Settings;
 
 public class AppSettings
 {
-    public string FontFamily { get; set; }
-    public int FontSize { get; set; }
-    public bool IsBold { get; set; }
-    public bool IsItalic { get; set; }
+    public FontSettings Font { get; set; }
     public bool Wrap { get; set; }
     public bool FindMatchCase { get; set; }
     public bool FindWholeWords { get; set; }
@@ -29,8 +26,7 @@ public class AppSettings
     {
         return new AppSettings()
         {
-            FontFamily = string.Empty,
-            FontSize = 12,
+            Font = FontSettings.Default(),
             AutoReload = true
         };
     }
