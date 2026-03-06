@@ -20,7 +20,7 @@ public partial class SettingsDialog : Form
     /// <summary>
     /// For display in this window only.
     /// </summary>
-    private FontSettings innerFontSettings = FontSettings.Default();
+    private FontSettings innerFontSettings = new();
     private bool enableHandlers = false;
 
     private EncodingVm[] encodings;

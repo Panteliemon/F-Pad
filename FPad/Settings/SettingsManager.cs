@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using FPad.Settings.Print;
 using FPad.Settings.Xml;
 
 namespace FPad.Settings;
@@ -175,7 +176,8 @@ public static class SettingsManager
                 FindMatchCase = settings.FindMatchCase ? "1" : null,
                 FindWholeWords = settings.FindWholeWords ? "1" : null
             },
-            WindowPosition = WindowPositionToDto(settings.WindowPosition)
+            WindowPosition = WindowPositionToDto(settings.WindowPosition),
+            Print = PrintSettingsToDto(settings.PrintSettings)
         };
 
         if (settings.Files != null)
@@ -211,6 +213,8 @@ public static class SettingsManager
         {
             dest.WindowPosition = windowPosSettings;
         }
+
+        DtoToPrintSettings(dto.Print, dest.PrintSettings);
 
         if ((dto.Files != null) && (dto.Files.Count > 0))
         {
@@ -322,6 +326,56 @@ public static class SettingsManager
 
             dest.IsBold = dto.IsBold == "1";
             dest.IsItalic = dto.IsItalic == "1";
+        }
+    }
+
+    private static PrintDto PrintSettingsToDto(PrintSettings printSettings)
+    {
+        return new PrintDto()
+        {
+            FileName = new PrintFileNameDto()
+            {
+                Font = FontSettingsToDto(printSettings.FileNameFont),
+                Option = (int)printSettings.FileNameContent
+            },
+            PageNumber = new PrintPageNumberDto()
+            {
+                Font = FontSettingsToDto(printSettings.PageNumberFont),
+                Option = (int)printSettings.PageNumberContent,
+                Template = printSettings.PageNumberTemplate?.Trim(),
+                Align = (int)printSettings.PageNumberAlignment
+            }
+        };
+    }
+
+    private static void DtoToPrintSettings(PrintDto dto, PrintSettings dest)
+    {
+        if (dto != null)
+        {
+            if (dto.FileName != null)
+            {
+                DtoToFontSettings(dto.FileName.Font, dest.FileNameFont);
+
+                FileNameContent fnContent = (FileNameContent)dto.FileName.Option;
+                if (Enum.IsDefined<FileNameContent>(fnContent))
+                    dest.FileNameContent = fnContent;
+            }
+
+            if (dto.PageNumber != null)
+            {
+                DtoToFontSettings(dto.PageNumber.Font, dest.PageNumberFont);
+
+                PageNumberContent pnContent = (PageNumberContent)dto.PageNumber.Option;
+                if (Enum.IsDefined<PageNumberContent>(pnContent))
+                    dest.PageNumberContent = pnContent;
+
+                if (dto.PageNumber.Template != null)
+                    dest.PageNumberTemplate = dto.PageNumber.Template;
+
+                HorizontalAlignment alignment = (HorizontalAlignment)dto.PageNumber.Align;
+                if (Enum.IsDefined<HorizontalAlignment>(alignment))
+                    dest.PageNumberAlignment = alignment;
+            }
         }
     }
 
