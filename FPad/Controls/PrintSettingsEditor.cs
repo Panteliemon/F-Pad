@@ -21,6 +21,12 @@ public partial class PrintSettingsEditor : UserControl
     /// </summary>
     public event EventHandler Changed;
 
+    /// <summary>
+    /// If true, <see cref="Changed"/> is fired on each input in template textbox.
+    /// If false, <see cref="Changed"/> is fired on Enter or when the control loses focus.
+    /// </summary>
+    public bool ImmediatePageNumberTemplateChange { get; set; } = true;
+
     public PrintSettingsEditor()
     {
         InitializeComponent();
@@ -136,9 +142,20 @@ public partial class PrintSettingsEditor : UserControl
         }
     }
 
+    private void tbPageNumberTemplate_TextChanged(object sender, EventArgs e)
+    {
+        if (enableHandlers && ImmediatePageNumberTemplateChange)
+        {
+            Notify();
+        }
+    }
+
     private void tbPageNumberTemplate_EditFinished(object sender, string e)
     {
-        Notify();
+        if (!ImmediatePageNumberTemplateChange)
+        {
+            Notify();
+        }
     }
 
     private void rbPnAlign_CheckedChanged(object sender, EventArgs e)

@@ -47,12 +47,15 @@ partial class SettingsDialog
         fontPickerMain = new FPad.Controls.FontPicker();
         tabPage3 = new System.Windows.Forms.TabPage();
         gbPrintSettingsPreview = new System.Windows.Forms.GroupBox();
+        lPreviewPageNumber = new System.Windows.Forms.Label();
+        lPreviewFileName = new System.Windows.Forms.Label();
         pPrintSettingsContainer = new System.Windows.Forms.Panel();
         printSettingsEditor = new FPad.Controls.PrintSettingsEditor();
         tabControl1.SuspendLayout();
         tabPage1.SuspendLayout();
         tabPage2.SuspendLayout();
         tabPage3.SuspendLayout();
+        gbPrintSettingsPreview.SuspendLayout();
         pPrintSettingsContainer.SuspendLayout();
         SuspendLayout();
         // 
@@ -60,7 +63,7 @@ partial class SettingsDialog
         // 
         chWrap.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
         chWrap.AutoSize = true;
-        chWrap.Location = new System.Drawing.Point(6, 281);
+        chWrap.Location = new System.Drawing.Point(6, 322);
         chWrap.Name = "chWrap";
         chWrap.Size = new System.Drawing.Size(202, 19);
         chWrap.TabIndex = 7;
@@ -85,13 +88,13 @@ partial class SettingsDialog
         exampleText.Multiline = true;
         exampleText.Name = "exampleText";
         exampleText.ReadOnly = true;
-        exampleText.Size = new System.Drawing.Size(544, 145);
+        exampleText.Size = new System.Drawing.Size(617, 186);
         exampleText.TabIndex = 6;
         // 
         // bSave
         // 
         bSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-        bSave.Location = new System.Drawing.Point(372, 369);
+        bSave.Location = new System.Drawing.Point(445, 484);
         bSave.Name = "bSave";
         bSave.Size = new System.Drawing.Size(96, 32);
         bSave.TabIndex = 10;
@@ -102,7 +105,7 @@ partial class SettingsDialog
         // bCancel
         // 
         bCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-        bCancel.Location = new System.Drawing.Point(474, 369);
+        bCancel.Location = new System.Drawing.Point(547, 484);
         bCancel.Name = "bCancel";
         bCancel.Size = new System.Drawing.Size(96, 32);
         bCancel.TabIndex = 11;
@@ -143,7 +146,7 @@ partial class SettingsDialog
         // 
         label5.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
         label5.AutoSize = true;
-        label5.Location = new System.Drawing.Point(6, 273);
+        label5.Location = new System.Drawing.Point(6, 388);
         label5.Name = "label5";
         label5.Size = new System.Drawing.Size(31, 15);
         label5.TabIndex = 12;
@@ -158,7 +161,7 @@ partial class SettingsDialog
         tabControl1.Location = new System.Drawing.Point(6, 6);
         tabControl1.Name = "tabControl1";
         tabControl1.SelectedIndex = 0;
-        tabControl1.Size = new System.Drawing.Size(564, 357);
+        tabControl1.Size = new System.Drawing.Size(637, 472);
         tabControl1.TabIndex = 13;
         // 
         // tabPage1
@@ -173,14 +176,14 @@ partial class SettingsDialog
         tabPage1.Location = new System.Drawing.Point(4, 24);
         tabPage1.Name = "tabPage1";
         tabPage1.Padding = new System.Windows.Forms.Padding(3);
-        tabPage1.Size = new System.Drawing.Size(556, 329);
+        tabPage1.Size = new System.Drawing.Size(629, 444);
         tabPage1.TabIndex = 0;
         tabPage1.Text = "General";
         // 
         // bAssociateCurrentUser
         // 
         bAssociateCurrentUser.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-        bAssociateCurrentUser.Location = new System.Drawing.Point(177, 291);
+        bAssociateCurrentUser.Location = new System.Drawing.Point(177, 406);
         bAssociateCurrentUser.Name = "bAssociateCurrentUser";
         bAssociateCurrentUser.Size = new System.Drawing.Size(166, 32);
         bAssociateCurrentUser.TabIndex = 14;
@@ -192,7 +195,7 @@ partial class SettingsDialog
         // 
         bAssociateAllUsers.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
         bAssociateAllUsers.FlatStyle = System.Windows.Forms.FlatStyle.System;
-        bAssociateAllUsers.Location = new System.Drawing.Point(6, 291);
+        bAssociateAllUsers.Location = new System.Drawing.Point(6, 406);
         bAssociateAllUsers.Name = "bAssociateAllUsers";
         bAssociateAllUsers.Size = new System.Drawing.Size(165, 32);
         bAssociateAllUsers.TabIndex = 13;
@@ -210,7 +213,7 @@ partial class SettingsDialog
         tabPage2.Location = new System.Drawing.Point(4, 24);
         tabPage2.Name = "tabPage2";
         tabPage2.Padding = new System.Windows.Forms.Padding(3);
-        tabPage2.Size = new System.Drawing.Size(556, 329);
+        tabPage2.Size = new System.Drawing.Size(629, 444);
         tabPage2.TabIndex = 1;
         tabPage2.Text = "Font";
         // 
@@ -230,19 +233,39 @@ partial class SettingsDialog
         tabPage3.Location = new System.Drawing.Point(4, 24);
         tabPage3.Name = "tabPage3";
         tabPage3.Padding = new System.Windows.Forms.Padding(3);
-        tabPage3.Size = new System.Drawing.Size(556, 329);
+        tabPage3.Size = new System.Drawing.Size(629, 444);
         tabPage3.TabIndex = 2;
         tabPage3.Text = "Print";
         // 
         // gbPrintSettingsPreview
         // 
         gbPrintSettingsPreview.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-        gbPrintSettingsPreview.Location = new System.Drawing.Point(6, 244);
+        gbPrintSettingsPreview.Controls.Add(lPreviewPageNumber);
+        gbPrintSettingsPreview.Controls.Add(lPreviewFileName);
+        gbPrintSettingsPreview.Location = new System.Drawing.Point(6, 334);
         gbPrintSettingsPreview.Name = "gbPrintSettingsPreview";
-        gbPrintSettingsPreview.Size = new System.Drawing.Size(544, 79);
+        gbPrintSettingsPreview.Size = new System.Drawing.Size(617, 104);
         gbPrintSettingsPreview.TabIndex = 1;
         gbPrintSettingsPreview.TabStop = false;
         gbPrintSettingsPreview.Text = "Preview";
+        // 
+        // lPreviewPageNumber
+        // 
+        lPreviewPageNumber.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        lPreviewPageNumber.Location = new System.Drawing.Point(4, 34);
+        lPreviewPageNumber.Name = "lPreviewPageNumber";
+        lPreviewPageNumber.Size = new System.Drawing.Size(609, 67);
+        lPreviewPageNumber.TabIndex = 1;
+        lPreviewPageNumber.Text = "=";
+        // 
+        // lPreviewFileName
+        // 
+        lPreviewFileName.AutoSize = true;
+        lPreviewFileName.Location = new System.Drawing.Point(4, 19);
+        lPreviewFileName.Name = "lPreviewFileName";
+        lPreviewFileName.Size = new System.Drawing.Size(15, 15);
+        lPreviewFileName.TabIndex = 0;
+        lPreviewFileName.Text = "=";
         // 
         // pPrintSettingsContainer
         // 
@@ -252,16 +275,18 @@ partial class SettingsDialog
         pPrintSettingsContainer.Controls.Add(printSettingsEditor);
         pPrintSettingsContainer.Location = new System.Drawing.Point(6, 6);
         pPrintSettingsContainer.Name = "pPrintSettingsContainer";
-        pPrintSettingsContainer.Size = new System.Drawing.Size(544, 232);
+        pPrintSettingsContainer.Size = new System.Drawing.Size(617, 322);
         pPrintSettingsContainer.TabIndex = 0;
         // 
         // printSettingsEditor
         // 
         printSettingsEditor.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        printSettingsEditor.ImmediatePageNumberTemplateChange = true;
         printSettingsEditor.Location = new System.Drawing.Point(3, 3);
         printSettingsEditor.Name = "printSettingsEditor";
-        printSettingsEditor.Size = new System.Drawing.Size(536, 44);
+        printSettingsEditor.Size = new System.Drawing.Size(609, 44);
         printSettingsEditor.TabIndex = 0;
+        printSettingsEditor.Changed += printSettingsEditor_Changed;
         // 
         // SettingsDialog
         // 
@@ -269,7 +294,7 @@ partial class SettingsDialog
         AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         CancelButton = bCancel;
-        ClientSize = new System.Drawing.Size(576, 410);
+        ClientSize = new System.Drawing.Size(649, 525);
         Controls.Add(tabControl1);
         Controls.Add(bCancel);
         Controls.Add(bSave);
@@ -283,6 +308,8 @@ partial class SettingsDialog
         tabPage2.ResumeLayout(false);
         tabPage2.PerformLayout();
         tabPage3.ResumeLayout(false);
+        gbPrintSettingsPreview.ResumeLayout(false);
+        gbPrintSettingsPreview.PerformLayout();
         pPrintSettingsContainer.ResumeLayout(false);
         ResumeLayout(false);
     }
@@ -308,4 +335,6 @@ partial class SettingsDialog
     private System.Windows.Forms.GroupBox gbPrintSettingsPreview;
     private System.Windows.Forms.Panel pPrintSettingsContainer;
     private Controls.PrintSettingsEditor printSettingsEditor;
+    private System.Windows.Forms.Label lPreviewPageNumber;
+    private System.Windows.Forms.Label lPreviewFileName;
 }

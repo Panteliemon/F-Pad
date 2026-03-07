@@ -237,6 +237,7 @@ partial class PrintSettingsEditor
         tbPageNumberTemplate.Name = "tbPageNumberTemplate";
         tbPageNumberTemplate.Size = new System.Drawing.Size(316, 23);
         tbPageNumberTemplate.TabIndex = 2;
+        tbPageNumberTemplate.TextChanged += tbPageNumberTemplate_TextChanged;
         // 
         // rbPnTemplate
         // 

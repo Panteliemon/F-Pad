@@ -1,6 +1,7 @@
 ﻿using FPad.Controls;
 using FPad.Encodings;
 using FPad.Settings;
+using FPad.Settings.Print;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,6 +22,10 @@ public partial class SettingsDialog : Form
     /// For display in this window only.
     /// </summary>
     private FontSettings innerFontSettings = new();
+    /// <summary>
+    /// For display in this window only.
+    /// </summary>
+    private PrintSettings innerPrintSettings = PrintSettings.Default();
     private bool enableHandlers = false;
 
     private EncodingVm[] encodings;
@@ -70,11 +75,46 @@ public partial class SettingsDialog : Form
         exampleText.Font = FontUtils.GetFontBySettings(innerFontSettings, FontCategory.Monospace);
     }
 
+    private void ShowPrintPreview()
+    {
+        printSettingsEditor.SaveSettings(innerPrintSettings);
+
+        lPreviewFileName.Visible = innerPrintSettings.IncludeFileName;
+        string fileNameText = innerPrintSettings.FileNameContent switch
+        {
+            FileNameContent.Name => "my_file",
+            FileNameContent.NameExt => "my_file.txt",
+            _ => @"C:\Folder1\my_file.txt"
+        };
+        lPreviewFileName.Text = fileNameText;
+        lPreviewFileName.Font = FontUtils.GetFontBySettings(innerPrintSettings.FileNameFont, FontCategory.Serif);
+
+        int originalBottom = lPreviewPageNumber.Bottom;
+        lPreviewPageNumber.Top = lPreviewFileName.Bottom;
+        lPreviewPageNumber.Height = originalBottom - lPreviewPageNumber.Top;
+
+        lPreviewPageNumber.Visible = innerPrintSettings.IncludePageNumber;
+        string pageNumberText = "3";
+        if (innerPrintSettings.UsePageNumberTemplate)
+        {
+            pageNumberText = innerPrintSettings.PageNumberTemplate.Replace("{page}", "3").Replace("{total}", "25");
+        }
+        lPreviewPageNumber.Text = pageNumberText;
+        lPreviewPageNumber.TextAlign = innerPrintSettings.PageNumberAlignment switch
+        {
+            Settings.Print.HorizontalAlignment.Left => ContentAlignment.MiddleLeft,
+            Settings.Print.HorizontalAlignment.Center => ContentAlignment.MiddleCenter,
+            _ => ContentAlignment.MiddleRight
+        };
+        lPreviewPageNumber.Font = FontUtils.GetFontBySettings(innerPrintSettings.PageNumberFont, FontCategory.Serif);
+    }
+
     #region Event Handlers
 
     private void SettingsDialog_Load(object sender, EventArgs e)
     {
         ApplyFont();
+        ShowPrintPreview();
 
         exampleText.Select(0, 0);
         BeginInvoke(() => tabControl1.Focus());
@@ -160,6 +200,11 @@ public partial class SettingsDialog : Form
     private void bAssociateCurrentUser_Click(object sender, EventArgs e)
     {
         ExecuteAssociate(false);
+    }
+
+    private void printSettingsEditor_Changed(object sender, EventArgs e)
+    {
+        ShowPrintPreview();
     }
 
     #endregion

@@ -16,15 +16,6 @@ public class FontSettings
     public bool IsBold { get; set; }
     public bool IsItalic { get; set; }
 
-    public static FontSettings Default()
-    {
-        return new FontSettings()
-        {
-            Family = string.Empty,
-            Size = 12
-        };
-    }
-
     public FontSettings Clone()
     {
         return (FontSettings)MemberwiseClone();
