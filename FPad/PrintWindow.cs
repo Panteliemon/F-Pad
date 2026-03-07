@@ -1,4 +1,5 @@
 ﻿using FPad.Controls;
+using FPad.Settings.Print;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -293,6 +294,11 @@ public partial class PrintWindow : Form
                     if (localChangeId == debouncePrinterSettingsChangeId)
                     {
                         debouncePrinterSettingsMs = 750;
+
+                        PrintSettings localPrintSettings = App.Settings.PrintSettings.Clone();
+                        printSettingsEditor.SaveSettings(localPrintSettings);
+                        printer.SetSettings(localPrintSettings);
+
                         printPreview.InvalidatePreview();
                     }
                 });

@@ -1,23 +1,45 @@
-﻿using System;
+﻿using FPad.Settings;
+using FPad.Settings.Print;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace FPad;
 
 public class Printer
 {
     private string allText;
+    private string documentFullPath;
+
+    private Font mainTextFont;
+    private Font fileNameFont;
+    private Font pageNumberFont;
+    /// <summary>
+    /// Null if not included
+    /// </summary>
+    private FileNameContent? fileNameContent;
+    /// <summary>
+    /// Null if template is not used
+    /// </summary>
+    private string pageNumberTemplate;
+    /// <summary>
+    /// Null if not included
+    /// </summary>
+    private HorizontalAlignment? pageNumberAlignment;
+
     private int currentStartPosition;
     private int currentPage; // 1-based
     private int pagesCount;
+    private int pagesCountPreviousPrint;
     private int documentCopiesLeft;
     private int pageCopiesLeft;
-    private Font font;
+    private CancellationToken ct;
 
     public PrintDocument Document { get; }
 
@@ -35,10 +57,12 @@ public class Printer
     public int? PagesCount { get; set; }
     public event EventHandler PagesCountChanged;
 
-    public Printer(string allText, Font font)
+    public Printer(string allText, Font mainTextFont, string documentFullPath)
     {
         this.allText = allText;
-        this.font = font;
+        this.mainTextFont = mainTextFont;
+        this.documentFullPath = documentFullPath;
+
         Document = new PrintDocument();
 
         Document.BeginPrint += Document_BeginPrint;
@@ -46,8 +70,22 @@ public class Printer
         Document.EndPrint += Document_EndPrint;
     }
 
-    public void Print()
+    public void SetSettings(PrintSettings printSettings)
     {
+        fileNameFont = FontUtils.GetFontBySettings(printSettings.FileNameFont, FontCategory.Serif);
+        pageNumberFont = FontUtils.GetFontBySettings(printSettings.PageNumberFont, FontCategory.Serif);
+
+        fileNameContent = printSettings.IncludeFileName ? printSettings.FileNameContent : null;
+        pageNumberAlignment = printSettings.IncludePageNumber ? printSettings.PageNumberAlignment : null;
+        pageNumberTemplate = printSettings.UsePageNumberTemplate ? printSettings.PageNumberTemplate : null;
+    }
+
+    public void Print(CancellationToken ct)
+    {
+        if (fileNameFont == null)
+            throw new InvalidOperationException("Settings not set");
+
+        this.ct = ct;
         Document.Print();
     }
 
@@ -55,6 +93,7 @@ public class Printer
     {
         currentStartPosition = 0;
         currentPage = 1;
+        pagesCountPreviousPrint = pagesCount;
         pagesCount = 0;
         PagesCount = null;
         documentCopiesLeft = NumberOfCopies;
@@ -73,11 +112,12 @@ public class Printer
             // it cuts tails of letters in the bottommost line, so that row doesn't really fit.
             // And if we draw line by line ourselves that means we also must perform word wrap ourselves.
 
-            float lineHeight = font.GetHeight(e.Graphics);
+            float lineHeight = mainTextFont.GetHeight(e.Graphics);
             float verticalOffset = 0f;
             int startPositionForCurrentPage = currentStartPosition;
             bool isCurrentPageIncluded = IsPageIncluded(currentPage);
 
+            // ===== Print one page (main text) =====
             do
             {
                 ReadOnlySpan<char> textLeft = allTextSpan[currentStartPosition..];
@@ -89,9 +129,9 @@ public class Printer
                         bool wordWrapped = false;
                         if (line.Length > 0)
                         {
-                            e.Graphics.MeasureString(printableLine, font,
+                            e.Graphics.MeasureString(printableLine, mainTextFont,
                                 new SizeF(e.MarginBounds.Width, lineHeight),
-                                StringFormat.GenericDefault,
+                                null,
                                 out int charactersFitted,
                                 out int _);
 
@@ -112,7 +152,7 @@ public class Printer
 
                             if (isCurrentPageIncluded)
                             {
-                                e.Graphics.DrawString(printableLine, font, Brushes.Black,
+                                e.Graphics.DrawString(printableLine, mainTextFont, Brushes.Black,
                                     new PointF(e.MarginBounds.Left, e.MarginBounds.Top + verticalOffset));
                             }
                         }
@@ -131,9 +171,55 @@ public class Printer
             while (((float)e.MarginBounds.Height - verticalOffset >= lineHeight) // enough space for the next line on current page
                    && (currentStartPosition < allText.Length));
 
+            // ===== Print file name =====
+            if (fileNameContent.HasValue && isCurrentPageIncluded)
+            {
+                string fileNameStr = fileNameContent.Value switch
+                {
+                    FileNameContent.Name => Path.GetFileNameWithoutExtension(documentFullPath),
+                    FileNameContent.NameExt => Path.GetFileName(documentFullPath),
+                    _ => documentFullPath
+                };
+
+                SizeF fileNameSize = e.Graphics.MeasureString(fileNameStr, fileNameFont);
+                float x = (float)e.MarginBounds.Left / 2.0f;
+                float y = ((float)e.MarginBounds.Top - fileNameSize.Height) / 2.0f;
+                if (y < 0.0f)
+                    y = 0.0f;
+
+                e.Graphics.DrawString(fileNameStr, fileNameFont, Brushes.Black, new PointF(x, y));
+            }
+
+            // ===== Print page number =====
+            if (pageNumberAlignment.HasValue && isCurrentPageIncluded)
+            {
+                string pageNumberStr = pageNumberTemplate == null
+                    ? currentPage.ToString()
+                    : pageNumberTemplate.Replace("{page}", currentPage.ToString())
+                                        // Cannot know number of pages until printed to the end ¯\_(ツ)_/¯
+                                        // Provided that it only depends on document's text and document's font - both immutable here -
+                                        // use previously calculated value, if any.
+                                        .Replace("{total}", pagesCountPreviousPrint.ToString());
+                
+                SizeF pageNumberSize = e.Graphics.MeasureString(pageNumberStr, pageNumberFont);
+                float y = ((float)e.MarginBounds.Bottom + (float)e.PageBounds.Bottom - pageNumberSize.Height) / 2.0f;
+                if (y + pageNumberSize.Height > (float)e.PageBounds.Bottom)
+                    y = (float)e.PageBounds.Bottom - pageNumberSize.Height;
+
+                float x = pageNumberAlignment.Value switch
+                {
+                    HorizontalAlignment.Left => e.MarginBounds.Left,
+                    HorizontalAlignment.Right => e.MarginBounds.Right - pageNumberSize.Width,
+                    _ => ((float)e.MarginBounds.Left + (float)e.MarginBounds.Right - pageNumberSize.Width) / 2.0f
+                };
+
+                e.Graphics.DrawString(pageNumberStr, pageNumberFont, Brushes.Black, new PointF(x, y));
+            }
+
             if (isCurrentPageIncluded)
                 printed = true;
 
+            // ===== Proceed to next page =====
             if (Collate) // All pages of the document, then next document
             {
                 // Count pages only if the last copy
@@ -177,6 +263,9 @@ public class Printer
                 }
             }
         } while (!printed && e.HasMorePages);
+
+        if (ct.IsCancellationRequested)
+            e.HasMorePages = false;
     }
 
     private void Document_EndPrint(object sender, PrintEventArgs e)

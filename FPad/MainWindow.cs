@@ -423,7 +423,9 @@ namespace FPad
 
         private void printToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Printer printer = new(text.Text, text.Font);
+            Printer printer = new(text.Text, text.Font, currentDocumentFullPath);
+            printer.SetSettings(App.Settings.PrintSettings);
+
             if (PrintWindow.ShowDialog(printer))
             {
                 if (App.SaveSettings(SettingsFlags.PrintSettings))
@@ -433,7 +435,7 @@ namespace FPad
 
                 // They told us it only "starts" printing process, in reality it starts and waits.
                 // TODO Need indication and cancellation on exit app
-                Task.Run(() => printer.Print());
+                Task.Run(() => printer.Print(CancellationToken.None));
             }
         }
 
