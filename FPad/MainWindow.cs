@@ -426,42 +426,16 @@ namespace FPad
             Printer printer = new(text.Text, text.Font);
             if (PrintWindow.ShowDialog(printer))
             {
+                if (App.SaveSettings(SettingsFlags.PrintSettings))
+                    StatusBarShowSecondOrderSuccessMessage("Settings Saved");
+                else
+                    StatusBarShowSecondOrderErrorMessage("Error when saving settings. Settings not saved.");
+
                 // They told us it only "starts" printing process, in reality it starts and waits.
                 // TODO Need indication and cancellation on exit app
                 Task.Run(() => printer.Print());
             }
         }
-
-        int currentCharIndex = 0;
-        private void PrintDocument_PrintPage_Crude(object sender, PrintPageEventArgs e)
-        {
-            Font printFont = text.Font;
-
-            RectangleF printableArea = e.MarginBounds;
-            
-            int charsFitted;
-            int linesFilled;
-            //e.
-            e.Graphics.MeasureString(
-                text.Text.Substring(currentCharIndex),
-                printFont,
-                printableArea.Size,
-                StringFormat.GenericDefault,
-                out charsFitted,
-                out linesFilled);
-
-            e.Graphics.DrawString(
-                text.Text.Substring(currentCharIndex),
-                printFont,
-                Brushes.Black,
-                printableArea,
-                StringFormat.GenericDefault);
-
-            currentCharIndex += charsFitted;
-
-            e.HasMorePages = currentCharIndex < text.Text.Length;
-        }
-
 
         private void openInExternalEditorMenuItem_Click(object sender, EventArgs e)
         {

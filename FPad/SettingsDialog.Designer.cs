@@ -116,7 +116,7 @@ partial class SettingsDialog
         // chAutoReload
         // 
         chAutoReload.AutoSize = true;
-        chAutoReload.Location = new System.Drawing.Point(6, 84);
+        chAutoReload.Location = new System.Drawing.Point(6, 157);
         chAutoReload.Name = "chAutoReload";
         chAutoReload.Size = new System.Drawing.Size(121, 19);
         chAutoReload.TabIndex = 9;

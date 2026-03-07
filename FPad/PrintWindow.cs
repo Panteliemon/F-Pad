@@ -27,6 +27,8 @@ public partial class PrintWindow : Form
     private bool isFirstActivate = true;
     private bool enableHandlers;
     private int updatePrinterAttributesCallId = 0;
+    private int debouncePrinterSettingsChangeId = 0;
+    private int debouncePrinterSettingsMs = 750;
 
     private int pageFrom;
     private int pageTo;
@@ -79,6 +81,8 @@ public partial class PrintWindow : Form
         UpdatePrevNextEnabled();
         UpdateCollatePic();
 
+        printSettingsEditor.DisplaySettings(App.Settings.PrintSettings);
+
         printer.PagesCountChanged += Printer_PagesCountChanged;
 
         enableHandlers = true;
@@ -111,6 +115,8 @@ public partial class PrintWindow : Form
             printer.PageFrom = 0;
             printer.PageTo = 0;
         }
+
+        printSettingsEditor.SaveSettings(App.Settings.PrintSettings);
 
         Close();
     }
@@ -269,6 +275,29 @@ public partial class PrintWindow : Form
     {
         if (enableHandlers)
             UpdateCollatePic();
+    }
+
+    private void printSettingsEditor_Changed(object sender, EventArgs e)
+    {
+        // Wait for some idle time after the latest change
+        int localChangeId = ++debouncePrinterSettingsChangeId;
+        if (debouncePrinterSettingsMs < 2500)
+            debouncePrinterSettingsMs += 250;
+        Task.Run(() =>
+        {
+            Task.Delay(debouncePrinterSettingsMs).Wait();
+            if (!IsDisposed)
+            {
+                BeginInvoke(() =>
+                {
+                    if (localChangeId == debouncePrinterSettingsChangeId)
+                    {
+                        debouncePrinterSettingsMs = 750;
+                        printPreview.InvalidatePreview();
+                    }
+                });
+            }
+        });
     }
 
     private void TbCurrentPage_EditFinished(object sender, string e)

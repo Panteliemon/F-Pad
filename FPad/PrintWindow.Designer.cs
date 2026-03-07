@@ -65,6 +65,9 @@ partial class PrintWindow
         panel1 = new System.Windows.Forms.Panel();
         tbCurrentPage = new System.Windows.Forms.TextBox();
         lOfPageCount = new System.Windows.Forms.Label();
+        groupBox5 = new System.Windows.Forms.GroupBox();
+        panel2 = new System.Windows.Forms.Panel();
+        printSettingsEditor = new FPad.Controls.PrintSettingsEditor();
         groupBox1.SuspendLayout();
         groupBox2.SuspendLayout();
         groupBox3.SuspendLayout();
@@ -72,6 +75,8 @@ partial class PrintWindow
         ((System.ComponentModel.ISupportInitialize)tbNumberOfCopies).BeginInit();
         groupBox4.SuspendLayout();
         panel1.SuspendLayout();
+        groupBox5.SuspendLayout();
+        panel2.SuspendLayout();
         SuspendLayout();
         // 
         // groupBox1
@@ -433,12 +438,45 @@ partial class PrintWindow
         lOfPageCount.TabIndex = 10;
         lOfPageCount.Text = "...";
         // 
+        // groupBox5
+        // 
+        groupBox5.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+        groupBox5.Controls.Add(panel2);
+        groupBox5.Location = new System.Drawing.Point(6, 338);
+        groupBox5.Name = "groupBox5";
+        groupBox5.Size = new System.Drawing.Size(353, 335);
+        groupBox5.TabIndex = 10;
+        groupBox5.TabStop = false;
+        groupBox5.Text = "Print Settings";
+        // 
+        // panel2
+        // 
+        panel2.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        panel2.AutoScroll = true;
+        panel2.Controls.Add(printSettingsEditor);
+        panel2.Location = new System.Drawing.Point(6, 22);
+        panel2.Name = "panel2";
+        panel2.Size = new System.Drawing.Size(341, 307);
+        panel2.TabIndex = 0;
+        // 
+        // printSettingsEditor
+        // 
+        printSettingsEditor.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        printSettingsEditor.ImmediatePageNumberTemplateChange = true;
+        printSettingsEditor.Location = new System.Drawing.Point(0, 0);
+        printSettingsEditor.Margin = new System.Windows.Forms.Padding(0);
+        printSettingsEditor.Name = "printSettingsEditor";
+        printSettingsEditor.Size = new System.Drawing.Size(341, 44);
+        printSettingsEditor.TabIndex = 0;
+        printSettingsEditor.Changed += printSettingsEditor_Changed;
+        // 
         // PrintWindow
         // 
         AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         CancelButton = bCancel;
         ClientSize = new System.Drawing.Size(870, 680);
+        Controls.Add(groupBox5);
         Controls.Add(groupBox4);
         Controls.Add(bCancel);
         Controls.Add(bOk);
@@ -463,6 +501,8 @@ partial class PrintWindow
         groupBox4.ResumeLayout(false);
         panel1.ResumeLayout(false);
         panel1.PerformLayout();
+        groupBox5.ResumeLayout(false);
+        panel2.ResumeLayout(false);
         ResumeLayout(false);
     }
 
@@ -504,4 +544,7 @@ partial class PrintWindow
     private System.Windows.Forms.Label lOfPageCount;
     private System.Windows.Forms.TextBox tbCurrentPage;
     private System.Windows.Forms.PictureBox collatePic;
+    private System.Windows.Forms.GroupBox groupBox5;
+    private System.Windows.Forms.Panel panel2;
+    private Controls.PrintSettingsEditor printSettingsEditor;
 }
