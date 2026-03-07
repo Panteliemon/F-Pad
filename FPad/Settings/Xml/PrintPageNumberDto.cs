@@ -16,6 +16,6 @@ public class PrintPageNumberDto
     [XmlAttribute]
     public string Template { get; set; }
     [XmlAttribute]
-    public int Align { get; set; }
+    public string Align { get; set; }
     public FontDto Font { get; set; }
 }

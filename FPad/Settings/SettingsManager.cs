@@ -22,6 +22,8 @@ public static class SettingsManager
     private static XmlSerializer settingsSerializer;
     private static XmlWriterSettings xmlWriterSettings;
     private static XmlReaderSettings xmlReaderSettings;
+    private static Dictionary<string, FileNameContent> fileNameContentCodes;
+    private static Dictionary<string, HorizontalAlignment> horizontalAlignmentCodes;
 
     static SettingsManager()
     {
@@ -37,6 +39,20 @@ public static class SettingsManager
         xmlReaderSettings = new XmlReaderSettings()
         {
             CloseInput = false
+        };
+
+        fileNameContentCodes = new Dictionary<string, FileNameContent>
+        {
+            { "N", FileNameContent.Name },
+            { "NE", FileNameContent.NameExt },
+            { "FP", FileNameContent.FullPath }
+        };
+
+        horizontalAlignmentCodes = new Dictionary<string, HorizontalAlignment>
+        {
+            { "L", HorizontalAlignment.Left },
+            { "C", HorizontalAlignment.Center },
+            { "R", HorizontalAlignment.Right }
         };
     }
 
@@ -336,7 +352,7 @@ public static class SettingsManager
             FileName = new PrintFileNameDto()
             {
                 Include = printSettings.IncludeFileName ? "1" : null,
-                Option = (int)printSettings.FileNameContent,
+                Option = fileNameContentCodes.FirstOrDefault(kvp => kvp.Value == printSettings.FileNameContent).Key,
                 Font = FontSettingsToDto(printSettings.FileNameFont)
             },
             PageNumber = new PrintPageNumberDto()
@@ -344,7 +360,7 @@ public static class SettingsManager
                 Include = printSettings.IncludePageNumber ? "1" : null,
                 UseTemplate = printSettings.UsePageNumberTemplate ? "1" : null,
                 Template = printSettings.PageNumberTemplate?.Trim(),
-                Align = (int)printSettings.PageNumberAlignment,
+                Align = horizontalAlignmentCodes.FirstOrDefault(kvp => kvp.Value == printSettings.PageNumberAlignment).Key,
                 Font = FontSettingsToDto(printSettings.PageNumberFont)               
             }
         };
@@ -358,9 +374,11 @@ public static class SettingsManager
             {
                 dest.IncludeFileName = dto.FileName.Include == "1";
 
-                FileNameContent fnContent = (FileNameContent)dto.FileName.Option;
-                if (Enum.IsDefined<FileNameContent>(fnContent))
+                if ((dto.FileName.Option != null)
+                    && fileNameContentCodes.TryGetValue(dto.FileName.Option, out FileNameContent fnContent))
+                {
                     dest.FileNameContent = fnContent;
+                }
 
                 DtoToFontSettings(dto.FileName.Font, dest.FileNameFont);
             }
@@ -372,9 +390,11 @@ public static class SettingsManager
                 if (dto.PageNumber.Template != null)
                     dest.PageNumberTemplate = dto.PageNumber.Template;
 
-                HorizontalAlignment alignment = (HorizontalAlignment)dto.PageNumber.Align;
-                if (Enum.IsDefined<HorizontalAlignment>(alignment))
-                    dest.PageNumberAlignment = alignment;
+                if ((dto.PageNumber.Align != null)
+                    && horizontalAlignmentCodes.TryGetValue(dto.PageNumber.Align, out HorizontalAlignment pnAlignment))
+                {
+                    dest.PageNumberAlignment = pnAlignment;
+                }
 
                 DtoToFontSettings(dto.PageNumber.Font, dest.PageNumberFont);
             }

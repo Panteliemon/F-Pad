@@ -12,6 +12,6 @@ public class PrintFileNameDto
     [XmlAttribute]
     public string Include { get; set; }
     [XmlAttribute]
-    public int Option { get; set; }
+    public string Option { get; set; }
     public FontDto Font { get; set; }
 }
