@@ -28,6 +28,7 @@ partial class PrintSettingsEditor
     /// </summary>
     private void InitializeComponent()
     {
+        components = new System.ComponentModel.Container();
         chFileName = new System.Windows.Forms.CheckBox();
         gbFileName = new System.Windows.Forms.GroupBox();
         groupBox1 = new System.Windows.Forms.GroupBox();
@@ -46,6 +47,7 @@ partial class PrintSettingsEditor
         tbPageNumberTemplate = new System.Windows.Forms.TextBox();
         rbPnTemplate = new System.Windows.Forms.RadioButton();
         rbPnStandard = new System.Windows.Forms.RadioButton();
+        toolTip1 = new System.Windows.Forms.ToolTip(components);
         gbFileName.SuspendLayout();
         groupBox1.SuspendLayout();
         gbPageNumber.SuspendLayout();
@@ -237,6 +239,7 @@ partial class PrintSettingsEditor
         tbPageNumberTemplate.Name = "tbPageNumberTemplate";
         tbPageNumberTemplate.Size = new System.Drawing.Size(316, 23);
         tbPageNumberTemplate.TabIndex = 2;
+        toolTip1.SetToolTip(tbPageNumberTemplate, "Use {page} placeholder for page number, and {total} for total number of pages.");
         tbPageNumberTemplate.TextChanged += tbPageNumberTemplate_TextChanged;
         // 
         // rbPnTemplate
@@ -305,4 +308,5 @@ partial class PrintSettingsEditor
     private System.Windows.Forms.RadioButton rbPnALeft;
     private System.Windows.Forms.GroupBox groupBox3;
     private FontPicker fontPickerPageNumber;
+    private System.Windows.Forms.ToolTip toolTip1;
 }
