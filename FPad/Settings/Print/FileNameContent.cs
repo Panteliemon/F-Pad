@@ -8,7 +8,6 @@ namespace FPad.Settings.Print;
 
 public enum FileNameContent
 {
-    None = 0,
     Name = 1,
     NameExt = 2,
     FullPath = 3

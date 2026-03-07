@@ -9,11 +9,13 @@ namespace FPad.Settings.Xml;
 
 public class PrintPageNumberDto
 {
-    public FontDto Font { get; set; }
     [XmlAttribute]
-    public int Option { get; set; }
+    public string Include { get; set; }
+    [XmlAttribute]
+    public string UseTemplate { get; set; }
     [XmlAttribute]
     public string Template { get; set; }
     [XmlAttribute]
     public int Align { get; set; }
+    public FontDto Font { get; set; }
 }

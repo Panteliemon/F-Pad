@@ -8,32 +8,33 @@ namespace FPad.Settings.Print;
 
 public class PrintSettings
 {
-    public FontSettings FileNameFont { get; set; }
+    public bool IncludeFileName { get; set; }
     public FileNameContent FileNameContent { get; set; }
+    public FontSettings FileNameFont { get; set; }
 
-    public FontSettings PageNumberFont { get; set; }
-    public PageNumberContent PageNumberContent { get; set; }
-    public HorizontalAlignment PageNumberAlignment { get; set; }
+    public bool IncludePageNumber { get; set; }
+    public bool UsePageNumberTemplate { get; set; }
     public string PageNumberTemplate { get; set; }
-
+    public HorizontalAlignment PageNumberAlignment { get; set; }
+    public FontSettings PageNumberFont { get; set; }
+    
     public static PrintSettings Default()
     {
         return new PrintSettings()
         {
+            FileNameContent = FileNameContent.NameExt,
             FileNameFont = new FontSettings()
             {
                 Family = "Georgia",
                 Size = 12
             },
-            FileNameContent = FileNameContent.None,
+            PageNumberTemplate = "{page} / {total}",
+            PageNumberAlignment = HorizontalAlignment.Center,
             PageNumberFont = new FontSettings()
             {
                 Family = "Georgia",
                 Size = 12
-            },
-            PageNumberContent = PageNumberContent.None,
-            PageNumberTemplate = "{page} / {total}",
-            PageNumberAlignment = HorizontalAlignment.Center
+            }
         };
     }
 }

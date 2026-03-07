@@ -335,15 +335,17 @@ public static class SettingsManager
         {
             FileName = new PrintFileNameDto()
             {
-                Font = FontSettingsToDto(printSettings.FileNameFont),
-                Option = (int)printSettings.FileNameContent
+                Include = printSettings.IncludeFileName ? "1" : null,
+                Option = (int)printSettings.FileNameContent,
+                Font = FontSettingsToDto(printSettings.FileNameFont)
             },
             PageNumber = new PrintPageNumberDto()
             {
-                Font = FontSettingsToDto(printSettings.PageNumberFont),
-                Option = (int)printSettings.PageNumberContent,
+                Include = printSettings.IncludePageNumber ? "1" : null,
+                UseTemplate = printSettings.UsePageNumberTemplate ? "1" : null,
                 Template = printSettings.PageNumberTemplate?.Trim(),
-                Align = (int)printSettings.PageNumberAlignment
+                Align = (int)printSettings.PageNumberAlignment,
+                Font = FontSettingsToDto(printSettings.PageNumberFont)               
             }
         };
     }
@@ -354,27 +356,27 @@ public static class SettingsManager
         {
             if (dto.FileName != null)
             {
-                DtoToFontSettings(dto.FileName.Font, dest.FileNameFont);
+                dest.IncludeFileName = dto.FileName.Include == "1";
 
                 FileNameContent fnContent = (FileNameContent)dto.FileName.Option;
                 if (Enum.IsDefined<FileNameContent>(fnContent))
                     dest.FileNameContent = fnContent;
+
+                DtoToFontSettings(dto.FileName.Font, dest.FileNameFont);
             }
 
             if (dto.PageNumber != null)
             {
-                DtoToFontSettings(dto.PageNumber.Font, dest.PageNumberFont);
-
-                PageNumberContent pnContent = (PageNumberContent)dto.PageNumber.Option;
-                if (Enum.IsDefined<PageNumberContent>(pnContent))
-                    dest.PageNumberContent = pnContent;
-
+                dest.IncludePageNumber = dto.PageNumber.Include == "1";
+                dest.UsePageNumberTemplate = dto.PageNumber.UseTemplate == "1";
                 if (dto.PageNumber.Template != null)
                     dest.PageNumberTemplate = dto.PageNumber.Template;
 
                 HorizontalAlignment alignment = (HorizontalAlignment)dto.PageNumber.Align;
                 if (Enum.IsDefined<HorizontalAlignment>(alignment))
                     dest.PageNumberAlignment = alignment;
+
+                DtoToFontSettings(dto.PageNumber.Font, dest.PageNumberFont);
             }
         }
     }

@@ -8,7 +8,7 @@ namespace FPad.Settings.Print;
 
 public enum HorizontalAlignment
 {
-    Left = 0,
-    Center = 1,
-    Right = 2
+    Left = 1,
+    Center = 2,
+    Right = 3
 }
