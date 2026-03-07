@@ -37,4 +37,12 @@ public class PrintSettings
             }
         };
     }
+
+    public PrintSettings Clone()
+    {
+        PrintSettings result = (PrintSettings)MemberwiseClone();
+        result.FileNameFont = FileNameFont.Clone();
+        result.PageNumberFont = PageNumberFont.Clone();
+        return result;
+    }
 }

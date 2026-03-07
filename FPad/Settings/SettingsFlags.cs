@@ -14,5 +14,6 @@ public enum SettingsFlags
     Wrap = 4,
     WindowPosition = 8,
     FileWindowPosition = 16,
-    SearchSettings = 32
+    SearchSettings = 32,
+    PrintSettings = 64
 }

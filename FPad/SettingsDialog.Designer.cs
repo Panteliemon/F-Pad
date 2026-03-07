@@ -48,7 +48,7 @@ partial class SettingsDialog
         tabPage3 = new System.Windows.Forms.TabPage();
         gbPrintSettingsPreview = new System.Windows.Forms.GroupBox();
         pPrintSettingsContainer = new System.Windows.Forms.Panel();
-        printSettingsEditor1 = new FPad.Controls.PrintSettingsEditor();
+        printSettingsEditor = new FPad.Controls.PrintSettingsEditor();
         tabControl1.SuspendLayout();
         tabPage1.SuspendLayout();
         tabPage2.SuspendLayout();
@@ -249,19 +249,19 @@ partial class SettingsDialog
         pPrintSettingsContainer.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
         pPrintSettingsContainer.AutoScroll = true;
         pPrintSettingsContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-        pPrintSettingsContainer.Controls.Add(printSettingsEditor1);
+        pPrintSettingsContainer.Controls.Add(printSettingsEditor);
         pPrintSettingsContainer.Location = new System.Drawing.Point(6, 6);
         pPrintSettingsContainer.Name = "pPrintSettingsContainer";
         pPrintSettingsContainer.Size = new System.Drawing.Size(544, 232);
         pPrintSettingsContainer.TabIndex = 0;
         // 
-        // printSettingsEditor1
+        // printSettingsEditor
         // 
-        printSettingsEditor1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-        printSettingsEditor1.Location = new System.Drawing.Point(3, 3);
-        printSettingsEditor1.Name = "printSettingsEditor1";
-        printSettingsEditor1.Size = new System.Drawing.Size(536, 44);
-        printSettingsEditor1.TabIndex = 0;
+        printSettingsEditor.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        printSettingsEditor.Location = new System.Drawing.Point(3, 3);
+        printSettingsEditor.Name = "printSettingsEditor";
+        printSettingsEditor.Size = new System.Drawing.Size(536, 44);
+        printSettingsEditor.TabIndex = 0;
         // 
         // SettingsDialog
         // 
@@ -307,5 +307,5 @@ partial class SettingsDialog
     private System.Windows.Forms.TabPage tabPage3;
     private System.Windows.Forms.GroupBox gbPrintSettingsPreview;
     private System.Windows.Forms.Panel pPrintSettingsContainer;
-    private Controls.PrintSettingsEditor printSettingsEditor1;
+    private Controls.PrintSettingsEditor printSettingsEditor;
 }

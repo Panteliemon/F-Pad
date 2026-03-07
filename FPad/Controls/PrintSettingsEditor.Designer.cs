@@ -31,26 +31,26 @@ partial class PrintSettingsEditor
         chFileName = new System.Windows.Forms.CheckBox();
         gbFileName = new System.Windows.Forms.GroupBox();
         groupBox1 = new System.Windows.Forms.GroupBox();
+        fontPickerFileName = new FontPicker();
         rbFnFullPath = new System.Windows.Forms.RadioButton();
         rbFnNameExt = new System.Windows.Forms.RadioButton();
         rbFnName = new System.Windows.Forms.RadioButton();
         chPageNumber = new System.Windows.Forms.CheckBox();
         gbPageNumber = new System.Windows.Forms.GroupBox();
-        fontPicker1 = new FontPicker();
-        rbPnStandard = new System.Windows.Forms.RadioButton();
-        rbPnTemplate = new System.Windows.Forms.RadioButton();
-        tbPageNumberTemplate = new System.Windows.Forms.TextBox();
-        groupBox2 = new System.Windows.Forms.GroupBox();
-        rbPnALeft = new System.Windows.Forms.RadioButton();
-        rbPnACenter = new System.Windows.Forms.RadioButton();
-        rbPnARight = new System.Windows.Forms.RadioButton();
         groupBox3 = new System.Windows.Forms.GroupBox();
-        fontPicker2 = new FontPicker();
+        fontPickerPageNumber = new FontPicker();
+        groupBox2 = new System.Windows.Forms.GroupBox();
+        rbPnARight = new System.Windows.Forms.RadioButton();
+        rbPnACenter = new System.Windows.Forms.RadioButton();
+        rbPnALeft = new System.Windows.Forms.RadioButton();
+        tbPageNumberTemplate = new System.Windows.Forms.TextBox();
+        rbPnTemplate = new System.Windows.Forms.RadioButton();
+        rbPnStandard = new System.Windows.Forms.RadioButton();
         gbFileName.SuspendLayout();
         groupBox1.SuspendLayout();
         gbPageNumber.SuspendLayout();
-        groupBox2.SuspendLayout();
         groupBox3.SuspendLayout();
+        groupBox2.SuspendLayout();
         SuspendLayout();
         // 
         // chFileName
@@ -83,13 +83,22 @@ partial class PrintSettingsEditor
         // groupBox1
         // 
         groupBox1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-        groupBox1.Controls.Add(fontPicker1);
+        groupBox1.Controls.Add(fontPickerFileName);
         groupBox1.Location = new System.Drawing.Point(6, 72);
         groupBox1.Name = "groupBox1";
         groupBox1.Size = new System.Drawing.Size(418, 132);
         groupBox1.TabIndex = 3;
         groupBox1.TabStop = false;
         groupBox1.Text = "Font";
+        // 
+        // fontPickerFileName
+        // 
+        fontPickerFileName.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        fontPickerFileName.Location = new System.Drawing.Point(6, 22);
+        fontPickerFileName.Name = "fontPickerFileName";
+        fontPickerFileName.Size = new System.Drawing.Size(406, 103);
+        fontPickerFileName.TabIndex = 0;
+        fontPickerFileName.Changed += fontPickerFileName_Changed;
         // 
         // rbFnFullPath
         // 
@@ -98,9 +107,9 @@ partial class PrintSettingsEditor
         rbFnFullPath.Name = "rbFnFullPath";
         rbFnFullPath.Size = new System.Drawing.Size(71, 19);
         rbFnFullPath.TabIndex = 2;
-        rbFnFullPath.TabStop = true;
         rbFnFullPath.Text = "Full Path";
         rbFnFullPath.UseVisualStyleBackColor = true;
+        rbFnFullPath.CheckedChanged += rbFnOption_CheckedChanged;
         // 
         // rbFnNameExt
         // 
@@ -109,9 +118,9 @@ partial class PrintSettingsEditor
         rbFnNameExt.Name = "rbFnNameExt";
         rbFnNameExt.Size = new System.Drawing.Size(121, 19);
         rbFnNameExt.TabIndex = 1;
-        rbFnNameExt.TabStop = true;
         rbFnNameExt.Text = "Name + Extension";
         rbFnNameExt.UseVisualStyleBackColor = true;
+        rbFnNameExt.CheckedChanged += rbFnOption_CheckedChanged;
         // 
         // rbFnName
         // 
@@ -120,9 +129,9 @@ partial class PrintSettingsEditor
         rbFnName.Name = "rbFnName";
         rbFnName.Size = new System.Drawing.Size(57, 19);
         rbFnName.TabIndex = 0;
-        rbFnName.TabStop = true;
         rbFnName.Text = "Name";
         rbFnName.UseVisualStyleBackColor = true;
+        rbFnName.CheckedChanged += rbFnOption_CheckedChanged;
         // 
         // chPageNumber
         // 
@@ -152,43 +161,25 @@ partial class PrintSettingsEditor
         gbPageNumber.TabStop = false;
         gbPageNumber.Text = "Page Number Options";
         // 
-        // fontPicker1
+        // groupBox3
         // 
-        fontPicker1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-        fontPicker1.Location = new System.Drawing.Point(6, 22);
-        fontPicker1.Name = "fontPicker1";
-        fontPicker1.Size = new System.Drawing.Size(406, 103);
-        fontPicker1.TabIndex = 0;
+        groupBox3.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        groupBox3.Controls.Add(fontPickerPageNumber);
+        groupBox3.Location = new System.Drawing.Point(6, 129);
+        groupBox3.Name = "groupBox3";
+        groupBox3.Size = new System.Drawing.Size(418, 133);
+        groupBox3.TabIndex = 4;
+        groupBox3.TabStop = false;
+        groupBox3.Text = "Font";
         // 
-        // rbPnStandard
+        // fontPickerPageNumber
         // 
-        rbPnStandard.AutoSize = true;
-        rbPnStandard.Location = new System.Drawing.Point(6, 22);
-        rbPnStandard.Name = "rbPnStandard";
-        rbPnStandard.Size = new System.Drawing.Size(72, 19);
-        rbPnStandard.TabIndex = 0;
-        rbPnStandard.TabStop = true;
-        rbPnStandard.Text = "Standard";
-        rbPnStandard.UseVisualStyleBackColor = true;
-        // 
-        // rbPnTemplate
-        // 
-        rbPnTemplate.AutoSize = true;
-        rbPnTemplate.Location = new System.Drawing.Point(6, 47);
-        rbPnTemplate.Name = "rbPnTemplate";
-        rbPnTemplate.Size = new System.Drawing.Size(77, 19);
-        rbPnTemplate.TabIndex = 1;
-        rbPnTemplate.TabStop = true;
-        rbPnTemplate.Text = "Template:";
-        rbPnTemplate.UseVisualStyleBackColor = true;
-        // 
-        // tbPageNumberTemplate
-        // 
-        tbPageNumberTemplate.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-        tbPageNumberTemplate.Location = new System.Drawing.Point(108, 46);
-        tbPageNumberTemplate.Name = "tbPageNumberTemplate";
-        tbPageNumberTemplate.Size = new System.Drawing.Size(316, 23);
-        tbPageNumberTemplate.TabIndex = 2;
+        fontPickerPageNumber.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        fontPickerPageNumber.Location = new System.Drawing.Point(6, 22);
+        fontPickerPageNumber.Name = "fontPickerPageNumber";
+        fontPickerPageNumber.Size = new System.Drawing.Size(406, 103);
+        fontPickerPageNumber.TabIndex = 0;
+        fontPickerPageNumber.Changed += fontPickerPageNumber_Changed;
         // 
         // groupBox2
         // 
@@ -203,16 +194,17 @@ partial class PrintSettingsEditor
         groupBox2.TabStop = false;
         groupBox2.Text = "Align";
         // 
-        // rbPnALeft
+        // rbPnARight
         // 
-        rbPnALeft.AutoSize = true;
-        rbPnALeft.Location = new System.Drawing.Point(6, 22);
-        rbPnALeft.Name = "rbPnALeft";
-        rbPnALeft.Size = new System.Drawing.Size(45, 19);
-        rbPnALeft.TabIndex = 0;
-        rbPnALeft.TabStop = true;
-        rbPnALeft.Text = "Left";
-        rbPnALeft.UseVisualStyleBackColor = true;
+        rbPnARight.AutoSize = true;
+        rbPnARight.Location = new System.Drawing.Point(242, 22);
+        rbPnARight.Name = "rbPnARight";
+        rbPnARight.Size = new System.Drawing.Size(53, 19);
+        rbPnARight.TabIndex = 2;
+        rbPnARight.TabStop = true;
+        rbPnARight.Text = "Right";
+        rbPnARight.UseVisualStyleBackColor = true;
+        rbPnARight.CheckedChanged += rbPnAlign_CheckedChanged;
         // 
         // rbPnACenter
         // 
@@ -224,36 +216,51 @@ partial class PrintSettingsEditor
         rbPnACenter.TabStop = true;
         rbPnACenter.Text = "Center";
         rbPnACenter.UseVisualStyleBackColor = true;
+        rbPnACenter.CheckedChanged += rbPnAlign_CheckedChanged;
         // 
-        // rbPnARight
+        // rbPnALeft
         // 
-        rbPnARight.AutoSize = true;
-        rbPnARight.Location = new System.Drawing.Point(242, 22);
-        rbPnARight.Name = "rbPnARight";
-        rbPnARight.Size = new System.Drawing.Size(53, 19);
-        rbPnARight.TabIndex = 2;
-        rbPnARight.TabStop = true;
-        rbPnARight.Text = "Right";
-        rbPnARight.UseVisualStyleBackColor = true;
+        rbPnALeft.AutoSize = true;
+        rbPnALeft.Location = new System.Drawing.Point(6, 22);
+        rbPnALeft.Name = "rbPnALeft";
+        rbPnALeft.Size = new System.Drawing.Size(45, 19);
+        rbPnALeft.TabIndex = 0;
+        rbPnALeft.TabStop = true;
+        rbPnALeft.Text = "Left";
+        rbPnALeft.UseVisualStyleBackColor = true;
+        rbPnALeft.CheckedChanged += rbPnAlign_CheckedChanged;
         // 
-        // groupBox3
+        // tbPageNumberTemplate
         // 
-        groupBox3.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-        groupBox3.Controls.Add(fontPicker2);
-        groupBox3.Location = new System.Drawing.Point(6, 129);
-        groupBox3.Name = "groupBox3";
-        groupBox3.Size = new System.Drawing.Size(418, 133);
-        groupBox3.TabIndex = 4;
-        groupBox3.TabStop = false;
-        groupBox3.Text = "Font";
+        tbPageNumberTemplate.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        tbPageNumberTemplate.Location = new System.Drawing.Point(108, 46);
+        tbPageNumberTemplate.Name = "tbPageNumberTemplate";
+        tbPageNumberTemplate.Size = new System.Drawing.Size(316, 23);
+        tbPageNumberTemplate.TabIndex = 2;
         // 
-        // fontPicker2
+        // rbPnTemplate
         // 
-        fontPicker2.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-        fontPicker2.Location = new System.Drawing.Point(6, 22);
-        fontPicker2.Name = "fontPicker2";
-        fontPicker2.Size = new System.Drawing.Size(406, 103);
-        fontPicker2.TabIndex = 0;
+        rbPnTemplate.AutoSize = true;
+        rbPnTemplate.Location = new System.Drawing.Point(6, 47);
+        rbPnTemplate.Name = "rbPnTemplate";
+        rbPnTemplate.Size = new System.Drawing.Size(77, 19);
+        rbPnTemplate.TabIndex = 1;
+        rbPnTemplate.TabStop = true;
+        rbPnTemplate.Text = "Template:";
+        rbPnTemplate.UseVisualStyleBackColor = true;
+        rbPnTemplate.CheckedChanged += rbPnOption_CheckedChanged;
+        // 
+        // rbPnStandard
+        // 
+        rbPnStandard.AutoSize = true;
+        rbPnStandard.Location = new System.Drawing.Point(6, 22);
+        rbPnStandard.Name = "rbPnStandard";
+        rbPnStandard.Size = new System.Drawing.Size(72, 19);
+        rbPnStandard.TabIndex = 0;
+        rbPnStandard.TabStop = true;
+        rbPnStandard.Text = "Standard";
+        rbPnStandard.UseVisualStyleBackColor = true;
+        rbPnStandard.CheckedChanged += rbPnOption_CheckedChanged;
         // 
         // PrintSettingsEditor
         // 
@@ -270,9 +277,9 @@ partial class PrintSettingsEditor
         groupBox1.ResumeLayout(false);
         gbPageNumber.ResumeLayout(false);
         gbPageNumber.PerformLayout();
+        groupBox3.ResumeLayout(false);
         groupBox2.ResumeLayout(false);
         groupBox2.PerformLayout();
-        groupBox3.ResumeLayout(false);
         ResumeLayout(false);
         PerformLayout();
     }
@@ -287,7 +294,7 @@ partial class PrintSettingsEditor
     private System.Windows.Forms.RadioButton rbFnFullPath;
     private System.Windows.Forms.RadioButton rbFnNameExt;
     private System.Windows.Forms.RadioButton rbFnName;
-    private FontPicker fontPicker1;
+    private FontPicker fontPickerFileName;
     private System.Windows.Forms.RadioButton rbPnStandard;
     private System.Windows.Forms.TextBox tbPageNumberTemplate;
     private System.Windows.Forms.RadioButton rbPnTemplate;
@@ -296,5 +303,5 @@ partial class PrintSettingsEditor
     private System.Windows.Forms.RadioButton rbPnACenter;
     private System.Windows.Forms.RadioButton rbPnALeft;
     private System.Windows.Forms.GroupBox groupBox3;
-    private FontPicker fontPicker2;
+    private FontPicker fontPickerPageNumber;
 }

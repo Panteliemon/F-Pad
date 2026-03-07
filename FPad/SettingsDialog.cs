@@ -32,8 +32,6 @@ public partial class SettingsDialog : Form
         InitializeComponent();
         Icon = App.Icon;
 
-        fontPickerMain.DisplayFont(App.Settings.Font);
-
         encodings = EncodingManager.Encodings.ToArray();
         EncodingVm currentDefaultEncoding = EncodingManager.GetDefaultEncoding();
         cbEncodings.Items.AddRange(encodings);
@@ -52,6 +50,9 @@ public partial class SettingsDialog : Form
 
         label5.Text = $"Associate txt files with {App.TITLE} (takes effect immediately, Cancel button doesn't roll back):";
         UacIconBehavior _ = new(bAssociateAllUsers);
+
+        fontPickerMain.DisplayFont(App.Settings.Font);
+        printSettingsEditor.DisplaySettings(App.Settings.PrintSettings);
 
         enableHandlers = true;
     }
@@ -92,6 +93,7 @@ public partial class SettingsDialog : Form
         App.Settings.AutoReload = chAutoReload.Checked;
         App.Settings.DefaultEncodingWebName = (cbEncodings.SelectedIndex >= 0)
             ? encodings[cbEncodings.SelectedIndex].Encoding.WebName : null;
+        printSettingsEditor.SaveSettings(App.Settings.PrintSettings);
         Close();
     }
 

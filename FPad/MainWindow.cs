@@ -657,7 +657,7 @@ namespace FPad
         {
             if (SettingsDialog.ShowADialog())
             {
-                if (App.SaveSettings(SettingsFlags.General | SettingsFlags.Font))
+                if (App.SaveSettings(SettingsFlags.General | SettingsFlags.Font | SettingsFlags.PrintSettings))
                     StatusBarShowSecondOrderSuccessMessage("Settings Saved");
                 else
                     StatusBarShowSecondOrderErrorMessage("Error when saving settings. Settings not saved.");

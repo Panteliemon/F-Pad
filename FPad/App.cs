@@ -87,10 +87,7 @@ namespace FPad
 
                 if ((flags & SettingsFlags.Font) != 0)
                 {
-                    destSettings.Font.Family = Settings.Font.Family;
-                    destSettings.Font.Size = Settings.Font.Size;
-                    destSettings.Font.IsBold = Settings.Font.IsBold;
-                    destSettings.Font.IsItalic = Settings.Font.IsItalic;
+                    destSettings.Font = Settings.Font.Clone();
                 }
 
                 if ((flags & SettingsFlags.Wrap) != 0)
@@ -127,6 +124,11 @@ namespace FPad
                 {
                     destSettings.FindMatchCase = Settings.FindMatchCase;
                     destSettings.FindWholeWords = Settings.FindWholeWords;
+                }
+
+                if ((flags & SettingsFlags.PrintSettings) != 0)
+                {
+                    destSettings.PrintSettings = Settings.PrintSettings.Clone();
                 }
             });
         }

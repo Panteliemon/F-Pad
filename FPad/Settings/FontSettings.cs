@@ -24,4 +24,9 @@ public class FontSettings
             Size = 12
         };
     }
+
+    public FontSettings Clone()
+    {
+        return (FontSettings)MemberwiseClone();
+    }
 }
