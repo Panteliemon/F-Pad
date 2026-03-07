@@ -1071,7 +1071,15 @@ namespace FPad
             catch (Exception ex)
             {
                 if (!IsDisposed)
-                    BeginInvoke(() => App.ShowError(ex));
+                {
+                    try
+                    {
+                        BeginInvoke(() => App.ShowError(ex));
+                    }
+                    catch (InvalidOperationException) // IsDisposed doesn't help
+                    {
+                    }
+                }
             }
         }
 

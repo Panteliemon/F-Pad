@@ -61,7 +61,18 @@ public partial class PrintWindow : Form
         selectedPrinter = document.PrinterSettings.PrinterName;
         cbPrinter.SelectedIndex = installedPrinters.IndexOf(selectedPrinter);
 
+        // If templated page numbers are used - have to pre-render document to count number of pages.
+        // This is how we do it:
+        if (App.Settings.PrintSettings.IncludePageNumber && App.Settings.PrintSettings.UsePageNumberTemplate)
+        {
+            auxPrintPreview.Visible = true;
+            auxPrintPreview.Document = document; // Causes render pass 1
+            auxPrintPreview.Width = 1; // Needs to be "truly" visible to render
+            auxPrintPreview.Height = 1;
+        }
+        
         printPreview.Document = document;
+
         _ = new DigitOnlyBehavior(tbFrom);
         _ = new DigitOnlyBehavior(tbTo);
         _ = new DigitOnlyBehavior(tbCurrentPage);
@@ -289,19 +300,25 @@ public partial class PrintWindow : Form
             Task.Delay(debouncePrinterSettingsMs).Wait();
             if (!IsDisposed)
             {
-                BeginInvoke(() =>
+                try
                 {
-                    if (localChangeId == debouncePrinterSettingsChangeId)
+                    BeginInvoke(() =>
                     {
-                        debouncePrinterSettingsMs = 750;
+                        if (localChangeId == debouncePrinterSettingsChangeId)
+                        {
+                            debouncePrinterSettingsMs = 750;
 
-                        PrintSettings localPrintSettings = App.Settings.PrintSettings.Clone();
-                        printSettingsEditor.SaveSettings(localPrintSettings);
-                        printer.SetSettings(localPrintSettings);
+                            PrintSettings localPrintSettings = App.Settings.PrintSettings.Clone();
+                            printSettingsEditor.SaveSettings(localPrintSettings);
+                            printer.SetSettings(localPrintSettings);
 
-                        printPreview.InvalidatePreview();
-                    }
-                });
+                            printPreview.InvalidatePreview();
+                        }
+                    });
+                }
+                catch (InvalidOperationException) // IsDisposed doesn't help
+                {
+                }
             }
         });
     }
@@ -344,17 +361,23 @@ public partial class PrintWindow : Form
         int? pagesCountLocal = printer.PagesCount;
         if (!IsDisposed)
         {
-            BeginInvoke(() =>
+            try
             {
-                pagesCount = pagesCountLocal ?? 1;
-                pageFrom = 1;
-                pageTo = pagesCount;
-                ShowPagesFromTo();
+                BeginInvoke(() =>
+                {
+                    pagesCount = pagesCountLocal ?? 1;
+                    pageFrom = 1;
+                    pageTo = pagesCount;
+                    ShowPagesFromTo();
 
-                lOfPageCount.Text = $"of {pagesCount}";
+                    lOfPageCount.Text = $"of {pagesCount}";
 
-                SetCurrentPage(0);
-            });
+                    SetCurrentPage(0);
+                });
+            }
+            catch (InvalidOperationException) // IsDisposed doesn't help
+            {
+            }
         }
     }
 
@@ -432,26 +455,32 @@ public partial class PrintWindow : Form
             WinApi.PRINTER_INFO_2? printerInfo = GetPrinterInfo(localPrinterName);
             if (!IsDisposed)
             {
-                BeginInvoke(() =>
+                try
                 {
-                    if (localCallId == updatePrinterAttributesCallId)
+                    BeginInvoke(() =>
                     {
-                        if (printerInfo.HasValue)
+                        if (localCallId == updatePrinterAttributesCallId)
                         {
-                            lStatus.Text = PrinterStatusToStr(printerInfo.Value.Status);
-                            lType.Text = printerInfo.Value.pDriverName;
-                            lWhere.Text = printerInfo.Value.pPortName;
-                            lComment.Text = printerInfo.Value.pComment;
+                            if (printerInfo.HasValue)
+                            {
+                                lStatus.Text = PrinterStatusToStr(printerInfo.Value.Status);
+                                lType.Text = printerInfo.Value.pDriverName;
+                                lWhere.Text = printerInfo.Value.pPortName;
+                                lComment.Text = printerInfo.Value.pComment;
+                            }
+                            else
+                            {
+                                lStatus.Text = "< error >";
+                                lType.Text = "< error >";
+                                lWhere.Text = "< error >";
+                                lComment.Text = "< error >";
+                            }
                         }
-                        else
-                        {
-                            lStatus.Text = "< error >";
-                            lType.Text = "< error >";
-                            lWhere.Text = "< error >";
-                            lComment.Text = "< error >";
-                        }
-                    }
-                });
+                    });
+                }
+                catch (InvalidOperationException) // IsDisposed doesn't help
+                {
+                }
             }
         });
     }

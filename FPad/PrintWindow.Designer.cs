@@ -62,6 +62,7 @@ partial class PrintWindow
         pNextPage = new System.Windows.Forms.Button();
         label6 = new System.Windows.Forms.Label();
         groupBox4 = new System.Windows.Forms.GroupBox();
+        auxPrintPreview = new System.Windows.Forms.PrintPreviewControl();
         panel1 = new System.Windows.Forms.Panel();
         tbCurrentPage = new System.Windows.Forms.TextBox();
         lOfPageCount = new System.Windows.Forms.Label();
@@ -401,6 +402,7 @@ partial class PrintWindow
         // groupBox4
         // 
         groupBox4.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+        groupBox4.Controls.Add(auxPrintPreview);
         groupBox4.Controls.Add(panel1);
         groupBox4.Controls.Add(printPreview);
         groupBox4.Location = new System.Drawing.Point(365, 6);
@@ -409,6 +411,14 @@ partial class PrintWindow
         groupBox4.TabIndex = 9;
         groupBox4.TabStop = false;
         groupBox4.Text = "Preview";
+        // 
+        // auxPrintPreview
+        // 
+        auxPrintPreview.Location = new System.Drawing.Point(323, 17);
+        auxPrintPreview.Name = "auxPrintPreview";
+        auxPrintPreview.Size = new System.Drawing.Size(100, 100);
+        auxPrintPreview.TabIndex = 10;
+        auxPrintPreview.Visible = false;
         // 
         // panel1
         // 
@@ -547,4 +557,5 @@ partial class PrintWindow
     private System.Windows.Forms.GroupBox groupBox5;
     private System.Windows.Forms.Panel panel2;
     private Controls.PrintSettingsEditor printSettingsEditor;
+    private System.Windows.Forms.PrintPreviewControl auxPrintPreview;
 }
