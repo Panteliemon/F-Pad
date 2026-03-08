@@ -95,7 +95,7 @@ public partial class PrintWindow : Form
 
         printSettingsEditor.DisplaySettings(App.Settings.PrintSettings);
 
-        printer.PagesCountChanged += Printer_PagesCountChanged;
+        printer.PagesCountDetermined += Printer_PagesCountDetermined;
 
         enableHandlers = true;
     }
@@ -356,7 +356,7 @@ public partial class PrintWindow : Form
         UpdatePrinterAttributes();
     }
 
-    private void Printer_PagesCountChanged(object sender, EventArgs e)
+    private void Printer_PagesCountDetermined(object sender, EventArgs e)
     {
         int? pagesCountLocal = printer.PagesCount;
         if (!IsDisposed)
@@ -396,7 +396,7 @@ public partial class PrintWindow : Form
     private void PrintWindow_FormClosing(object sender, FormClosingEventArgs e)
     {
         timer1.Enabled = false;
-        printer.PagesCountChanged -= Printer_PagesCountChanged;
+        printer.PagesCountDetermined -= Printer_PagesCountDetermined;
     }
 
     private void PrintWindow_KeyDown(object sender, KeyEventArgs e)

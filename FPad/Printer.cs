@@ -36,7 +36,6 @@ public class Printer
     private int currentStartPosition;
     private int currentPage; // 1-based
     private int pagesCount;
-    private int pagesCountPreviousPrint;
     private int documentCopiesLeft;
     private int pageCopiesLeft;
     private CancellationToken ct;
@@ -55,7 +54,7 @@ public class Printer
     public int PageTo { get; set; }
 
     public int? PagesCount { get; set; }
-    public event EventHandler PagesCountChanged;
+    public event EventHandler PagesCountDetermined;
 
     public Printer(string allText, Font mainTextFont, string documentFullPath)
     {
@@ -94,9 +93,7 @@ public class Printer
     {
         currentStartPosition = 0;
         currentPage = 1;
-        pagesCountPreviousPrint = pagesCount;
         pagesCount = 0;
-        PagesCount = null;
         documentCopiesLeft = NumberOfCopies;
         pageCopiesLeft = NumberOfCopies;
     }
@@ -205,8 +202,8 @@ public class Printer
                     : pageNumberTemplate.Replace("{page}", currentPage.ToString())
                                         // Cannot know number of pages until printed to the end ¯\_(ツ)_/¯
                                         // Provided that it only depends on document's text and document's font - both immutable here -
-                                        // use previously calculated value, if any.
-                                        .Replace("{total}", pagesCountPreviousPrint.ToString());
+                                        // use first time calculated value, if any.
+                                        .Replace("{total}", (PagesCount ?? 0).ToString());
                 
                 SizeF pageNumberSize = e.Graphics.MeasureString(pageNumberStr, pageNumberFont);
                 float y = ((float)e.MarginBounds.Bottom + (float)e.PageBounds.Bottom - pageNumberSize.Height) / 2.0f;
@@ -277,8 +274,11 @@ public class Printer
 
     private void Document_EndPrint(object sender, PrintEventArgs e)
     {
-        PagesCount = pagesCount;
-        PagesCountChanged?.Invoke(this, EventArgs.Empty);
+        if (!PagesCount.HasValue)
+        {
+            PagesCount = pagesCount;
+            PagesCountDetermined?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     private bool IsPageIncluded(int pageNumber)
