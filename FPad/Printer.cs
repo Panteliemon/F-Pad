@@ -84,8 +84,9 @@ public class Printer
     {
         if (fileNameFont == null)
             throw new InvalidOperationException("Settings not set");
-
+        
         this.ct = ct;
+
         Document.Print();
     }
 
@@ -167,6 +168,12 @@ public class Printer
                         // Break inner (outer) cycle:
                         return false;
                     });
+
+                if (ct.IsCancellationRequested)
+                {
+                    e.HasMorePages = false;
+                    return;
+                }
             }
             while (((float)e.MarginBounds.Height - verticalOffset >= lineHeight) // enough space for the next line on current page
                    && (currentStartPosition < allText.Length));

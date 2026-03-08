@@ -4,6 +4,7 @@ using FPad.ExternalEditors;
 using FPad.Interaction;
 using FPad.Settings;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Printing;
@@ -56,6 +57,13 @@ namespace FPad
 
         CancellationTokenSource externalEditorsLoadingCts;
 
+        /// <summary>
+        /// All ongoing printing operations
+        /// </summary>
+        List<PrintTask> printTasks = new();
+        Image printIcon1;
+        Image printIcon2;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -66,6 +74,9 @@ namespace FPad
             openToolStripMenuItem.Image = App.LoadImage("b16_open.png");
             saveToolStripMenuItem.Image = App.LoadImage("b16_save.png");
             saveAsToolStripMenuItem.Image = App.LoadImage("b16_saveas.png");
+            printIcon1 = App.LoadImage("b16_print.png");
+            printIcon2 = App.LoadImage("b16_print2.png");
+            printToolStripMenuItem.Image = printIcon1;
             undoMenuItem.Image = App.LoadImage("b16_undo.png");
             redoMenuItem.Image = App.LoadImage("b16_redo.png");
             cutToolStripMenuItem.Image = App.LoadImage("b16_cut.png");
@@ -249,11 +260,25 @@ namespace FPad
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
+            bool waitForPrinters = false;
             if (e.CloseReason != CloseReason.WindowsShutDown)
             {
                 if (!HandleUnsavedChanges())
                 {
                     e.Cancel = true;
+                }
+
+                if (!e.Cancel && (printTasks.Count > 0))
+                {
+                    if (App.WarningQuestion("Still printing. Exit?"))
+                    {
+                        printTasks.ForEach(x => x.Cts.Cancel());
+                        waitForPrinters = true;
+                    }
+                    else
+                    {
+                        e.Cancel = true;
+                    }
                 }
             }
 
@@ -267,6 +292,13 @@ namespace FPad
                 if (!isNew)
                     settingsToSave |= SettingsFlags.FileWindowPosition;
                 App.SaveSettings(settingsToSave, currentDocumentFullPath);
+
+                if (waitForPrinters)
+                {
+                    Hide();
+                    Task[] tasksToWait = printTasks.Select(x => x.PrintingTask).ToArray();
+                    Task.WaitAll(tasksToWait);
+                }
             }
         }
 
@@ -433,9 +465,43 @@ namespace FPad
                 else
                     StatusBarShowSecondOrderErrorMessage("Error when saving settings. Settings not saved.");
 
-                // They told us it only "starts" printing process, in reality it starts and waits.
-                // TODO Need indication and cancellation on exit app
-                Task.Run(() => printer.Print(CancellationToken.None));
+                // They told us PrintDocument.Print() only "starts" printing process,
+                // in reality it starts and waits. Indication:
+                if (printTasks.Count == 0)
+                {
+                    printStatusLabel.Visible = true;
+                    printStatusLabel.Image = printIcon2;
+                    printIconTimer.Enabled = true;
+                }
+
+                TaskCompletionSource currentTaskCs = new();
+                PrintTask currentTask = new(printer, currentTaskCs.Task, new CancellationTokenSource());
+                printTasks.Add(currentTask);
+
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        printer.Print(currentTask.Cts.Token);
+
+                        BeginInvoke(() =>
+                        {
+                            printTasks.Remove(currentTask);
+                            if (printTasks.Count == 0)
+                            {
+                                printIconTimer.Enabled = false;
+                                printStatusLabel.Visible = false;
+                            }
+                        });
+                    }
+                    catch (InvalidOperationException)
+                    {
+                    }
+                    finally
+                    {
+                        currentTaskCs.SetResult();
+                    }
+                });
             }
         }
 
@@ -684,6 +750,12 @@ namespace FPad
                 isLabelExternallyModifiedLit = !isLabelExternallyModifiedLit;
                 UpdateLabelExternallyModifiedColor();
             }
+        }
+
+        private void printIconTimer_Tick(object sender, EventArgs e)
+        {
+            printStatusLabel.Image = (printStatusLabel.Image == printIcon1)
+                ? printIcon2 : printIcon1;
         }
 
         #endregion

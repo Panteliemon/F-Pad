@@ -37,6 +37,7 @@ namespace FPad
             msgLabel = new ToolStripStatusLabel();
             labelExternallyModified = new ToolStripStatusLabel();
             toolStripButtonReload = new ToolStripStatusButton();
+            printStatusLabel = new ToolStripStatusLabel();
             modifiedLabel = new ToolStripStatusLabel();
             lineAndColLabel = new ToolStripStatusLabel();
             labelSelection = new ToolStripStatusLabel();
@@ -78,6 +79,8 @@ namespace FPad
             copyContextMenuItem = new ToolStripMenuItem();
             pasteContextMenuItem = new ToolStripMenuItem();
             blinkingTimer = new Timer(components);
+            toolTip1 = new ToolTip(components);
+            printIconTimer = new Timer(components);
             statusBar.SuspendLayout();
             mainMenu.SuspendLayout();
             panel1.SuspendLayout();
@@ -86,9 +89,10 @@ namespace FPad
             // 
             // statusBar
             // 
-            statusBar.Items.AddRange(new ToolStripItem[] { msgLabel, labelExternallyModified, toolStripButtonReload, modifiedLabel, lineAndColLabel, labelSelection, wrapLabel, encodingLabel });
+            statusBar.Items.AddRange(new ToolStripItem[] { msgLabel, labelExternallyModified, toolStripButtonReload, printStatusLabel, modifiedLabel, lineAndColLabel, labelSelection, wrapLabel, encodingLabel });
             statusBar.Location = new Point(0, 464);
             statusBar.Name = "statusBar";
+            statusBar.ShowItemToolTips = true;
             statusBar.Size = new Size(753, 24);
             statusBar.TabIndex = 0;
             statusBar.Text = "statusStrip1";
@@ -121,6 +125,14 @@ namespace FPad
             toolStripButtonReload.Size = new Size(70, 19);
             toolStripButtonReload.Text = "Reload (F5)";
             toolStripButtonReload.MouseUp += toolStripButtonReload_MouseUp;
+            // 
+            // printStatusLabel
+            // 
+            printStatusLabel.AutoSize = false;
+            printStatusLabel.Name = "printStatusLabel";
+            printStatusLabel.Size = new Size(19, 19);
+            printStatusLabel.ToolTipText = "Printing";
+            printStatusLabel.Visible = false;
             // 
             // modifiedLabel
             // 
@@ -429,6 +441,11 @@ namespace FPad
             blinkingTimer.Interval = 750;
             blinkingTimer.Tick += blinkingTimer_Tick;
             // 
+            // printIconTimer
+            // 
+            printIconTimer.Interval = 333;
+            printIconTimer.Tick += printIconTimer_Tick;
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -507,5 +524,8 @@ namespace FPad
         private ToolStripSeparator toolStripSeparator5;
         private ToolStripSeparator toolStripSeparator6;
         private ToolStripMenuItem printToolStripMenuItem;
+        private ToolStripStatusLabel printStatusLabel;
+        private ToolTip toolTip1;
+        private Timer printIconTimer;
     }
 }
