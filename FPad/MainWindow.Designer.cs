@@ -42,6 +42,7 @@ namespace FPad
             lineAndColLabel = new ToolStripStatusLabel();
             labelSelection = new ToolStripStatusLabel();
             wrapLabel = new ToolStripStatusLabel();
+            lineBreaksLabel = new ToolStripStatusLabel();
             encodingLabel = new ToolStripStatusLabel();
             mainMenu = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
@@ -67,6 +68,9 @@ namespace FPad
             goToLineMenuItem = new ToolStripMenuItem();
             toolStripSeparator3 = new ToolStripSeparator();
             wrapLinesMenuItem = new ToolStripMenuItem();
+            lineBreaksToolStripMenuItem = new ToolStripMenuItem();
+            windowsLineBreaksStripMenuItem = new ToolStripMenuItem();
+            unixLineBreaksStripMenuItem = new ToolStripMenuItem();
             encodingToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator4 = new ToolStripSeparator();
             preferencesToolStripMenuItem = new ToolStripMenuItem();
@@ -89,7 +93,7 @@ namespace FPad
             // 
             // statusBar
             // 
-            statusBar.Items.AddRange(new ToolStripItem[] { msgLabel, labelExternallyModified, toolStripButtonReload, printStatusLabel, modifiedLabel, lineAndColLabel, labelSelection, wrapLabel, encodingLabel });
+            statusBar.Items.AddRange(new ToolStripItem[] { msgLabel, labelExternallyModified, toolStripButtonReload, printStatusLabel, modifiedLabel, lineAndColLabel, labelSelection, wrapLabel, lineBreaksLabel, encodingLabel });
             statusBar.Location = new Point(0, 464);
             statusBar.Name = "statusBar";
             statusBar.ShowItemToolTips = true;
@@ -103,7 +107,7 @@ namespace FPad
             msgLabel.BorderStyle = Border3DStyle.SunkenOuter;
             msgLabel.Margin = new Padding(2, 3, 0, 2);
             msgLabel.Name = "msgLabel";
-            msgLabel.Size = new Size(274, 19);
+            msgLabel.Size = new Size(236, 19);
             msgLabel.Spring = true;
             msgLabel.TextAlign = ContentAlignment.MiddleLeft;
             // 
@@ -142,6 +146,7 @@ namespace FPad
             modifiedLabel.Name = "modifiedLabel";
             modifiedLabel.Size = new Size(43, 19);
             modifiedLabel.Text = "Modif";
+            modifiedLabel.ToolTipText = "The document contains unsaved changes";
             // 
             // lineAndColLabel
             // 
@@ -166,6 +171,15 @@ namespace FPad
             wrapLabel.Name = "wrapLabel";
             wrapLabel.Size = new Size(44, 19);
             wrapLabel.Text = "WRAP";
+            wrapLabel.ToolTipText = "Wrap Lines is On";
+            // 
+            // lineBreaksLabel
+            // 
+            lineBreaksLabel.BorderSides = ToolStripStatusLabelBorderSides.Left | ToolStripStatusLabelBorderSides.Top | ToolStripStatusLabelBorderSides.Right | ToolStripStatusLabelBorderSides.Bottom;
+            lineBreaksLabel.BorderStyle = Border3DStyle.SunkenOuter;
+            lineBreaksLabel.Name = "lineBreaksLabel";
+            lineBreaksLabel.Size = new Size(38, 19);
+            lineBreaksLabel.Text = "CRLF";
             // 
             // encodingLabel
             // 
@@ -256,7 +270,7 @@ namespace FPad
             // 
             // editToolStripMenuItem
             // 
-            editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { undoMenuItem, redoMenuItem, toolStripSeparator5, cutToolStripMenuItem, copyToolStripMenuItem, pasteToolStripMenuItem, toolStripSeparator2, findToolStripMenuItem, replaceToolStripMenuItem, goToLineMenuItem, toolStripSeparator3, wrapLinesMenuItem, encodingToolStripMenuItem, toolStripSeparator4, preferencesToolStripMenuItem });
+            editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { undoMenuItem, redoMenuItem, toolStripSeparator5, cutToolStripMenuItem, copyToolStripMenuItem, pasteToolStripMenuItem, toolStripSeparator2, findToolStripMenuItem, replaceToolStripMenuItem, goToLineMenuItem, toolStripSeparator3, wrapLinesMenuItem, lineBreaksToolStripMenuItem, encodingToolStripMenuItem, toolStripSeparator4, preferencesToolStripMenuItem });
             editToolStripMenuItem.Name = "editToolStripMenuItem";
             editToolStripMenuItem.Size = new Size(39, 20);
             editToolStripMenuItem.Text = "&Edit";
@@ -265,26 +279,26 @@ namespace FPad
             // 
             undoMenuItem.Name = "undoMenuItem";
             undoMenuItem.ShortcutKeys = Keys.Control | Keys.Z;
-            undoMenuItem.Size = new Size(170, 22);
+            undoMenuItem.Size = new Size(180, 22);
             undoMenuItem.Click += undoMenuItem_Click;
             // 
             // redoMenuItem
             // 
             redoMenuItem.Name = "redoMenuItem";
             redoMenuItem.ShortcutKeys = Keys.Control | Keys.Y;
-            redoMenuItem.Size = new Size(170, 22);
+            redoMenuItem.Size = new Size(180, 22);
             redoMenuItem.Click += redoMenuItem_Click;
             // 
             // toolStripSeparator5
             // 
             toolStripSeparator5.Name = "toolStripSeparator5";
-            toolStripSeparator5.Size = new Size(167, 6);
+            toolStripSeparator5.Size = new Size(177, 6);
             // 
             // cutToolStripMenuItem
             // 
             cutToolStripMenuItem.Name = "cutToolStripMenuItem";
             cutToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.X;
-            cutToolStripMenuItem.Size = new Size(170, 22);
+            cutToolStripMenuItem.Size = new Size(180, 22);
             cutToolStripMenuItem.Text = "Cu&t";
             cutToolStripMenuItem.Click += cutToolStripMenuItem_Click;
             // 
@@ -292,7 +306,7 @@ namespace FPad
             // 
             copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             copyToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.C;
-            copyToolStripMenuItem.Size = new Size(170, 22);
+            copyToolStripMenuItem.Size = new Size(180, 22);
             copyToolStripMenuItem.Text = "&Copy";
             copyToolStripMenuItem.Click += copyToolStripMenuItem_Click;
             // 
@@ -300,20 +314,20 @@ namespace FPad
             // 
             pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
             pasteToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.V;
-            pasteToolStripMenuItem.Size = new Size(170, 22);
+            pasteToolStripMenuItem.Size = new Size(180, 22);
             pasteToolStripMenuItem.Text = "&Paste";
             pasteToolStripMenuItem.Click += pasteToolStripMenuItem_Click;
             // 
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(167, 6);
+            toolStripSeparator2.Size = new Size(177, 6);
             // 
             // findToolStripMenuItem
             // 
             findToolStripMenuItem.Name = "findToolStripMenuItem";
             findToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.F;
-            findToolStripMenuItem.Size = new Size(170, 22);
+            findToolStripMenuItem.Size = new Size(180, 22);
             findToolStripMenuItem.Text = "&Find";
             findToolStripMenuItem.Click += findToolStripMenuItem_Click;
             // 
@@ -321,7 +335,7 @@ namespace FPad
             // 
             replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
             replaceToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.H;
-            replaceToolStripMenuItem.Size = new Size(170, 22);
+            replaceToolStripMenuItem.Size = new Size(180, 22);
             replaceToolStripMenuItem.Text = "&Replace";
             replaceToolStripMenuItem.Click += replaceToolStripMenuItem_Click;
             // 
@@ -329,37 +343,58 @@ namespace FPad
             // 
             goToLineMenuItem.Name = "goToLineMenuItem";
             goToLineMenuItem.ShortcutKeys = Keys.Control | Keys.G;
-            goToLineMenuItem.Size = new Size(170, 22);
+            goToLineMenuItem.Size = new Size(180, 22);
             goToLineMenuItem.Text = "Go to Line";
             goToLineMenuItem.Click += goToLineMenuItem_Click;
             // 
             // toolStripSeparator3
             // 
             toolStripSeparator3.Name = "toolStripSeparator3";
-            toolStripSeparator3.Size = new Size(167, 6);
+            toolStripSeparator3.Size = new Size(177, 6);
             // 
             // wrapLinesMenuItem
             // 
             wrapLinesMenuItem.Name = "wrapLinesMenuItem";
-            wrapLinesMenuItem.Size = new Size(170, 22);
+            wrapLinesMenuItem.Size = new Size(180, 22);
             wrapLinesMenuItem.Text = "&Wrap Lines";
             wrapLinesMenuItem.Click += wrapLinesMenuItem_Click;
+            // 
+            // lineBreaksToolStripMenuItem
+            // 
+            lineBreaksToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { windowsLineBreaksStripMenuItem, unixLineBreaksStripMenuItem });
+            lineBreaksToolStripMenuItem.Name = "lineBreaksToolStripMenuItem";
+            lineBreaksToolStripMenuItem.Size = new Size(180, 22);
+            lineBreaksToolStripMenuItem.Text = "Line Breaks";
+            // 
+            // windowsLineBreaksStripMenuItem
+            // 
+            windowsLineBreaksStripMenuItem.Name = "windowsLineBreaksStripMenuItem";
+            windowsLineBreaksStripMenuItem.Size = new Size(180, 22);
+            windowsLineBreaksStripMenuItem.Text = "Windows (CR + LF)";
+            windowsLineBreaksStripMenuItem.Click += windowsLineBreaksStripMenuItem_Click;
+            // 
+            // unixLineBreaksStripMenuItem
+            // 
+            unixLineBreaksStripMenuItem.Name = "unixLineBreaksStripMenuItem";
+            unixLineBreaksStripMenuItem.Size = new Size(180, 22);
+            unixLineBreaksStripMenuItem.Text = "Unix (LF)";
+            unixLineBreaksStripMenuItem.Click += unixLineBreaksStripMenuItem_Click;
             // 
             // encodingToolStripMenuItem
             // 
             encodingToolStripMenuItem.Name = "encodingToolStripMenuItem";
-            encodingToolStripMenuItem.Size = new Size(170, 22);
+            encodingToolStripMenuItem.Size = new Size(180, 22);
             encodingToolStripMenuItem.Text = "&Encoding";
             // 
             // toolStripSeparator4
             // 
             toolStripSeparator4.Name = "toolStripSeparator4";
-            toolStripSeparator4.Size = new Size(167, 6);
+            toolStripSeparator4.Size = new Size(177, 6);
             // 
             // preferencesToolStripMenuItem
             // 
             preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
-            preferencesToolStripMenuItem.Size = new Size(170, 22);
+            preferencesToolStripMenuItem.Size = new Size(180, 22);
             preferencesToolStripMenuItem.Text = "Preference&s";
             preferencesToolStripMenuItem.Click += preferencesToolStripMenuItem_Click;
             // 
@@ -527,5 +562,9 @@ namespace FPad
         private ToolStripStatusLabel printStatusLabel;
         private ToolTip toolTip1;
         private Timer printIconTimer;
+        private ToolStripStatusLabel lineBreaksLabel;
+        private ToolStripMenuItem lineBreaksToolStripMenuItem;
+        private ToolStripMenuItem windowsLineBreaksStripMenuItem;
+        private ToolStripMenuItem unixLineBreaksStripMenuItem;
     }
 }

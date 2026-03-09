@@ -7,10 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,6 +35,7 @@ namespace FPad
         EncodingVm initialEncoding = null;
         bool fileContainsPreamble;
         EncodingVm currentEncoding = null;
+        LineBreaks currentLineBreaks = LineBreaks.Windows;
         FileWatcher currentDocumentWatcher;
         UndoManager undoManager = new();
 
@@ -641,6 +640,20 @@ namespace FPad
             UpdateStatusBar();
         }
 
+        private void windowsLineBreaksStripMenuItem_Click(object sender, EventArgs e)
+        {
+            currentLineBreaks = LineBreaks.Windows;
+            UpdateMenu();
+            UpdateStatusBar();
+        }
+
+        private void unixLineBreaksStripMenuItem_Click(object sender, EventArgs e)
+        {
+            currentLineBreaks = LineBreaks.Unix;
+            UpdateMenu();
+            UpdateStatusBar();
+        }
+
         private void encodingMenuItemSelected(EncodingVm encodingVm)
         {
             if ((encodingVm != currentEncoding) && (currentEncoding != null))
@@ -1237,6 +1250,9 @@ namespace FPad
             copyContextMenuItem.Enabled = copyToolStripMenuItem.Enabled;
             pasteToolStripMenuItem.Enabled = Clipboard.ContainsText();
             pasteContextMenuItem.Enabled = pasteToolStripMenuItem.Enabled;
+
+            windowsLineBreaksStripMenuItem.Checked = currentLineBreaks == LineBreaks.Windows;
+            unixLineBreaksStripMenuItem.Checked = currentLineBreaks == LineBreaks.Unix;
         }
 
         private void UpdateStatusBar()
@@ -1278,6 +1294,17 @@ namespace FPad
                 (int lineIndex, int charIndex) = StringUtils.GetLineAndCol(text.Text, text.SelectionStart);
                 lineAndColLabel.Text = $"Line {lineIndex + 1}, Col {charIndex + 1}";
                 labelSelection.Visible = false;
+            }
+
+            if (currentLineBreaks == LineBreaks.Windows)
+            {
+                lineBreaksLabel.Text = "CRLF";
+                lineBreaksLabel.ToolTipText = "Windows-style line breaks (0D + 0A)";
+            }
+            else if (currentLineBreaks == LineBreaks.Unix)
+            {
+                lineBreaksLabel.Text = "LF";
+                lineBreaksLabel.ToolTipText = "Unix-style line breaks (0A)";
             }
         }
 
