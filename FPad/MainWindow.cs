@@ -35,6 +35,7 @@ namespace FPad
         EncodingVm initialEncoding = null;
         bool fileContainsPreamble;
         EncodingVm currentEncoding = null;
+        LineBreaks initialLineBreaks = LineBreaks.Windows;
         LineBreaks currentLineBreaks = LineBreaks.Windows;
         FileWatcher currentDocumentWatcher;
         UndoManager undoManager = new();
@@ -701,13 +702,22 @@ namespace FPad
                         // Show preamble because we are going to save the file with it
                         // or don't show because it was manually erased?
 
-                        byte[] bytes = currentDocumentBytes
-                            ?? currentEncoding.StringToFileBytes(text.Text,
+                        string textAfterDecode;
+                        if (currentDocumentBytes != null)
+                        {
+                            string decoded = encodingVm.FileBytesToString(currentDocumentBytes);
+                            textAfterDecode = LineBreaksToWindows(decoded, initialLineBreaks);
+                        }
+                        else
+                        {
+                            byte[] bytes = currentEncoding.StringToFileBytes(text.Text,
                                 fileContainsPreamble && (currentEncoding == initialEncoding));
-                        string decoded = encodingVm.FileBytesToString(bytes);
+                            textAfterDecode = encodingVm.FileBytesToString(bytes);
+                            // Line breaks are already 13-10, because encoded string from UI control
+                        }
 
                         IEditAction decodeAction = EditActionFactory.CreateDecode(text.Text,
-                            currentEncoding, text.Selection, decoded, encodingVm);
+                            currentEncoding, text.Selection, textAfterDecode, encodingVm);
                         // Set text by executing the action
                         decodeAction.Apply(this);
                         // Keep previous hasUnsavedChanges (reinterpretation != edit)
@@ -823,6 +833,8 @@ namespace FPad
             initialEncoding = null;
             currentEncoding = EncodingManager.GetDefaultEncoding();
             fileContainsPreamble = false; // no file
+            initialLineBreaks = LineBreaks.Windows;
+            currentLineBreaks = LineBreaks.Windows;
             UpdateEncodingMenuCheckboxes();
             UpdateStatusBar();
 
@@ -846,9 +858,14 @@ namespace FPad
                 fileContainsPreamble = currentEncoding.StartsWithPreamble(allBytes);
                 UpdateEncodingMenuCheckboxes();
 
+                string decoded = currentEncoding.FileBytesToString(allBytes);
+                LineBreaks detectedLineBreaks = StringUtils.DetectLineBreaks(decoded);
+                initialLineBreaks = ResolveLineBreaks(detectedLineBreaks);
+                currentLineBreaks = initialLineBreaks;
+
                 setModifiedOnTextChange = false;
                 detectUndoOnTextChange = false;
-                SetText(currentEncoding.FileBytesToString(allBytes));
+                SetText(LineBreaksToWindows(decoded, detectedLineBreaks));
 
                 currentDocumentBytes = allBytes;
                 hasUnsavedChanges = false;
@@ -887,9 +904,14 @@ namespace FPad
                 fileContainsPreamble = currentEncoding.StartsWithPreamble(allBytes);
                 UpdateEncodingMenuCheckboxes();
 
+                string decoded = currentEncoding.FileBytesToString(allBytes);
+                LineBreaks detectedLineBreaks = StringUtils.DetectLineBreaks(decoded);
+                initialLineBreaks = ResolveLineBreaks(detectedLineBreaks);
+                currentLineBreaks = initialLineBreaks;
+
                 setModifiedOnTextChange = false;
                 detectUndoOnTextChange = false;
-                SetText(currentEncoding.FileBytesToString(allBytes));
+                SetText(LineBreaksToWindows(decoded, detectedLineBreaks));
 
                 currentDocumentBytes = allBytes;
                 hasUnsavedChanges = false;
@@ -952,7 +974,7 @@ namespace FPad
                 }
                 else
                 {
-                    (bool proceed, byte[] encodedBytes) = EncodeForSave(text.Text, false);
+                    (bool proceed, byte[] encodedBytes) = EncodeTextForSave(false);
                     if (!proceed)
                         return null;
 
@@ -969,6 +991,7 @@ namespace FPad
                         currentDocumentBytes = encodedBytes;
                         initialEncoding = currentEncoding;
                         fileContainsPreamble = currentEncoding.StartsWithPreamble(encodedBytes);
+                        initialLineBreaks = currentLineBreaks;
                         undoManager.DocumentSaved();
                         UpdateTitle();
                         UpdateMenu();
@@ -1000,7 +1023,7 @@ namespace FPad
             if (isNew)
                 throw new InvalidOperationException();
 
-            (bool proceed, byte[] encodedBytes) = EncodeForSave(text.Text,
+            (bool proceed, byte[] encodedBytes) = EncodeTextForSave(
                 // We save UTF-8 by default without preamble, but if it was already there - we preserve it
                 fileContainsPreamble && (currentEncoding == initialEncoding));
             if (!proceed)
@@ -1015,6 +1038,7 @@ namespace FPad
                 currentDocumentBytes = encodedBytes;
                 initialEncoding = currentEncoding;
                 fileContainsPreamble = currentEncoding.StartsWithPreamble(encodedBytes);
+                initialLineBreaks = currentLineBreaks;
                 undoManager.DocumentSaved();
             }
 
@@ -1024,8 +1048,11 @@ namespace FPad
             return saveResult;
         }
 
-        private (bool proceed, byte[] encodedBytes) EncodeForSave(string allText, bool preferPreamble)
+        private (bool proceed, byte[] encodedBytes) EncodeTextForSave(bool preferPreamble)
         {
+            string allText = (currentLineBreaks == LineBreaks.Windows)
+                ? text.Text : StringUtils.NormalizeLineBreaks(text.Text, currentLineBreaks);
+
             byte[] result = currentEncoding.StringToFileBytes(allText, preferPreamble);
             if (!currentEncoding.IsLossless)
             {
@@ -1478,6 +1505,29 @@ namespace FPad
         private Point GetTopRightForFindReplace()
         {
             return text.PointToScreen(new Point(text.Width - 10, 0));
+        }
+
+        private static string LineBreaksToWindows(string strFromFile, LineBreaks detectedFromFile)
+        {
+            if ((detectedFromFile == LineBreaks.None) || (detectedFromFile == LineBreaks.Windows))
+                return strFromFile;
+            else
+                return StringUtils.NormalizeLineBreaks(strFromFile, LineBreaks.Windows);
+        }
+
+        /// <summary>
+        /// Resolves bit mask of line breaks into either Windows or Unix
+        /// </summary>
+        /// <param name="detectedFromFile"></param>
+        /// <returns></returns>
+        private static LineBreaks ResolveLineBreaks(LineBreaks detectedFromFile)
+        {
+            if ((detectedFromFile & LineBreaks.Windows) != 0)
+                return LineBreaks.Windows;
+            else if (detectedFromFile == LineBreaks.Unix)
+                return LineBreaks.Unix;
+            else
+                return LineBreaks.Windows; // we are running on Windows, therefore if the file has no line breaks - use Windows line breaks
         }
     }
 }
