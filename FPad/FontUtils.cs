@@ -10,11 +10,17 @@ namespace FPad;
 
 public static class FontUtils
 {
-    public static FontFamily GetFontFamilyByString(string str, FontFamily[] families)
+    /// <summary>
+    /// </summary>
+    /// <param name="str"></param>
+    /// <param name="families"></param>
+    /// <param name="category">Fallback value if not found by name</param>
+    /// <returns></returns>
+    public static FontFamily GetFontFamilyByString(string str, FontFamily[] families, FontCategory category)
     {
         if (string.IsNullOrEmpty(str))
         {
-            return GetGenericMonospace(families);
+            return GetGeneric(families, category);
         }
 
         FontFamily result = families.FirstOrDefault(x => x.Name == str);
@@ -41,14 +47,19 @@ public static class FontUtils
         if (result != null)
             return result;
 
-        return GetGenericMonospace(families);
+        return GetGeneric(families, category);
     }
 
-    private static FontFamily GetGenericMonospace(FontFamily[] families)
+    private static FontFamily GetGeneric(FontFamily[] families, FontCategory category)
     {
-        FontFamily genericMonospace = FontFamily.GenericMonospace;
-        FontFamily result = families.FirstOrDefault(x => x.Name == genericMonospace.Name);
-        return result ?? genericMonospace;
+        FontFamily genericFamily = category switch
+        {
+            FontCategory.Monospace => FontFamily.GenericMonospace,
+            _ => FontFamily.GenericSerif
+        };
+
+        FontFamily result = families.FirstOrDefault(x => x.Name == genericFamily.Name);
+        return result ?? genericFamily;
     }
 
     public static Font GetFontByParameters(FontFamily fontFamily, int fontSize, bool isBold, bool isItalic)
@@ -63,10 +74,15 @@ public static class FontUtils
         return result;
     }
 
-    public static Font GetFontBySettings(AppSettings settings)
+    /// <summary>
+    /// </summary>
+    /// <param name="fontSettings"></param>
+    /// <param name="category">Fallback value if settings don't contain info about font.</param>
+    /// <returns></returns>
+    public static Font GetFontBySettings(FontSettings fontSettings, FontCategory category)
     {
-        FontFamily fontFamily = GetFontFamilyByString(App.Settings.FontFamily, FontFamily.Families);
-        return GetFontByParameters(fontFamily, settings.FontSize, settings.IsBold, settings.IsItalic);
+        FontFamily fontFamily = GetFontFamilyByString(fontSettings.Family, FontFamily.Families, category);
+        return GetFontByParameters(fontFamily, fontSettings.Size, fontSettings.IsBold, fontSettings.IsItalic);
     }
 
     public static Font ToBold(this Font font)

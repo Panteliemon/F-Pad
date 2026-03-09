@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using FPad.Settings.Print;
 using FPad.Settings.Xml;
 
 namespace FPad.Settings;
@@ -21,6 +22,8 @@ public static class SettingsManager
     private static XmlSerializer settingsSerializer;
     private static XmlWriterSettings xmlWriterSettings;
     private static XmlReaderSettings xmlReaderSettings;
+    private static Dictionary<string, FileNameContent> fileNameContentCodes;
+    private static Dictionary<string, HorizontalAlignment> horizontalAlignmentCodes;
 
     static SettingsManager()
     {
@@ -36,6 +39,20 @@ public static class SettingsManager
         xmlReaderSettings = new XmlReaderSettings()
         {
             CloseInput = false
+        };
+
+        fileNameContentCodes = new Dictionary<string, FileNameContent>
+        {
+            { "N", FileNameContent.Name },
+            { "NE", FileNameContent.NameExt },
+            { "FP", FileNameContent.FullPath }
+        };
+
+        horizontalAlignmentCodes = new Dictionary<string, HorizontalAlignment>
+        {
+            { "L", HorizontalAlignment.Left },
+            { "C", HorizontalAlignment.Center },
+            { "R", HorizontalAlignment.Right }
         };
     }
 
@@ -168,20 +185,15 @@ public static class SettingsManager
                 AutoReload = settings.AutoReload ? "1" : null,
                 Encoding = settings.DefaultEncodingWebName
             },
-            Font = new FontDto()
-            {
-                Name = settings.FontFamily,
-                Size = settings.FontSize,
-                IsBold = settings.IsBold ? "1" : null,
-                IsItalic = settings.IsItalic ? "1" : null
-            },
+            Font = FontSettingsToDto(settings.Font),
             Text = new TextDto()
             {
                 Wrap = settings.Wrap ? "1" : null,
                 FindMatchCase = settings.FindMatchCase ? "1" : null,
                 FindWholeWords = settings.FindWholeWords ? "1" : null
             },
-            WindowPosition = WindowPositionToDto(settings.WindowPosition)
+            WindowPosition = WindowPositionToDto(settings.WindowPosition),
+            Print = PrintSettingsToDto(settings.PrintSettings)
         };
 
         if (settings.Files != null)
@@ -203,17 +215,7 @@ public static class SettingsManager
             dest.DefaultEncodingWebName = dto.General.Encoding;
         }
 
-        if (dto.Font != null)
-        {
-            if (!string.IsNullOrEmpty(dto.Font.Name))
-                dest.FontFamily = dto.Font.Name;
-
-            if ((dto.Font.Size >= 5) && (dto.Font.Size <= 128))
-                dest.FontSize = dto.Font.Size;
-
-            dest.IsBold = dto.Font.IsBold == "1";
-            dest.IsItalic = dto.Font.IsItalic == "1";
-        }
+        DtoToFontSettings(dto.Font, dest.Font);
 
         if (dto.Text != null)
         {
@@ -227,6 +229,8 @@ public static class SettingsManager
         {
             dest.WindowPosition = windowPosSettings;
         }
+
+        DtoToPrintSettings(dto.Print, dest.PrintSettings);
 
         if ((dto.Files != null) && (dto.Files.Count > 0))
         {
@@ -313,6 +317,88 @@ public static class SettingsManager
         }
 
         return null;
+    }
+
+    private static FontDto FontSettingsToDto(FontSettings fontSettings)
+    {
+        return new FontDto()
+        {
+            Name = fontSettings.Family,
+            Size = fontSettings.Size,
+            IsBold = fontSettings.IsBold ? "1" : null,
+            IsItalic = fontSettings.IsItalic ? "1" : null
+        };
+    }
+
+    private static void DtoToFontSettings(FontDto dto, FontSettings dest)
+    {
+        if (dto != null)
+        {
+            if (!string.IsNullOrEmpty(dto.Name))
+                dest.Family = dto.Name;
+
+            if ((dto.Size >= FontSettings.MIN_SIZE) && (dto.Size <= FontSettings.MAX_SIZE))
+                dest.Size = dto.Size;
+
+            dest.IsBold = dto.IsBold == "1";
+            dest.IsItalic = dto.IsItalic == "1";
+        }
+    }
+
+    private static PrintDto PrintSettingsToDto(PrintSettings printSettings)
+    {
+        return new PrintDto()
+        {
+            FileName = new PrintFileNameDto()
+            {
+                Include = printSettings.IncludeFileName ? "1" : null,
+                Option = fileNameContentCodes.FirstOrDefault(kvp => kvp.Value == printSettings.FileNameContent).Key,
+                Font = FontSettingsToDto(printSettings.FileNameFont)
+            },
+            PageNumber = new PrintPageNumberDto()
+            {
+                Include = printSettings.IncludePageNumber ? "1" : null,
+                UseTemplate = printSettings.UsePageNumberTemplate ? "1" : null,
+                Template = printSettings.PageNumberTemplate?.Trim(),
+                Align = horizontalAlignmentCodes.FirstOrDefault(kvp => kvp.Value == printSettings.PageNumberAlignment).Key,
+                Font = FontSettingsToDto(printSettings.PageNumberFont)               
+            }
+        };
+    }
+
+    private static void DtoToPrintSettings(PrintDto dto, PrintSettings dest)
+    {
+        if (dto != null)
+        {
+            if (dto.FileName != null)
+            {
+                dest.IncludeFileName = dto.FileName.Include == "1";
+
+                if ((dto.FileName.Option != null)
+                    && fileNameContentCodes.TryGetValue(dto.FileName.Option, out FileNameContent fnContent))
+                {
+                    dest.FileNameContent = fnContent;
+                }
+
+                DtoToFontSettings(dto.FileName.Font, dest.FileNameFont);
+            }
+
+            if (dto.PageNumber != null)
+            {
+                dest.IncludePageNumber = dto.PageNumber.Include == "1";
+                dest.UsePageNumberTemplate = dto.PageNumber.UseTemplate == "1";
+                if (dto.PageNumber.Template != null)
+                    dest.PageNumberTemplate = dto.PageNumber.Template;
+
+                if ((dto.PageNumber.Align != null)
+                    && horizontalAlignmentCodes.TryGetValue(dto.PageNumber.Align, out HorizontalAlignment pnAlignment))
+                {
+                    dest.PageNumberAlignment = pnAlignment;
+                }
+
+                DtoToFontSettings(dto.PageNumber.Font, dest.PageNumberFont);
+            }
+        }
     }
 
     #endregion

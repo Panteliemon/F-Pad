@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <AssemblyName>f-pad</AssemblyName>
@@ -33,6 +33,8 @@
     <EmbeddedResource Include="Resources\b16_open.png" />
     <EmbeddedResource Include="Resources\b16_save.png" />
     <EmbeddedResource Include="Resources\b16_saveas.png" />
+    <EmbeddedResource Include="Resources\b16_print.png" />
+    <EmbeddedResource Include="Resources\b16_print2.png" />
     <EmbeddedResource Include="Resources\b16_undo.png" />
     <EmbeddedResource Include="Resources\b16_redo.png" />
     <EmbeddedResource Include="Resources\b16_cut.png" />
@@ -48,6 +50,8 @@
     <EmbeddedResource Include="Resources\howto_1_3.png" />
     <EmbeddedResource Include="Resources\howto_2_1.png" />
     <EmbeddedResource Include="Resources\howto_2_2.png" />
+    <EmbeddedResource Include="Resources\collate_on_172.png" />
+    <EmbeddedResource Include="Resources\collate_off_172.png" />
   </ItemGroup>
 
   <ItemGroup>

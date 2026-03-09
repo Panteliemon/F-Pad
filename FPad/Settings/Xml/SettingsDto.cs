@@ -14,6 +14,7 @@ public class SettingsDto
     public FontDto Font { get; set; }
     public TextDto Text { get; set; }
     public WindowPositionDto WindowPosition { get; set; }
+    public PrintDto Print { get; set; }
     [XmlArrayItem("File")]
     public List<FileDto> Files { get; set; }
 }

@@ -4,10 +4,13 @@ using FPad.ExternalEditors;
 using FPad.Interaction;
 using FPad.Settings;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,6 +57,13 @@ namespace FPad
 
         CancellationTokenSource externalEditorsLoadingCts;
 
+        /// <summary>
+        /// All ongoing printing operations
+        /// </summary>
+        List<PrintTask> printTasks = new();
+        Image printIcon1;
+        Image printIcon2;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -64,6 +74,9 @@ namespace FPad
             openToolStripMenuItem.Image = App.LoadImage("b16_open.png");
             saveToolStripMenuItem.Image = App.LoadImage("b16_save.png");
             saveAsToolStripMenuItem.Image = App.LoadImage("b16_saveas.png");
+            printIcon1 = App.LoadImage("b16_print.png");
+            printIcon2 = App.LoadImage("b16_print2.png");
+            printToolStripMenuItem.Image = printIcon1;
             undoMenuItem.Image = App.LoadImage("b16_undo.png");
             redoMenuItem.Image = App.LoadImage("b16_redo.png");
             cutToolStripMenuItem.Image = App.LoadImage("b16_cut.png");
@@ -247,11 +260,25 @@ namespace FPad
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
+            bool waitForPrinters = false;
             if (e.CloseReason != CloseReason.WindowsShutDown)
             {
                 if (!HandleUnsavedChanges())
                 {
                     e.Cancel = true;
+                }
+
+                if (!e.Cancel && (printTasks.Count > 0))
+                {
+                    if (App.WarningQuestion("Still printing. Exit?"))
+                    {
+                        printTasks.ForEach(x => x.Cts.Cancel());
+                        waitForPrinters = true;
+                    }
+                    else
+                    {
+                        e.Cancel = true;
+                    }
                 }
             }
 
@@ -265,6 +292,13 @@ namespace FPad
                 if (!isNew)
                     settingsToSave |= SettingsFlags.FileWindowPosition;
                 App.SaveSettings(settingsToSave, currentDocumentFullPath);
+
+                if (waitForPrinters)
+                {
+                    Hide();
+                    Task[] tasksToWait = printTasks.Select(x => x.PrintingTask).ToArray();
+                    Task.WaitAll(tasksToWait);
+                }
             }
         }
 
@@ -417,6 +451,58 @@ namespace FPad
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ExecuteSaveAs();
+        }
+
+        private void printToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Printer printer = new(text.Text, text.Font, currentDocumentFullPath);
+            printer.SetSettings(App.Settings.PrintSettings);
+
+            if (PrintWindow.ShowDialog(printer))
+            {
+                if (App.SaveSettings(SettingsFlags.PrintSettings))
+                    StatusBarShowSecondOrderSuccessMessage("Settings Saved");
+                else
+                    StatusBarShowSecondOrderErrorMessage("Error when saving settings. Settings not saved.");
+
+                // They told us PrintDocument.Print() only "starts" printing process,
+                // in reality it starts and waits. Indication:
+                if (printTasks.Count == 0)
+                {
+                    printStatusLabel.Visible = true;
+                    printStatusLabel.Image = printIcon2;
+                    printIconTimer.Enabled = true;
+                }
+
+                TaskCompletionSource currentTaskCs = new();
+                PrintTask currentTask = new(printer, currentTaskCs.Task, new CancellationTokenSource());
+                printTasks.Add(currentTask);
+
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        printer.Print(currentTask.Cts.Token);
+
+                        BeginInvoke(() =>
+                        {
+                            printTasks.Remove(currentTask);
+                            if (printTasks.Count == 0)
+                            {
+                                printIconTimer.Enabled = false;
+                                printStatusLabel.Visible = false;
+                            }
+                        });
+                    }
+                    catch (InvalidOperationException)
+                    {
+                    }
+                    finally
+                    {
+                        currentTaskCs.SetResult();
+                    }
+                });
+            }
         }
 
         private void openInExternalEditorMenuItem_Click(object sender, EventArgs e)
@@ -613,7 +699,7 @@ namespace FPad
         {
             if (SettingsDialog.ShowADialog())
             {
-                if (App.SaveSettings(SettingsFlags.General | SettingsFlags.Font))
+                if (App.SaveSettings(SettingsFlags.General | SettingsFlags.Font | SettingsFlags.PrintSettings))
                     StatusBarShowSecondOrderSuccessMessage("Settings Saved");
                 else
                     StatusBarShowSecondOrderErrorMessage("Error when saving settings. Settings not saved.");
@@ -664,6 +750,12 @@ namespace FPad
                 isLabelExternallyModifiedLit = !isLabelExternallyModifiedLit;
                 UpdateLabelExternallyModifiedColor();
             }
+        }
+
+        private void printIconTimer_Tick(object sender, EventArgs e)
+        {
+            printStatusLabel.Image = (printStatusLabel.Image == printIcon1)
+                ? printIcon2 : printIcon1;
         }
 
         #endregion
@@ -906,7 +998,7 @@ namespace FPad
                     // Find the problem
                     int positionWhereDiffer = -1;
                     int minLength = Math.Min(decoded.Length, allText.Length);
-                    for (int i=0; i< minLength; i++)
+                    for (int i = 0; i < minLength; i++)
                     {
                         if (decoded[i] != allText[i])
                         {
@@ -1051,13 +1143,21 @@ namespace FPad
             catch (Exception ex)
             {
                 if (!IsDisposed)
-                    BeginInvoke(() => App.ShowError(ex));
+                {
+                    try
+                    {
+                        BeginInvoke(() => App.ShowError(ex));
+                    }
+                    catch (InvalidOperationException) // IsDisposed doesn't help
+                    {
+                    }
+                }
             }
         }
 
         private void ApplySettings()
         {
-            text.Font = FontUtils.GetFontBySettings(App.Settings);
+            text.Font = FontUtils.GetFontBySettings(App.Settings.Font, FontCategory.Monospace);
 
             text.WordWrap = App.Settings.Wrap;
             wrapLinesMenuItem.Checked = App.Settings.Wrap;

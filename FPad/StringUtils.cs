@@ -237,6 +237,141 @@ public static class StringUtils
         }
     }
 
+    /// <summary>
+    /// Callback for iteration over text split to lines
+    /// </summary>
+    /// <param name="line">Current line</param>
+    /// <param name="lineIndex">Index of current line in the text</param>
+    /// <param name="lineStartPosition">Index of the first char in the line in the initial text.</param>
+    /// <param name="nextLineStartPosition">Index of first char of the next line in initial text.
+    /// If current line is last - this value is length of initial text.</param>
+    /// <param name="isLastLine">True if current line is the last one.</param>
+    /// <returns>Return false to break outer cycle by lines.
+    /// If returned true - iteration continues until end of text is reached.</returns>
+    public delegate bool ProcessLineFunc(ReadOnlySpan<char> line, int lineIndex,
+        int lineStartPosition, int nextLineStartPosition, bool isLastLine);
+
+    /// <summary>
+    /// Split string to lines without reallocating memory
+    /// </summary>
+    /// <param name="allText">Initial text</param>
+    /// <param name="callback">Called for each line</param>
+    public static void IterateOverSplitByLines(ReadOnlySpan<char> allText, ProcessLineFunc callback)
+    {
+        int currentLineIndex = 0;
+        int currentLineStart = 0;
+        int currentLineLength = 0;
+        bool isAfter13 = false;
+
+        for (int i = 0; i < allText.Length; i++)
+        {
+            char c = allText[i];
+            if (isAfter13)
+            {
+                if (c == 10)
+                {
+                    bool continueIteration = callback(
+                        allText.Slice(currentLineStart, currentLineLength),
+                        currentLineIndex, currentLineStart, i + 1, false
+                    );
+                    if (!continueIteration)
+                        return;
+
+                    currentLineIndex++;
+                    currentLineStart = i + 1;
+                    currentLineLength = 0;
+                    isAfter13 = false;
+                }
+                else if (c == 13)
+                {
+                    // Prev 13 goes into the current line, current 13 - pending.
+                    currentLineLength++;
+                }
+                else
+                {
+                    // No line break, just stray 13
+                    currentLineLength += 2;
+                    isAfter13 = false;
+                }
+            }
+            else
+            {
+                if (c == 10)
+                {
+                    bool continueIteration = callback(
+                        allText.Slice(currentLineStart, currentLineLength),
+                        currentLineIndex, currentLineStart, i + 1, false
+                    );
+                    if (!continueIteration)
+                        return;
+
+                    currentLineIndex++;
+                    currentLineStart = i + 1;
+                    currentLineLength = 0;
+                }
+                else if (c == 13)
+                {
+                    isAfter13 = true;
+                }
+                else
+                {
+                    currentLineLength++;
+                }
+            }
+        }
+
+        callback(allText[currentLineStart..], currentLineIndex, currentLineStart, allText.Length, true);
+    }
+
+    /// <summary>
+    /// Cut line on the nearest space for Word Wrap
+    /// </summary>
+    /// <param name="line"></param>
+    /// <param name="maxLength"></param>
+    /// <param name="nextPartStart"></param>
+    /// <returns></returns>
+    public static ReadOnlySpan<char> CutOnSpaceToFit(ReadOnlySpan<char> line, int maxLength, out int nextPartStart)
+    {
+        if (line.Length <= maxLength)
+        {
+            nextPartStart = line.Length;
+            return line.TrimEnd();
+        }
+
+        if (GetCharType(line[maxLength]) == ConseqCharType.Space)
+        {
+            // Find next non-space
+            for (int i = maxLength + 1; i < line.Length; i++)
+            {
+                if (GetCharType(line[i]) != ConseqCharType.Space)
+                {
+                    nextPartStart = i;
+                    return line[0..maxLength].TrimEnd();
+                }
+            }
+
+            // Only spaces after: report as if there is nothing left in current string after cut
+            nextPartStart = line.Length;
+            return line.TrimEnd();
+        }
+        else
+        {
+            // Find space before [maxLength]
+            for (int i = maxLength - 1; i >= 0; i--)
+            {
+                if (GetCharType(line[i]) == ConseqCharType.Space)
+                {
+                    nextPartStart = i + 1;
+                    return line[0..i].TrimEnd();
+                }
+            }
+
+            // No spaces: force cut at max length
+            nextPartStart = maxLength;
+            return line[0..maxLength];
+        }    
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static ConseqCharType GetCharType(char c)
     {

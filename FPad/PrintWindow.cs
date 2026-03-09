@@ -1,0 +1,577 @@
+﻿using FPad.Controls;
+using FPad.Settings.Print;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Drawing.Printing;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace FPad;
+
+public partial class PrintWindow : Form
+{
+    private const int DM_OUT_BUFFER = 2;
+    private const int DM_IN_PROMPT = 4;
+    private const int DM_IN_BUFFER = 8;
+
+    private Printer printer;
+    private PrintDocument document;
+    private List<string> installedPrinters;
+    private string selectedPrinter;
+
+    private bool isFirstActivate = true;
+    private bool enableHandlers;
+    private int updatePrinterAttributesCallId = 0;
+    private int debouncePrinterSettingsChangeId = 0;
+    private int debouncePrinterSettingsMs = 750;
+
+    private int pageFrom;
+    private int pageTo;
+    private int pagesCount;
+
+    private Image imgCollateOn;
+    private Image imgCollateOff;
+
+    private PrintWindow(Printer printer)
+    {
+        this.printer = printer;
+        document = printer.Document;
+
+        InitializeComponent();
+
+        Text = "Print Options – " + App.TITLE;
+        Icon = App.Icon;
+        imgCollateOn = App.LoadImage("collate_on_172.png");
+        imgCollateOff = App.LoadImage("collate_off_172.png");
+
+        DialogResult = DialogResult.Cancel;
+
+        installedPrinters = new List<string>();
+        foreach (string printerName in PrinterSettings.InstalledPrinters)
+        {
+            installedPrinters.Add(printerName);
+            cbPrinter.Items.Add(printerName);
+        }
+        selectedPrinter = document.PrinterSettings.PrinterName;
+        cbPrinter.SelectedIndex = installedPrinters.IndexOf(selectedPrinter);
+
+        // If templated page numbers are used - have to pre-render document to count number of pages.
+        // This is how we do it:
+        if (App.Settings.PrintSettings.IncludePageNumber && App.Settings.PrintSettings.UsePageNumberTemplate)
+        {
+            auxPrintPreview.Visible = true;
+            auxPrintPreview.Document = document; // Causes render pass 1
+            auxPrintPreview.Width = 1; // Needs to be "truly" visible to render
+            auxPrintPreview.Height = 1;
+        }
+        
+        printPreview.Document = document;
+
+        _ = new DigitOnlyBehavior(tbFrom);
+        _ = new DigitOnlyBehavior(tbTo);
+        _ = new DigitOnlyBehavior(tbCurrentPage);
+        EditFinishedBehavior tbFromEditFinished = new(tbFrom);
+        EditFinishedBehavior tbToEditFinished = new(tbTo);
+        EditFinishedBehavior tbCurrentPageEditFinished = new(tbCurrentPage);
+        tbFromEditFinished.EditFinished += TbFrom_EditFinished;
+        tbToEditFinished.EditFinished += TbTo_EditFinished;
+        tbCurrentPageEditFinished.EditFinished += TbCurrentPage_EditFinished;
+
+        chPrintToFile.Checked = document.PrinterSettings.PrintToFile; // not supported, hidden
+        tbNumberOfCopies.Value = printer.NumberOfCopies;
+        chCollate.Checked = printer.Collate;
+
+        rbAll.Checked = true;
+        rbPageRange.Checked = false;
+        UpdatePagesEnabled();
+        UpdatePrevNextEnabled();
+        UpdateCollatePic();
+
+        printSettingsEditor.DisplaySettings(App.Settings.PrintSettings);
+
+        printer.PagesCountDetermined += Printer_PagesCountDetermined;
+
+        enableHandlers = true;
+    }
+
+    public static bool ShowDialog(Printer printer)
+    {
+        PrintWindow dlg = new(printer);
+        return dlg.ShowDialog() == DialogResult.OK;
+    }
+
+    #region Event Handlers
+
+    private void bOk_Click(object sender, EventArgs e)
+    {
+        DialogResult = DialogResult.OK;
+
+        printPreview.Document = null; // to avoid possible future calls from the control
+
+        document.PrinterSettings.PrintToFile = chPrintToFile.Checked;
+        printer.NumberOfCopies = (short)tbNumberOfCopies.Value;
+        printer.Collate = chCollate.Checked;
+        if (rbPageRange.Checked)
+        {
+            printer.PageFrom = pageFrom;
+            printer.PageTo = pageTo;
+        }
+        else
+        {
+            printer.PageFrom = 0;
+            printer.PageTo = 0;
+        }
+
+        printSettingsEditor.SaveSettings(App.Settings.PrintSettings);
+
+        Close();
+    }
+
+    private void bCancel_Click(object sender, EventArgs e)
+    {
+        Close();
+    }
+
+    private void cbPrinter_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (enableHandlers)
+        {
+            selectedPrinter = installedPrinters[cbPrinter.SelectedIndex];
+            document.PrinterSettings.PrinterName = selectedPrinter;
+
+            UpdatePrinterAttributes();
+            printPreview.InvalidatePreview();
+        }
+    }
+
+    private void rbAll_CheckedChanged(object sender, EventArgs e)
+    {
+        if (enableHandlers && rbAll.Checked)
+        {
+            rbPageRange.Checked = false;
+            UpdatePagesEnabled();
+        }
+    }
+
+    private void rbPageRange_CheckedChanged(object sender, EventArgs e)
+    {
+        if (enableHandlers && rbPageRange.Checked)
+        {
+            rbAll.Checked = false;
+            UpdatePagesEnabled();
+        }
+    }
+
+    private void bPrinterProperties_Click(object sender, EventArgs e)
+    {
+        if (string.IsNullOrEmpty(selectedPrinter))
+            return;
+
+        if (WinApi.OpenPrinterW(selectedPrinter, out nint hPrinter, 0))
+        {
+            try
+            {
+                int size = WinApi.DocumentPropertiesW(Handle, hPrinter, selectedPrinter, 0, 0, 0);
+                if (size > 0)
+                {
+                    nint pDevMode = Marshal.AllocHGlobal(size);
+                    try
+                    {
+                        int result = WinApi.DocumentPropertiesW(Handle, hPrinter, selectedPrinter, pDevMode, pDevMode,
+                                                                DM_OUT_BUFFER | DM_IN_PROMPT | DM_IN_BUFFER);
+                        if (result == 1) // OK
+                        {
+                            // Apply updated DEVMODE back to PrintDocument
+                            document.PrinterSettings.SetHdevmode(pDevMode);
+                            document.DefaultPageSettings.SetHdevmode(pDevMode);
+
+                            printPreview.InvalidatePreview();
+                        }
+                    }
+                    finally
+                    {
+                        Marshal.FreeHGlobal(pDevMode);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                App.ShowError(ex);
+            }
+            finally
+            {
+                WinApi.ClosePrinter(hPrinter);
+            }
+        }
+    }
+
+    private void bPrevPage_Click(object sender, EventArgs e)
+    {
+        if (pagesCount > 0 && (printPreview.StartPage > 0))
+        {
+            SetCurrentPage(printPreview.StartPage - 1);
+        }
+    }
+
+    private void pNextPage_Click(object sender, EventArgs e)
+    {
+        if (pagesCount > 0 && (printPreview.StartPage + 1 < pagesCount))
+        {
+            SetCurrentPage(printPreview.StartPage + 1);
+        }
+    }
+
+    private void TbFrom_EditFinished(object sender, string e)
+    {
+        bool isGood = false;
+        if (int.TryParse(e, out int parsed))
+        {
+            if (parsed < 1)
+            {
+                pageFrom = 1;
+            }
+            else if (parsed > pagesCount)
+            {
+                pageFrom = pagesCount;
+            }
+            else
+            {
+                pageFrom = parsed;
+                isGood = true;
+            }
+
+            if (pageTo < pageFrom)
+                pageTo = pageFrom;
+        }
+
+        ShowPagesFromTo();
+        if (!isGood)
+            tbFrom.SelectAll();
+    }
+
+    private void TbTo_EditFinished(object sender, string e)
+    {
+        bool isGood = false;
+        if (int.TryParse(e, out int parsed))
+        {
+            if (parsed < 1)
+            {
+                pageTo = 1;
+            }
+            else if (parsed > pagesCount)
+            {
+                pageTo = pagesCount;
+            }
+            else
+            {
+                pageTo = parsed;
+                isGood = true;
+            }
+
+            if (pageFrom > pageTo)
+                pageFrom = pageTo;
+        }
+
+        ShowPagesFromTo();
+        if (!isGood)
+            tbTo.SelectAll();
+    }
+
+    private void chCollate_CheckedChanged(object sender, EventArgs e)
+    {
+        if (enableHandlers)
+            UpdateCollatePic();
+    }
+
+    private void printSettingsEditor_Changed(object sender, EventArgs e)
+    {
+        // Wait for some idle time after the latest change
+        int localChangeId = ++debouncePrinterSettingsChangeId;
+        if (debouncePrinterSettingsMs < 2500)
+            debouncePrinterSettingsMs += 250;
+        Task.Run(() =>
+        {
+            Task.Delay(debouncePrinterSettingsMs).Wait();
+            if (!IsDisposed)
+            {
+                try
+                {
+                    BeginInvoke(() =>
+                    {
+                        if (localChangeId == debouncePrinterSettingsChangeId)
+                        {
+                            debouncePrinterSettingsMs = 750;
+
+                            PrintSettings localPrintSettings = App.Settings.PrintSettings.Clone();
+                            printSettingsEditor.SaveSettings(localPrintSettings);
+                            printer.SetSettings(localPrintSettings);
+
+                            printPreview.InvalidatePreview();
+                        }
+                    });
+                }
+                catch (InvalidOperationException) // IsDisposed doesn't help
+                {
+                }
+            }
+        });
+    }
+
+    private void TbCurrentPage_EditFinished(object sender, string e)
+    {
+        bool isGood = false;
+        if (int.TryParse(e, out int parsed))
+        {
+            if (parsed < 1)
+            {
+                SetCurrentPage(0);
+            }
+            else if (parsed > pagesCount)
+            {
+                SetCurrentPage(pagesCount - 1);
+            }
+            else
+            {
+                SetCurrentPage(parsed - 1);
+                isGood = true;
+            }
+        }
+        else
+        {
+            SetCurrentPage(printPreview.StartPage);
+        }
+
+        if (!isGood)
+            tbCurrentPage.SelectAll();
+    }
+
+    private void timer1_Tick(object sender, EventArgs e)
+    {
+        UpdatePrinterAttributes();
+    }
+
+    private void Printer_PagesCountDetermined(object sender, EventArgs e)
+    {
+        int? pagesCountLocal = printer.PagesCount;
+        if (!IsDisposed)
+        {
+            try
+            {
+                BeginInvoke(() =>
+                {
+                    pagesCount = pagesCountLocal ?? 1;
+                    pageFrom = 1;
+                    pageTo = pagesCount;
+                    ShowPagesFromTo();
+
+                    lOfPageCount.Text = $"of {pagesCount}";
+
+                    SetCurrentPage(0);
+                });
+            }
+            catch (InvalidOperationException) // IsDisposed doesn't help
+            {
+            }
+        }
+    }
+
+    private void PrintWindow_Activated(object sender, EventArgs e)
+    {
+        if (isFirstActivate)
+        {
+            isFirstActivate = false;
+            timer1.Enabled = true;
+
+            bOk.Focus();
+            UpdatePrinterAttributes(); // don't start in constructor, because sometimes too fast
+        }
+    }
+
+    private void PrintWindow_FormClosing(object sender, FormClosingEventArgs e)
+    {
+        timer1.Enabled = false;
+        printer.PagesCountDetermined -= Printer_PagesCountDetermined;
+    }
+
+    private void PrintWindow_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Control && (e.KeyCode == Keys.P))
+            bOk_Click(this, e);
+    }
+
+    #endregion
+
+    private void UpdatePagesEnabled()
+    {
+        tbFrom.Enabled = rbPageRange.Checked;
+        tbTo.Enabled = rbPageRange.Checked;
+        lFrom.Enabled = rbPageRange.Checked;
+        lTo.Enabled = rbPageRange.Checked;
+    }
+
+    private void UpdatePrevNextEnabled()
+    {
+        bPrevPage.Enabled = pagesCount > 0 && (printPreview.StartPage > 0);
+        pNextPage.Enabled = pagesCount > 0 && (printPreview.StartPage + 1 < pagesCount);
+    }
+
+    private void UpdateCollatePic()
+    {
+        collatePic.Image = chCollate.Checked ? imgCollateOn : imgCollateOff;
+    }
+
+    private void ShowPagesFromTo()
+    {
+        enableHandlers = false;
+        tbFrom.Text = pageFrom.ToString();
+        tbTo.Text = pageTo.ToString();
+        enableHandlers = true;
+    }
+
+    private void SetCurrentPage(int pageIndex)
+    {
+        printPreview.StartPage = pageIndex;
+
+        enableHandlers = false;
+        tbCurrentPage.Text = (pageIndex + 1).ToString();
+        enableHandlers = true;
+
+        UpdatePrevNextEnabled();
+    }
+
+    private void UpdatePrinterAttributes()
+    {
+        // MSDN advises to not run GetPrinter on UI thread
+        string localPrinterName = selectedPrinter;
+        int localCallId = ++updatePrinterAttributesCallId;
+        Task.Run(() =>
+        {
+            WinApi.PRINTER_INFO_2? printerInfo = GetPrinterInfo(localPrinterName);
+            if (!IsDisposed)
+            {
+                try
+                {
+                    BeginInvoke(() =>
+                    {
+                        if (localCallId == updatePrinterAttributesCallId)
+                        {
+                            if (printerInfo.HasValue)
+                            {
+                                lStatus.Text = PrinterStatusToStr(printerInfo.Value.Status);
+                                lType.Text = printerInfo.Value.pDriverName;
+                                lWhere.Text = printerInfo.Value.pPortName;
+                                lComment.Text = printerInfo.Value.pComment;
+                            }
+                            else
+                            {
+                                lStatus.Text = "< error >";
+                                lType.Text = "< error >";
+                                lWhere.Text = "< error >";
+                                lComment.Text = "< error >";
+                            }
+                        }
+                    });
+                }
+                catch (InvalidOperationException) // IsDisposed doesn't help
+                {
+                }
+            }
+        });
+    }
+
+    private static WinApi.PRINTER_INFO_2? GetPrinterInfo(string printerName)
+    {
+        if (string.IsNullOrEmpty(printerName))
+            return null;
+
+        WinApi.PRINTER_INFO_2? result = null;
+        if (WinApi.OpenPrinterW(printerName, out nint hPrinter, 0))
+        {
+            try
+            {
+                WinApi.GetPrinter(hPrinter, 2, 0, 0, out uint size);
+                if (size > 0)
+                {
+                    nint pPrinterInfo = Marshal.AllocHGlobal((int)size);
+                    try
+                    {
+                        if (WinApi.GetPrinter(hPrinter, 2, pPrinterInfo, size, out uint _))
+                        {
+                            result = Marshal.PtrToStructure<WinApi.PRINTER_INFO_2>(pPrinterInfo);
+                        }
+                    }
+                    finally
+                    {
+                        Marshal.FreeHGlobal(pPrinterInfo);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                App.Discard(ex);
+            }
+            finally
+            {
+                WinApi.ClosePrinter(hPrinter);
+            }
+        }
+
+        return result;
+    }
+
+    private static string PrinterStatusToStr(WinApi.PrinterStatus value)
+    {
+        if (value == 0)
+            return "Ready";
+
+        if (value.HasFlag(WinApi.PrinterStatus.Offline))
+            return "Offline";
+
+        // Errors
+        if (value.HasFlag(WinApi.PrinterStatus.PaperJam))
+            return "Paper jam";
+
+        if (value.HasFlag(WinApi.PrinterStatus.PaperOut))
+            return "Out of paper";
+
+        if (value.HasFlag(WinApi.PrinterStatus.DoorOpen))
+            return "Door open";
+
+        if (value.HasFlag(WinApi.PrinterStatus.NoToner))
+            return "No toner";
+
+        if (value.HasFlag(WinApi.PrinterStatus.OutputBinFull))
+            return "Output bin full";
+
+        if (value.HasFlag(WinApi.PrinterStatus.Error))
+            return "Error";
+
+        // Normal operation
+        if (value.HasFlag(WinApi.PrinterStatus.Paused))
+            return "Paused";
+
+        if (value.HasFlag(WinApi.PrinterStatus.Printing))
+            return "Printing";
+
+        if (value.HasFlag(WinApi.PrinterStatus.WarmingUp))
+            return "Warming up";
+
+        if (value.HasFlag(WinApi.PrinterStatus.Initializing))
+            return "Initializing";
+
+        if (value.HasFlag(WinApi.PrinterStatus.Busy))
+            return "Busy";
+
+        // Warnings (only if no "normal operation" flags and no errors)
+        if (value.HasFlag(WinApi.PrinterStatus.TonerLow))
+            return "Toner low";
+
+        return "Unknown";
+    }
+}

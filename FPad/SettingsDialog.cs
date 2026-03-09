@@ -1,5 +1,7 @@
 ﻿using FPad.Controls;
 using FPad.Encodings;
+using FPad.Settings;
+using FPad.Settings.Print;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,11 +18,16 @@ namespace FPad;
 
 public partial class SettingsDialog : Form
 {
+    /// <summary>
+    /// For display in this window only.
+    /// </summary>
+    private FontSettings innerFontSettings = new();
+    /// <summary>
+    /// For display in this window only.
+    /// </summary>
+    private PrintSettings innerPrintSettings = PrintSettings.Default();
     private bool enableHandlers = false;
 
-    private FontFamily[] fontFamilies;
-    private FontFamily selectedFontFamily;
-    private int selectedFontSize;
     private EncodingVm[] encodings;
 
     public bool Result { get; private set; }
@@ -30,25 +37,12 @@ public partial class SettingsDialog : Form
         InitializeComponent();
         Icon = App.Icon;
 
-        selectedFontSize = App.Settings.FontSize;
-        SetSliderValue();
-        tbFontSize.Value = selectedFontSize;
-
-        fontFamilies = FontFamily.Families.OrderBy(x => x.Name).ToArray();
-        selectedFontFamily = FontUtils.GetFontFamilyByString(App.Settings.FontFamily, fontFamilies);
-
-        cbFonts.Items.AddRange(fontFamilies);
-        cbFonts.DisplayMember = nameof(FontFamily.Name);
-        cbFonts.SelectedIndex = Array.FindIndex(fontFamilies, x => x == selectedFontFamily);
-
         encodings = EncodingManager.Encodings.ToArray();
         EncodingVm currentDefaultEncoding = EncodingManager.GetDefaultEncoding();
         cbEncodings.Items.AddRange(encodings);
         cbEncodings.DisplayMember = nameof(EncodingVm.DisplayName);
         cbEncodings.SelectedIndex = Array.FindIndex(encodings, x => x == currentDefaultEncoding);
 
-        chBold.Checked = App.Settings.IsBold;
-        chItalic.Checked = App.Settings.IsItalic;
         chAutoReload.Checked = App.Settings.AutoReload;
 
         chWrap.Checked = App.Settings.Wrap;
@@ -62,6 +56,9 @@ public partial class SettingsDialog : Form
         label5.Text = $"Associate txt files with {App.TITLE} (takes effect immediately, Cancel button doesn't roll back):";
         UacIconBehavior _ = new(bAssociateAllUsers);
 
+        fontPickerMain.DisplayFont(App.Settings.Font);
+        printSettingsEditor.DisplaySettings(App.Settings.PrintSettings);
+
         enableHandlers = true;
     }
 
@@ -74,13 +71,42 @@ public partial class SettingsDialog : Form
 
     private void ApplyFont()
     {
-        exampleText.Font = FontUtils.GetFontByParameters(selectedFontFamily, selectedFontSize, chBold.Checked, chItalic.Checked);
+        fontPickerMain.SaveFont(innerFontSettings);
+        exampleText.Font = FontUtils.GetFontBySettings(innerFontSettings, FontCategory.Monospace);
     }
 
-    private void SetSliderValue()
+    private void ShowPrintPreview()
     {
-        slFontSize.Value = (selectedFontSize > slFontSize.Maximum)
-            ? slFontSize.Maximum : selectedFontSize;
+        printSettingsEditor.SaveSettings(innerPrintSettings);
+
+        lPreviewFileName.Visible = innerPrintSettings.IncludeFileName;
+        string fileNameText = innerPrintSettings.FileNameContent switch
+        {
+            FileNameContent.Name => "my_file",
+            FileNameContent.NameExt => "my_file.txt",
+            _ => @"C:\Folder1\my_file.txt"
+        };
+        lPreviewFileName.Text = fileNameText;
+        lPreviewFileName.Font = FontUtils.GetFontBySettings(innerPrintSettings.FileNameFont, FontCategory.Serif);
+
+        int originalBottom = lPreviewPageNumber.Bottom;
+        lPreviewPageNumber.Top = lPreviewFileName.Bottom;
+        lPreviewPageNumber.Height = originalBottom - lPreviewPageNumber.Top;
+
+        lPreviewPageNumber.Visible = innerPrintSettings.IncludePageNumber;
+        string pageNumberText = "3";
+        if (innerPrintSettings.UsePageNumberTemplate)
+        {
+            pageNumberText = innerPrintSettings.PageNumberTemplate.Replace("{page}", "3").Replace("{total}", "25");
+        }
+        lPreviewPageNumber.Text = pageNumberText;
+        lPreviewPageNumber.TextAlign = innerPrintSettings.PageNumberAlignment switch
+        {
+            Settings.Print.HorizontalAlignment.Left => ContentAlignment.MiddleLeft,
+            Settings.Print.HorizontalAlignment.Center => ContentAlignment.MiddleCenter,
+            _ => ContentAlignment.MiddleRight
+        };
+        lPreviewPageNumber.Font = FontUtils.GetFontBySettings(innerPrintSettings.PageNumberFont, FontCategory.Serif);
     }
 
     #region Event Handlers
@@ -88,9 +114,10 @@ public partial class SettingsDialog : Form
     private void SettingsDialog_Load(object sender, EventArgs e)
     {
         ApplyFont();
+        ShowPrintPreview();
 
         exampleText.Select(0, 0);
-        BeginInvoke(() => tabControl1.Focus());        
+        BeginInvoke(() => tabControl1.Focus());
     }
 
     private void bCancel_Click(object sender, EventArgs e)
@@ -102,66 +129,17 @@ public partial class SettingsDialog : Form
     private void bSave_Click(object sender, EventArgs e)
     {
         Result = true;
-        App.Settings.FontFamily = selectedFontFamily.Name;
-        App.Settings.FontSize = selectedFontSize;
-        App.Settings.IsBold = chBold.Checked;
-        App.Settings.IsItalic = chItalic.Checked;
+        fontPickerMain.SaveFont(App.Settings.Font);
         App.Settings.AutoReload = chAutoReload.Checked;
         App.Settings.DefaultEncodingWebName = (cbEncodings.SelectedIndex >= 0)
             ? encodings[cbEncodings.SelectedIndex].Encoding.WebName : null;
+        printSettingsEditor.SaveSettings(App.Settings.PrintSettings);
         Close();
     }
 
-    private void cbFonts_SelectedIndexChanged(object sender, EventArgs e)
+    private void fontPickerMain_Changed(object sender, EventArgs e)
     {
-        if (!enableHandlers)
-            return;
-
-        selectedFontFamily = fontFamilies[cbFonts.SelectedIndex];
         ApplyFont();
-    }
-
-    private void tbFontSize_ValueChanged(object sender, EventArgs e)
-    {
-        if (enableHandlers)
-        {
-            selectedFontSize = (int)Math.Round(tbFontSize.Value);
-
-            enableHandlers = false;
-            SetSliderValue();
-            enableHandlers = true;
-
-            ApplyFont();
-        }
-    }
-
-    private void slFontSize_Scroll(object sender, EventArgs e)
-    {
-        if (enableHandlers)
-        {
-            enableHandlers = false;
-            tbFontSize.Value = slFontSize.Value;
-            enableHandlers = true;
-
-            selectedFontSize = slFontSize.Value;
-            ApplyFont();
-        }
-    }
-
-    private void chBold_CheckedChanged(object sender, EventArgs e)
-    {
-        if (enableHandlers)
-        {
-            ApplyFont();
-        }
-    }
-
-    private void chItalic_CheckedChanged(object sender, EventArgs e)
-    {
-        if (enableHandlers)
-        {
-            ApplyFont();
-        }
     }
 
     private void chWrap_CheckedChanged(object sender, EventArgs e)
@@ -222,6 +200,11 @@ public partial class SettingsDialog : Form
     private void bAssociateCurrentUser_Click(object sender, EventArgs e)
     {
         ExecuteAssociate(false);
+    }
+
+    private void printSettingsEditor_Changed(object sender, EventArgs e)
+    {
+        ShowPrintPreview();
     }
 
     #endregion
