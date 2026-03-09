@@ -200,6 +200,20 @@ namespace FPad
             UpdateStatusBar();
         }
 
+        void IEditor.SetLineBreaks(LineBreaks value, bool raiseModifiedFlag)
+        {
+            currentLineBreaks = value; // trust, again
+            if (raiseModifiedFlag)
+            {
+                currentDocumentBytes = null;
+                hasUnsavedChanges = true;
+                UpdateTitle();
+            }
+
+            UpdateMenu();
+            UpdateStatusBar();
+        }
+
         #endregion
 
         #region Event Handlers
@@ -642,16 +656,26 @@ namespace FPad
 
         private void windowsLineBreaksStripMenuItem_Click(object sender, EventArgs e)
         {
-            currentLineBreaks = LineBreaks.Windows;
-            UpdateMenu();
-            UpdateStatusBar();
+            if (currentLineBreaks != LineBreaks.Windows)
+            {
+                IEditAction lineBreaksAction = EditActionFactory.CreateLineBreaks(
+                    currentLineBreaks, LineBreaks.Windows, !isNew);
+                lineBreaksAction.Apply(this);
+                undoManager.TakeNewAction(lineBreaksAction);
+                UpdateMenu();
+            }
         }
 
         private void unixLineBreaksStripMenuItem_Click(object sender, EventArgs e)
         {
-            currentLineBreaks = LineBreaks.Unix;
-            UpdateMenu();
-            UpdateStatusBar();
+            if (currentLineBreaks != LineBreaks.Unix)
+            {
+                IEditAction lineBreaksAction = EditActionFactory.CreateLineBreaks(
+                    currentLineBreaks, LineBreaks.Unix, !isNew);
+                lineBreaksAction.Apply(this);
+                undoManager.TakeNewAction(lineBreaksAction);
+                UpdateMenu();
+            }
         }
 
         private void encodingMenuItemSelected(EncodingVm encodingVm)

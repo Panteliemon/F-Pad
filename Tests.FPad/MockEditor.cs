@@ -1,4 +1,5 @@
-﻿using FPad.Edit;
+﻿using FPad;
+using FPad.Edit;
 using FPad.Encodings;
 using System;
 using System.Collections.Generic;
@@ -44,6 +45,10 @@ internal class MockEditor : IEditor
     public void SetEncoding(EncodingVm value, bool raiseModifiedFlag)
     {
         encoding = value;
+    }
+
+    public void SetLineBreaks(LineBreaks value, bool raiseModifiedFlag)
+    {
     }
 
     #region Private

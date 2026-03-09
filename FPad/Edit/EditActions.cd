@@ -8,12 +8,12 @@
     </TypeIdentifier>
   </Class>
   <Class Name="FPad.Edit.DecodeEditAction" Collapsed="true">
-    <Position X="8" Y="0.5" Width="1.5" />
+    <Position X="2.75" Y="6.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>gAAQkAAAABCEAAACACAAAAAAAAAgAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Edit\DecodeEditAction.cs</FileName>
     </TypeIdentifier>
-    <Lollipop Position="0.763" />
+    <Lollipop Position="0.2" />
   </Class>
   <Class Name="FPad.Edit.EraseEditAction" Collapsed="true">
     <Position X="3.25" Y="2" Width="1.5" />
@@ -40,7 +40,7 @@
       </Path>
     </InheritanceLine>
     <TypeIdentifier>
-      <HashCode>AAAQEAAAAACCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAQEAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Edit\PasteEditAction.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -56,7 +56,7 @@
       </Path>
     </InheritanceLine>
     <TypeIdentifier>
-      <HashCode>AAAQEAAAAACCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAQEAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Edit\ReplaceEditAction.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -72,7 +72,7 @@
       </Path>
     </InheritanceLine>
     <TypeIdentifier>
-      <HashCode>AAAQEAAAAACBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAQEAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Edit\SelectionEraseEditAction.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -88,7 +88,7 @@
       </Path>
     </InheritanceLine>
     <TypeIdentifier>
-      <HashCode>AAAQEAQAAACBAAAAAAAAAAABAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAQEASAAAEVAAAAAAAAAAABAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Edit\SingleSymbolEraseEditAction.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -102,13 +102,13 @@
       </Path>
     </InheritanceLine>
     <TypeIdentifier>
-      <HashCode>AAAQEAAAAACCAAAAAAEAAAAAAAAAAAAAAAAAAAACAAA=</HashCode>
+      <HashCode>AAAQEAAAAAACAAAAAAEAAAAAAAAAAAAAAAAAAQACAAA=</HashCode>
       <FileName>Edit\SingleSymbolTypeEditAction.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="FPad.Edit.SubStringChangeEditAction" Collapsed="true">
-    <Position X="4.25" Y="0.5" Width="2.25" />
+    <Position X="3.5" Y="0.5" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAgAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Edit\SubStringChangeEditAction.cs</FileName>
@@ -118,31 +118,39 @@
     <Position X="1" Y="2" Width="1.5" />
     <InheritanceLine Type="FPad.Edit.SubStringChangeEditAction" ManuallyRouted="true" FixedToPoint="true">
       <Path>
-        <Point X="5.375" Y="1.062" />
-        <Point X="5.375" Y="1.625" />
+        <Point X="4.625" Y="1.062" />
+        <Point X="4.625" Y="1.625" />
         <Point X="1.75" Y="1.625" />
         <Point X="1.75" Y="2" />
       </Path>
     </InheritanceLine>
     <TypeIdentifier>
-      <HashCode>AAAwEAAAABCEAAACAAAAAAAAQAAAAAAAAAgAAAAAAAA=</HashCode>
+      <HashCode>AAAwEAAAABAEAAACAAAAAAAAQAAAAAAAAAgAAAAAAAA=</HashCode>
       <FileName>Edit\GenericEditAction.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="FPad.Edit.ReplaceAllEditAction" Collapsed="true">
-    <Position X="9.75" Y="0.5" Width="1.75" />
+    <Position X="4.5" Y="6.25" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AgAQEAAAABCEAAACAAAAAAAAQAAAAAAAAAAAAAEAAAA=</HashCode>
+      <HashCode>AgAQEAAAABAEAAACAAAAAAAAQAAAAAAAAAAAAAEAAAA=</HashCode>
       <FileName>Edit\ReplaceAllEditAction.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="FPad.Edit.EncodingForSaveEditAction" Collapsed="true">
-    <Position X="11.75" Y="0.5" Width="2.25" />
+    <Position X="6.5" Y="6.25" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>AAAQkAAAABCAAAACACAAAAAAAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAQkAABABCAAAACACAAAAAAAAAAAIAAAAAAAAAAAAA=</HashCode>
       <FileName>Edit\EncodingForSaveEditAction.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="FPad.Edit.LineBreaksEditAction" Collapsed="true">
+    <Position X="9" Y="6.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAQEAABABCAAAACAAAAAAgAAAAAAIAAAAAAAAAAAAg=</HashCode>
+      <FileName>Edit\LineBreaksEditAction.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
