@@ -107,7 +107,7 @@ partial class PrintWindow
         chPrintToFile.Location = new System.Drawing.Point(175, 54);
         chPrintToFile.Name = "chPrintToFile";
         chPrintToFile.Size = new System.Drawing.Size(86, 19);
-        chPrintToFile.TabIndex = 11;
+        chPrintToFile.TabIndex = 3;
         chPrintToFile.Text = "Print to File";
         chPrintToFile.UseVisualStyleBackColor = true;
         chPrintToFile.Visible = false;
@@ -117,7 +117,7 @@ partial class PrintWindow
         bPrinterProperties.Location = new System.Drawing.Point(6, 46);
         bPrinterProperties.Name = "bPrinterProperties";
         bPrinterProperties.Size = new System.Drawing.Size(157, 32);
-        bPrinterProperties.TabIndex = 10;
+        bPrinterProperties.TabIndex = 2;
         bPrinterProperties.Text = "Properties";
         bPrinterProperties.UseVisualStyleBackColor = true;
         bPrinterProperties.Click += bPrinterProperties_Click;
@@ -251,14 +251,14 @@ partial class PrintWindow
         tbTo.Location = new System.Drawing.Point(114, 72);
         tbTo.Name = "tbTo";
         tbTo.Size = new System.Drawing.Size(43, 23);
-        tbTo.TabIndex = 3;
+        tbTo.TabIndex = 7;
         // 
         // tbFrom
         // 
         tbFrom.Location = new System.Drawing.Point(41, 72);
         tbFrom.Name = "tbFrom";
         tbFrom.Size = new System.Drawing.Size(43, 23);
-        tbFrom.TabIndex = 2;
+        tbFrom.TabIndex = 6;
         // 
         // rbPageRange
         // 
@@ -266,7 +266,7 @@ partial class PrintWindow
         rbPageRange.Location = new System.Drawing.Point(6, 47);
         rbPageRange.Name = "rbPageRange";
         rbPageRange.Size = new System.Drawing.Size(56, 19);
-        rbPageRange.TabIndex = 1;
+        rbPageRange.TabIndex = 5;
         rbPageRange.TabStop = true;
         rbPageRange.Text = "Pages";
         rbPageRange.UseVisualStyleBackColor = true;
@@ -278,7 +278,7 @@ partial class PrintWindow
         rbAll.Location = new System.Drawing.Point(6, 22);
         rbAll.Name = "rbAll";
         rbAll.Size = new System.Drawing.Size(39, 19);
-        rbAll.TabIndex = 0;
+        rbAll.TabIndex = 4;
         rbAll.TabStop = true;
         rbAll.Text = "All";
         rbAll.UseVisualStyleBackColor = true;
@@ -312,7 +312,7 @@ partial class PrintWindow
         tbNumberOfCopies.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
         tbNumberOfCopies.Name = "tbNumberOfCopies";
         tbNumberOfCopies.Size = new System.Drawing.Size(61, 23);
-        tbNumberOfCopies.TabIndex = 3;
+        tbNumberOfCopies.TabIndex = 8;
         tbNumberOfCopies.Value = new decimal(new int[] { 1, 0, 0, 0 });
         // 
         // chCollate
@@ -321,7 +321,7 @@ partial class PrintWindow
         chCollate.Location = new System.Drawing.Point(6, 47);
         chCollate.Name = "chCollate";
         chCollate.Size = new System.Drawing.Size(63, 19);
-        chCollate.TabIndex = 2;
+        chCollate.TabIndex = 9;
         chCollate.Text = "Collate";
         chCollate.UseVisualStyleBackColor = true;
         chCollate.CheckedChanged += chCollate_CheckedChanged;
@@ -341,7 +341,7 @@ partial class PrintWindow
         printPreview.Location = new System.Drawing.Point(6, 55);
         printPreview.Name = "printPreview";
         printPreview.Size = new System.Drawing.Size(487, 568);
-        printPreview.TabIndex = 3;
+        printPreview.TabIndex = 14;
         // 
         // bOk
         // 
@@ -349,7 +349,7 @@ partial class PrintWindow
         bOk.Location = new System.Drawing.Point(634, 641);
         bOk.Name = "bOk";
         bOk.Size = new System.Drawing.Size(112, 32);
-        bOk.TabIndex = 4;
+        bOk.TabIndex = 15;
         bOk.Text = "Print";
         bOk.UseVisualStyleBackColor = true;
         bOk.Click += bOk_Click;
@@ -360,7 +360,7 @@ partial class PrintWindow
         bCancel.Location = new System.Drawing.Point(752, 641);
         bCancel.Name = "bCancel";
         bCancel.Size = new System.Drawing.Size(112, 32);
-        bCancel.TabIndex = 5;
+        bCancel.TabIndex = 16;
         bCancel.Text = "Cancel";
         bCancel.UseVisualStyleBackColor = true;
         bCancel.Click += bCancel_Click;
@@ -375,7 +375,7 @@ partial class PrintWindow
         bPrevPage.Location = new System.Drawing.Point(0, 0);
         bPrevPage.Name = "bPrevPage";
         bPrevPage.Size = new System.Drawing.Size(75, 32);
-        bPrevPage.TabIndex = 6;
+        bPrevPage.TabIndex = 11;
         bPrevPage.Text = "<< Prev";
         bPrevPage.UseVisualStyleBackColor = true;
         bPrevPage.Click += bPrevPage_Click;
@@ -385,7 +385,7 @@ partial class PrintWindow
         pNextPage.Location = new System.Drawing.Point(236, 0);
         pNextPage.Name = "pNextPage";
         pNextPage.Size = new System.Drawing.Size(75, 32);
-        pNextPage.TabIndex = 7;
+        pNextPage.TabIndex = 13;
         pNextPage.Text = "Next >>";
         pNextPage.UseVisualStyleBackColor = true;
         pNextPage.Click += pNextPage_Click;
@@ -408,7 +408,7 @@ partial class PrintWindow
         groupBox4.Location = new System.Drawing.Point(365, 6);
         groupBox4.Name = "groupBox4";
         groupBox4.Size = new System.Drawing.Size(499, 629);
-        groupBox4.TabIndex = 9;
+        groupBox4.TabIndex = 4;
         groupBox4.TabStop = false;
         groupBox4.Text = "Preview";
         // 
@@ -430,14 +430,14 @@ partial class PrintWindow
         panel1.Location = new System.Drawing.Point(6, 17);
         panel1.Name = "panel1";
         panel1.Size = new System.Drawing.Size(311, 32);
-        panel1.TabIndex = 9;
+        panel1.TabIndex = 11;
         // 
         // tbCurrentPage
         // 
         tbCurrentPage.Location = new System.Drawing.Point(135, 6);
         tbCurrentPage.Name = "tbCurrentPage";
         tbCurrentPage.Size = new System.Drawing.Size(54, 23);
-        tbCurrentPage.TabIndex = 9;
+        tbCurrentPage.TabIndex = 12;
         // 
         // lOfPageCount
         // 
@@ -455,7 +455,7 @@ partial class PrintWindow
         groupBox5.Location = new System.Drawing.Point(6, 338);
         groupBox5.Name = "groupBox5";
         groupBox5.Size = new System.Drawing.Size(353, 335);
-        groupBox5.TabIndex = 10;
+        groupBox5.TabIndex = 3;
         groupBox5.TabStop = false;
         groupBox5.Text = "Print Settings";
         // 
@@ -477,7 +477,7 @@ partial class PrintWindow
         printSettingsEditor.Margin = new System.Windows.Forms.Padding(0);
         printSettingsEditor.Name = "printSettingsEditor";
         printSettingsEditor.Size = new System.Drawing.Size(341, 44);
-        printSettingsEditor.TabIndex = 0;
+        printSettingsEditor.TabIndex = 10;
         printSettingsEditor.Changed += printSettingsEditor_Changed;
         // 
         // PrintWindow
