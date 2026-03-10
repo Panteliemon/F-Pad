@@ -239,7 +239,6 @@ partial class PrintSettingsEditor
         tbPageNumberTemplate.Name = "tbPageNumberTemplate";
         tbPageNumberTemplate.Size = new System.Drawing.Size(316, 23);
         tbPageNumberTemplate.TabIndex = 2;
-        toolTip1.SetToolTip(tbPageNumberTemplate, "Use {page} placeholder for page number, and {total} for total number of pages.");
         tbPageNumberTemplate.TextChanged += tbPageNumberTemplate_TextChanged;
         // 
         // rbPnTemplate

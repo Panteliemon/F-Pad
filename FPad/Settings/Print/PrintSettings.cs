@@ -28,7 +28,7 @@ public class PrintSettings
                 Family = "Georgia",
                 Size = 12
             },
-            PageNumberTemplate = "{page} / {total}",
+            PageNumberTemplate = $"{Printer.PLACEHOLDER_PAGE} / {Printer.PLACEHOLDER_TOTAL}",
             PageNumberAlignment = HorizontalAlignment.Center,
             PageNumberFont = new FontSettings()
             {

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace FPad.Controls;
 public partial class PrintSettingsEditor : UserControl
@@ -36,6 +37,8 @@ public partial class PrintSettingsEditor : UserControl
 
         EditFinishedBehavior tbTemplateBehavior = new EditFinishedBehavior(tbPageNumberTemplate);
         tbTemplateBehavior.EditFinished += tbPageNumberTemplate_EditFinished;
+
+        toolTip1.SetToolTip(tbPageNumberTemplate, $"Use {Printer.PLACEHOLDER_PAGE} placeholder for page number, and {Printer.PLACEHOLDER_TOTAL} for total number of pages.");
 
         ChangeLayout();
         ChangeTamplateEnabled();

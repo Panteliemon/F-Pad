@@ -97,7 +97,7 @@ public partial class SettingsDialog : Form
         string pageNumberText = "3";
         if (innerPrintSettings.UsePageNumberTemplate)
         {
-            pageNumberText = innerPrintSettings.PageNumberTemplate.Replace("{page}", "3").Replace("{total}", "25");
+            pageNumberText = innerPrintSettings.PageNumberTemplate.Replace(Printer.PLACEHOLDER_PAGE, "3").Replace(Printer.PLACEHOLDER_TOTAL, "25");
         }
         lPreviewPageNumber.Text = pageNumberText;
         lPreviewPageNumber.TextAlign = innerPrintSettings.PageNumberAlignment switch

@@ -61,9 +61,10 @@ public partial class PrintWindow : Form
         selectedPrinter = document.PrinterSettings.PrinterName;
         cbPrinter.SelectedIndex = installedPrinters.IndexOf(selectedPrinter);
 
-        // If templated page numbers are used - have to pre-render document to count number of pages.
-        // This is how we do it:
-        if (App.Settings.PrintSettings.IncludePageNumber && App.Settings.PrintSettings.UsePageNumberTemplate)
+        // If templated page numbers with "{total}" are used - have to pre-render document
+        // to count number of pages. This is how we do it:
+        if (App.Settings.PrintSettings.IncludePageNumber && App.Settings.PrintSettings.UsePageNumberTemplate
+            && App.Settings.PrintSettings.PageNumberTemplate.Contains(Printer.PLACEHOLDER_TOTAL))
         {
             auxPrintPreview.Visible = true;
             auxPrintPreview.Document = document; // Causes render pass 1

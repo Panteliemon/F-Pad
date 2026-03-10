@@ -14,6 +14,9 @@ namespace FPad;
 
 public class Printer
 {
+    public const string PLACEHOLDER_PAGE = "{page}";
+    public const string PLACEHOLDER_TOTAL = "{total}";
+
     private string allText;
     private string documentFullPath;
 
@@ -199,11 +202,11 @@ public class Printer
             {
                 string pageNumberStr = pageNumberTemplate == null
                     ? currentPage.ToString()
-                    : pageNumberTemplate.Replace("{page}", currentPage.ToString())
+                    : pageNumberTemplate.Replace(PLACEHOLDER_PAGE, currentPage.ToString())
                                         // Cannot know number of pages until printed to the end ¯\_(ツ)_/¯
                                         // Provided that it only depends on document's text and document's font - both immutable here -
                                         // use first time calculated value, if any.
-                                        .Replace("{total}", (PagesCount ?? 0).ToString());
+                                        .Replace(PLACEHOLDER_TOTAL, (PagesCount ?? 0).ToString());
                 
                 SizeF pageNumberSize = e.Graphics.MeasureString(pageNumberStr, pageNumberFont);
                 float y = ((float)e.MarginBounds.Bottom + (float)e.PageBounds.Bottom - pageNumberSize.Height) / 2.0f;
