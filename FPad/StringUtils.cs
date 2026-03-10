@@ -372,6 +372,98 @@ public static class StringUtils
         }    
     }
 
+    public static LineBreaks DetectLineBreaks(ReadOnlySpan<char> str)
+    {
+        LineBreaks result = LineBreaks.None;
+
+        bool isAfter13 = false;
+        for (int i = 0; i < str.Length; i++)
+        {
+            char c = str[i];
+            if (isAfter13)
+            {
+                if (c == 10)
+                {
+                    result |= LineBreaks.Windows;
+                    isAfter13 = false;
+                }
+                else if (c == 13)
+                {
+                    // Nothing changes
+                }
+                else
+                {
+                    isAfter13 = false;
+                }
+            }
+            else
+            {
+                if (c == 13)
+                {
+                    isAfter13 = true;
+                }
+                else if (c == 10)
+                {
+                    result |= LineBreaks.Unix;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Returns new string in which all line breaks of the initial string are replaced to the specified value.
+    /// </summary>
+    /// <param name="str"></param>
+    /// <param name="targetLineBreaks">Only pure flags are accepted, no combinations.</param>
+    /// <returns></returns>
+    public static string NormalizeLineBreaks(ReadOnlySpan<char> str, LineBreaks targetLineBreaks)
+    {
+        StringBuilder sb = new();
+        if (targetLineBreaks == LineBreaks.Windows)
+        {
+            IterateOverSplitByLines(str, (lineSpan, _, _, _, isLastLine) =>
+            {
+                sb.Append(lineSpan);
+                if (!isLastLine)
+                {
+                    sb.Append((char)13);
+                    sb.Append((char)10);
+                }
+
+                return true;
+            });
+        }
+        else if (targetLineBreaks == LineBreaks.Unix)
+        {
+            IterateOverSplitByLines(str, (lineSpan, _, _, _, isLastLine) =>
+            {
+                sb.Append(lineSpan);
+                if (!isLastLine)
+                {
+                    sb.Append((char)10);
+                }
+
+                return true;
+            });
+        }
+        else if (targetLineBreaks == LineBreaks.None)
+        {
+            throw new ArgumentException($"Need to specify a value for {nameof(targetLineBreaks)} parameter.");
+        }
+        else if ((int)targetLineBreaks >= 4)
+        {
+            throw new NotSupportedException();
+        }
+        else
+        {
+            throw new ArgumentException($"Flag combinations are not allowed for {nameof(NormalizeLineBreaks)}");
+        }
+
+        return sb.ToString();
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static ConseqCharType GetCharType(char c)
     {

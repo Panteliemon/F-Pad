@@ -198,6 +198,12 @@ public static class EditActionFactory
         return new ReplaceAllEditAction(matches, replaceWith, selectionBefore, selectionAfter);
     }
 
+    public static IEditAction CreateLineBreaks(LineBreaks lineBreaksBefore,
+        LineBreaks lineBreaksAfter, bool raiseModifiedFlag)
+    {
+        return new LineBreaksEditAction(lineBreaksBefore, lineBreaksAfter, raiseModifiedFlag);
+    }
+
     private static bool IsSpace(ReadOnlySpan<char> text, int index)
     {
         if ((index < 0) || (index >= text.Length))
