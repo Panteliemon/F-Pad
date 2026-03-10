@@ -61,16 +61,12 @@ public partial class PrintWindow : Form
         selectedPrinter = document.PrinterSettings.PrinterName;
         cbPrinter.SelectedIndex = installedPrinters.IndexOf(selectedPrinter);
 
-        // If templated page numbers with "{total}" are used - have to pre-render document
-        // to count number of pages. This is how we do it:
-        if (App.Settings.PrintSettings.IncludePageNumber && App.Settings.PrintSettings.UsePageNumberTemplate
-            && App.Settings.PrintSettings.PageNumberTemplate.Contains(Printer.PLACEHOLDER_TOTAL))
-        {
-            auxPrintPreview.Visible = true;
-            auxPrintPreview.Document = document; // Causes render pass 1
-            auxPrintPreview.Width = 1; // Needs to be "truly" visible to render
-            auxPrintPreview.Height = 1;
-        }
+        // Calculate total number of pages fast:
+        printer.ActivatePageCountingMode();
+        auxPrintPreview.Visible = true;
+        auxPrintPreview.Document = document; // Causes render pass 1
+        auxPrintPreview.Width = 1; // Needs to be "truly" visible to render
+        auxPrintPreview.Height = 1;
         
         printPreview.Document = document;
 
@@ -147,6 +143,10 @@ public partial class PrintWindow : Form
             document.PrinterSettings.PrinterName = selectedPrinter;
 
             UpdatePrinterAttributes();
+
+            // For different printer there can be another number of pages, recalculate:
+            printer.ActivatePageCountingMode();
+            auxPrintPreview.InvalidatePreview();
             printPreview.InvalidatePreview();
         }
     }
@@ -192,6 +192,9 @@ public partial class PrintWindow : Form
                             document.PrinterSettings.SetHdevmode(pDevMode);
                             document.DefaultPageSettings.SetHdevmode(pDevMode);
 
+                            // This may have influenced number of pages, recalculate:
+                            printer.ActivatePageCountingMode();
+                            auxPrintPreview.InvalidatePreview();
                             printPreview.InvalidatePreview();
                         }
                     }
@@ -440,7 +443,7 @@ public partial class PrintWindow : Form
         printPreview.StartPage = pageIndex;
 
         enableHandlers = false;
-        tbCurrentPage.Text = (pageIndex + 1).ToString();
+        tbCurrentPage.Text = (printPreview.StartPage + 1).ToString();
         enableHandlers = true;
 
         UpdatePrevNextEnabled();

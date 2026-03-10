@@ -42,6 +42,10 @@ public class Printer
     private int documentCopiesLeft;
     private int pageCopiesLeft;
     private CancellationToken ct;
+    // Rendering the document for preview is slow as fuck, and not on our side,
+    // so if we only render for calculating number of pages - we will do everything
+    // in a single PrintPage handler.
+    private bool isInPageCountingMode;
 
     public PrintDocument Document { get; }
 
@@ -70,6 +74,17 @@ public class Printer
         Document.BeginPrint += Document_BeginPrint;
         Document.PrintPage += Document_PrintPage;
         Document.EndPrint += Document_EndPrint;
+    }
+
+    /// <summary>
+    /// If called - the next one render of this document will happen in "page counting" mode:
+    /// it will render 1 empty page, but it will calculate total number of pages (<see cref="PagesCount"/>)
+    /// needed for printing the document.
+    /// </summary>
+    public void ActivatePageCountingMode()
+    {
+        PagesCount = null;
+        isInPageCountingMode = true;
     }
 
     public void SetSettings(PrintSettings printSettings)
@@ -116,7 +131,7 @@ public class Printer
             float lineHeight = mainTextFont.GetHeight(e.Graphics);
             float verticalOffset = 0f;
             int startPositionForCurrentPage = currentStartPosition;
-            bool isCurrentPageIncluded = IsPageIncluded(currentPage);
+            bool isCurrentPageIncluded = (!isInPageCountingMode) && IsPageIncluded(currentPage);
 
             // ===== Print one page (main text) =====
             do
@@ -169,7 +184,8 @@ public class Printer
                         return false;
                     });
 
-                if (ct.IsCancellationRequested)
+                // Page counting is not cancelable (for integrity)
+                if ((!isInPageCountingMode) && ct.IsCancellationRequested)
                 {
                     e.HasMorePages = false;
                     return;
@@ -277,6 +293,7 @@ public class Printer
 
     private void Document_EndPrint(object sender, PrintEventArgs e)
     {
+        isInPageCountingMode = false;
         if (!PagesCount.HasValue)
         {
             PagesCount = pagesCount;
