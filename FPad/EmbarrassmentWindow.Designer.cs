@@ -250,6 +250,7 @@ partial class EmbarrassmentWindow
         // 
         AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+        CancelButton = bOk;
         ClientSize = new System.Drawing.Size(966, 641);
         Controls.Add(panel2);
         Controls.Add(panel1);
