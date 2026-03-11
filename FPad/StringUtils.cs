@@ -196,12 +196,32 @@ public static class StringUtils
             return 0;
 
         int lineIndex = 0;
+        bool isAfter13 = false;
         for (int i = 0; i < str.Length; i++)
         {
             char c = str[i];
-            if (c == 10)
+            if (isAfter13)
             {
-                lineIndex++;
+                if (c == 13)
+                {
+                    lineIndex++;
+                }
+                else
+                {
+                    isAfter13 = false;
+                }
+            }
+            else
+            {
+                if (c == 13)
+                {
+                    lineIndex++;
+                    isAfter13 = true;
+                }
+                else if (c == 10)
+                {
+                    lineIndex++;
+                }
             }
         }
 
