@@ -12,7 +12,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -35,7 +35,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "hello world";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -58,7 +58,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "line1\nline2";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -87,7 +87,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "line1\r\nline2";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -116,7 +116,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "line1\nline2\r\nline3";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -151,7 +151,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "\n\n";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -180,7 +180,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "line1\nline2\n";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -202,7 +202,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "line1\r\nline2\r\n";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -224,7 +224,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "line1\rline2";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -245,7 +245,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "line1\r\r\rline2";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -264,7 +264,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "line1\ra\r\nline2";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>

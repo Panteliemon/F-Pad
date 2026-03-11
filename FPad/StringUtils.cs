@@ -37,18 +37,52 @@ public static class StringUtils
 
         int lineIndex = startLineIndex;
         int charIndex = startCharIndex;
+        bool isAfter13 = false;
         for (int i = startFromIndex; i < targetPosition; i++)
         {
             char c = str[i];
-            if (c == 10)
+            if (isAfter13)
             {
-                lineIndex++;
-                charIndex = 0;
+                lineIndex++; // always go to next line due to previous 13, but differently.
+                if (c == 13)
+                {
+                    charIndex = 0;
+                    // Stay in current state
+                }
+                else if (c == 10)
+                {
+                    charIndex = 0;
+                    isAfter13 = false;
+                }
+                else
+                {
+                    charIndex = 1; // for the symbol encountered now
+                    isAfter13 = false;
+                }
             }
             else
             {
-                charIndex++;
+                if (c == 13)
+                {
+                    charIndex++;
+                    isAfter13 = true;
+                }
+                else if (c == 10)
+                {
+                    lineIndex++;
+                    charIndex = 0;
+                }
+                else
+                {
+                    charIndex++;
+                }
             }
+        }
+
+        if (isAfter13)
+        {
+            lineIndex++;
+            charIndex = 0;
         }
 
         return (lineIndex, charIndex);
