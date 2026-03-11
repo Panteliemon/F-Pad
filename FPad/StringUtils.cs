@@ -43,20 +43,20 @@ public static class StringUtils
             char c = str[i];
             if (isAfter13)
             {
-                lineIndex++; // always go to next line due to previous 13, but differently.
                 if (c == 13)
                 {
+                    lineIndex++;
                     charIndex = 0;
                     // Stay in current state
                 }
                 else if (c == 10)
                 {
-                    charIndex = 0;
+                    // charIndex stays 0
                     isAfter13 = false;
                 }
                 else
                 {
-                    charIndex = 1; // for the symbol encountered now
+                    charIndex++;
                     isAfter13 = false;
                 }
             }
@@ -64,7 +64,8 @@ public static class StringUtils
             {
                 if (c == 13)
                 {
-                    charIndex++;
+                    lineIndex++;
+                    charIndex = 0;
                     isAfter13 = true;
                 }
                 else if (c == 10)
@@ -79,12 +80,6 @@ public static class StringUtils
             }
         }
 
-        if (isAfter13)
-        {
-            lineIndex++;
-            charIndex = 0;
-        }
-
         return (lineIndex, charIndex);
     }
 
@@ -95,39 +90,95 @@ public static class StringUtils
 
         int currentLineIndex = 0;
         int currentCharIndex = 0;
+        bool isAfter13 = false;
         for (int i = 0; i < str.Length; i++)
         {
             if (currentLineIndex == lineIndex)
             {
-                if (currentCharIndex == charIndex)
-                {
-                    return (i, currentLineIndex, currentCharIndex);
-                }
-                else
+                if (isAfter13)
                 {
                     char c = str[i];
                     if (c == 10)
                     {
-                        // Target line has ended and we haven't reached required col
+                        // We haven't entered the current line yet. Don't detect.
+                    }
+                    else if (c == 13)
+                    {
+                        // Target line has zero length
                         return (i, currentLineIndex, currentCharIndex);
                     }
                     else
                     {
-                        currentCharIndex++;
+                        if (currentCharIndex == charIndex)
+                        {
+                            return (i, currentLineIndex, currentCharIndex);
+                        }
+                        else
+                        {
+                            currentCharIndex++;
+                        }
+                    }
+
+                    isAfter13 = false;
+                }
+                else
+                {
+                    if (currentCharIndex == charIndex)
+                    {
+                        return (i, currentLineIndex, currentCharIndex);
+                    }
+                    else
+                    {
+                        char c = str[i];
+                        if ((c == 10) || (c == 13))
+                        {
+                            // Target line has ended and we haven't reached required col
+                            return (i, currentLineIndex, currentCharIndex);
+                        }
+                        else
+                        {
+                            currentCharIndex++;
+                        }
                     }
                 }
             }
             else
             {
                 char c = str[i];
-                if (c == 10)
+                if (isAfter13)
                 {
-                    currentLineIndex++;
-                    currentCharIndex = 0;
+                    if (c == 13)
+                    {
+                        currentLineIndex++;
+                        currentCharIndex = 0;
+                    }
+                    else if (c == 10)
+                    {
+                        isAfter13 = false;
+                    }
+                    else
+                    {
+                        currentCharIndex++;
+                        isAfter13 = false;
+                    }
                 }
                 else
                 {
-                    currentCharIndex++;
+                    if (c == 13)
+                    {
+                        currentLineIndex++;
+                        currentCharIndex = 0;
+                        isAfter13 = true;
+                    }
+                    else if (c == 10)
+                    {
+                        currentLineIndex++;
+                        currentCharIndex = 0;
+                    }
+                    else
+                    {
+                        currentCharIndex++;
+                    }
                 }
             }
         }
