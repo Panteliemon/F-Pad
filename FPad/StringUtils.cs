@@ -373,7 +373,22 @@ public static class StringUtils
             char c = allText[i];
             if (isAfter13)
             {
-                if (c == 10)
+                if (c == 13)
+                {
+                    // Callback for the previous line
+                    bool continueIteration = callback(
+                        allText.Slice(currentLineStart, currentLineLength),
+                        currentLineIndex, currentLineStart, i, false
+                    );
+                    if (!continueIteration)
+                        return;
+
+                    currentLineIndex++;
+                    currentLineStart = i;
+                    currentLineLength = 0;
+                    // Stay in current state
+                }
+                else if (c == 10)
                 {
                     bool continueIteration = callback(
                         allText.Slice(currentLineStart, currentLineLength),
@@ -387,21 +402,29 @@ public static class StringUtils
                     currentLineLength = 0;
                     isAfter13 = false;
                 }
-                else if (c == 13)
-                {
-                    // Prev 13 goes into the current line, current 13 - pending.
-                    currentLineLength++;
-                }
                 else
                 {
-                    // No line break, just stray 13
-                    currentLineLength += 2;
+                    // Callback for the previous line
+                    bool continueIteration = callback(
+                        allText.Slice(currentLineStart, currentLineLength),
+                        currentLineIndex, currentLineStart, i, false
+                    );
+                    if (!continueIteration)
+                        return;
+
+                    currentLineIndex++;
+                    currentLineStart = i;
+                    currentLineLength = 1;
                     isAfter13 = false;
                 }
             }
             else
             {
-                if (c == 10)
+                if (c == 13)
+                {
+                    isAfter13 = true;
+                }
+                else if (c == 10)
                 {
                     bool continueIteration = callback(
                         allText.Slice(currentLineStart, currentLineLength),
@@ -414,15 +437,26 @@ public static class StringUtils
                     currentLineStart = i + 1;
                     currentLineLength = 0;
                 }
-                else if (c == 13)
-                {
-                    isAfter13 = true;
-                }
                 else
                 {
                     currentLineLength++;
                 }
             }
+        }
+
+        if (isAfter13)
+        {
+            // Add prev line
+            bool continueIteration = callback(
+                allText.Slice(currentLineStart, currentLineLength),
+                currentLineIndex, currentLineStart, allText.Length, false
+            );
+            if (!continueIteration)
+                return;
+
+            currentLineIndex++;
+            currentLineStart = allText.Length;
+            currentLineLength = 0;
         }
 
         callback(allText[currentLineStart..], currentLineIndex, currentLineStart, allText.Length, true);
