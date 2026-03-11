@@ -85,6 +85,7 @@ namespace FPad
             blinkingTimer = new Timer(components);
             toolTip1 = new ToolTip(components);
             printIconTimer = new Timer(components);
+            macintoshLineBreaksStripMenuItem = new ToolStripMenuItem();
             statusBar.SuspendLayout();
             mainMenu.SuspendLayout();
             panel1.SuspendLayout();
@@ -361,7 +362,7 @@ namespace FPad
             // 
             // lineBreaksToolStripMenuItem
             // 
-            lineBreaksToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { windowsLineBreaksStripMenuItem, unixLineBreaksStripMenuItem });
+            lineBreaksToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { windowsLineBreaksStripMenuItem, unixLineBreaksStripMenuItem, macintoshLineBreaksStripMenuItem });
             lineBreaksToolStripMenuItem.Name = "lineBreaksToolStripMenuItem";
             lineBreaksToolStripMenuItem.Size = new Size(180, 22);
             lineBreaksToolStripMenuItem.Text = "Line Breaks";
@@ -481,6 +482,13 @@ namespace FPad
             printIconTimer.Interval = 333;
             printIconTimer.Tick += printIconTimer_Tick;
             // 
+            // macintoshLineBreaksStripMenuItem
+            // 
+            macintoshLineBreaksStripMenuItem.Name = "macintoshLineBreaksStripMenuItem";
+            macintoshLineBreaksStripMenuItem.Size = new Size(180, 22);
+            macintoshLineBreaksStripMenuItem.Text = "Macintosh (CR)";
+            macintoshLineBreaksStripMenuItem.Click += macintoshLineBreaksStripMenuItem_Click;
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -566,5 +574,6 @@ namespace FPad
         private ToolStripMenuItem lineBreaksToolStripMenuItem;
         private ToolStripMenuItem windowsLineBreaksStripMenuItem;
         private ToolStripMenuItem unixLineBreaksStripMenuItem;
+        private ToolStripMenuItem macintoshLineBreaksStripMenuItem;
     }
 }

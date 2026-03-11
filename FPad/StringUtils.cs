@@ -521,17 +521,18 @@ public static class StringUtils
             char c = str[i];
             if (isAfter13)
             {
-                if (c == 10)
+                if (c == 13)
+                {
+                    result |= LineBreaks.Macintosh;
+                }
+                else if (c == 10)
                 {
                     result |= LineBreaks.Windows;
                     isAfter13 = false;
                 }
-                else if (c == 13)
-                {
-                    // Nothing changes
-                }
                 else
                 {
+                    result |= LineBreaks.Macintosh;
                     isAfter13 = false;
                 }
             }
@@ -546,6 +547,11 @@ public static class StringUtils
                     result |= LineBreaks.Unix;
                 }
             }
+        }
+
+        if (isAfter13)
+        {
+            result |= LineBreaks.Macintosh;
         }
 
         return result;
@@ -587,11 +593,24 @@ public static class StringUtils
                 return true;
             });
         }
+        else if (targetLineBreaks == LineBreaks.Macintosh)
+        {
+            IterateOverSplitByLines(str, (lineSpan, _, _, _, isLastLine) =>
+            {
+                sb.Append(lineSpan);
+                if (!isLastLine)
+                {
+                    sb.Append((char)13);
+                }
+
+                return true;
+            });
+        }
         else if (targetLineBreaks == LineBreaks.None)
         {
             throw new ArgumentException($"Need to specify a value for {nameof(targetLineBreaks)} parameter.");
         }
-        else if ((int)targetLineBreaks >= 4)
+        else if ((int)targetLineBreaks >= 8)
         {
             throw new NotSupportedException();
         }
