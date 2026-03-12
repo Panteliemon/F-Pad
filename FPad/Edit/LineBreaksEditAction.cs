@@ -38,7 +38,7 @@ internal class LineBreaksEditAction : IEditAction, IModifyingEditAction, ISaveAw
 
     public bool Absorb(IEditAction nextAction)
     {
-        // Don't glue, because only 2 possible values, would be confusing if Ctrl+Z changes nothing.
+        // Don't glue. Because I said so.
         return false;
     }
 

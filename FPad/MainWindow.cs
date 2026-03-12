@@ -679,6 +679,18 @@ namespace FPad
             }
         }
 
+        private void macintoshLineBreaksStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (currentLineBreaks != LineBreaks.Macintosh)
+            {
+                IEditAction lineBreaksAction = EditActionFactory.CreateLineBreaks(
+                    currentLineBreaks, LineBreaks.Macintosh, !isNew);
+                lineBreaksAction.Apply(this);
+                undoManager.TakeNewAction(lineBreaksAction);
+                UpdateMenu();
+            }
+        }
+
         private void encodingMenuItemSelected(EncodingVm encodingVm)
         {
             if ((encodingVm != currentEncoding) && (currentEncoding != null))
@@ -1304,6 +1316,7 @@ namespace FPad
 
             windowsLineBreaksStripMenuItem.Checked = currentLineBreaks == LineBreaks.Windows;
             unixLineBreaksStripMenuItem.Checked = currentLineBreaks == LineBreaks.Unix;
+            macintoshLineBreaksStripMenuItem.Checked = currentLineBreaks == LineBreaks.Macintosh;
         }
 
         private void UpdateStatusBar()
@@ -1356,6 +1369,11 @@ namespace FPad
             {
                 lineBreaksLabel.Text = "LF";
                 lineBreaksLabel.ToolTipText = "Unix-style line breaks (0A)";
+            }
+            else if (currentLineBreaks == LineBreaks.Macintosh)
+            {
+                lineBreaksLabel.Text = "CR";
+                lineBreaksLabel.ToolTipText = "Macintosh-style line breaks (0D)";
             }
         }
 
@@ -1526,6 +1544,8 @@ namespace FPad
                 return LineBreaks.Windows;
             else if (detectedFromFile == LineBreaks.Unix)
                 return LineBreaks.Unix;
+            else if (detectedFromFile == LineBreaks.Macintosh)
+                return LineBreaks.Macintosh;
             else
                 return LineBreaks.Windows; // we are running on Windows, therefore if the file has no line breaks - use Windows line breaks
         }

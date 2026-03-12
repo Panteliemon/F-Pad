@@ -37,17 +37,46 @@ public static class StringUtils
 
         int lineIndex = startLineIndex;
         int charIndex = startCharIndex;
+        bool isAfter13 = false;
         for (int i = startFromIndex; i < targetPosition; i++)
         {
             char c = str[i];
-            if (c == 10)
+            if (isAfter13)
             {
-                lineIndex++;
-                charIndex = 0;
+                if (c == 13)
+                {
+                    lineIndex++;
+                    charIndex = 0;
+                    // Stay in current state
+                }
+                else if (c == 10)
+                {
+                    // charIndex stays 0
+                    isAfter13 = false;
+                }
+                else
+                {
+                    charIndex++;
+                    isAfter13 = false;
+                }
             }
             else
             {
-                charIndex++;
+                if (c == 13)
+                {
+                    lineIndex++;
+                    charIndex = 0;
+                    isAfter13 = true;
+                }
+                else if (c == 10)
+                {
+                    lineIndex++;
+                    charIndex = 0;
+                }
+                else
+                {
+                    charIndex++;
+                }
             }
         }
 
@@ -61,39 +90,95 @@ public static class StringUtils
 
         int currentLineIndex = 0;
         int currentCharIndex = 0;
+        bool isAfter13 = false;
         for (int i = 0; i < str.Length; i++)
         {
             if (currentLineIndex == lineIndex)
             {
-                if (currentCharIndex == charIndex)
-                {
-                    return (i, currentLineIndex, currentCharIndex);
-                }
-                else
+                if (isAfter13)
                 {
                     char c = str[i];
                     if (c == 10)
                     {
-                        // Target line has ended and we haven't reached required col
+                        // We haven't entered the current line yet. Don't detect.
+                    }
+                    else if (c == 13)
+                    {
+                        // Target line has zero length
                         return (i, currentLineIndex, currentCharIndex);
                     }
                     else
                     {
-                        currentCharIndex++;
+                        if (currentCharIndex == charIndex)
+                        {
+                            return (i, currentLineIndex, currentCharIndex);
+                        }
+                        else
+                        {
+                            currentCharIndex++;
+                        }
+                    }
+
+                    isAfter13 = false;
+                }
+                else
+                {
+                    if (currentCharIndex == charIndex)
+                    {
+                        return (i, currentLineIndex, currentCharIndex);
+                    }
+                    else
+                    {
+                        char c = str[i];
+                        if ((c == 10) || (c == 13))
+                        {
+                            // Target line has ended and we haven't reached required col
+                            return (i, currentLineIndex, currentCharIndex);
+                        }
+                        else
+                        {
+                            currentCharIndex++;
+                        }
                     }
                 }
             }
             else
             {
                 char c = str[i];
-                if (c == 10)
+                if (isAfter13)
                 {
-                    currentLineIndex++;
-                    currentCharIndex = 0;
+                    if (c == 13)
+                    {
+                        currentLineIndex++;
+                        currentCharIndex = 0;
+                    }
+                    else if (c == 10)
+                    {
+                        isAfter13 = false;
+                    }
+                    else
+                    {
+                        currentCharIndex++;
+                        isAfter13 = false;
+                    }
                 }
                 else
                 {
-                    currentCharIndex++;
+                    if (c == 13)
+                    {
+                        currentLineIndex++;
+                        currentCharIndex = 0;
+                        isAfter13 = true;
+                    }
+                    else if (c == 10)
+                    {
+                        currentLineIndex++;
+                        currentCharIndex = 0;
+                    }
+                    else
+                    {
+                        currentCharIndex++;
+                    }
                 }
             }
         }
@@ -111,12 +196,32 @@ public static class StringUtils
             return 0;
 
         int lineIndex = 0;
+        bool isAfter13 = false;
         for (int i = 0; i < str.Length; i++)
         {
             char c = str[i];
-            if (c == 10)
+            if (isAfter13)
             {
-                lineIndex++;
+                if (c == 13)
+                {
+                    lineIndex++;
+                }
+                else
+                {
+                    isAfter13 = false;
+                }
+            }
+            else
+            {
+                if (c == 13)
+                {
+                    lineIndex++;
+                    isAfter13 = true;
+                }
+                else if (c == 10)
+                {
+                    lineIndex++;
+                }
             }
         }
 
@@ -268,7 +373,22 @@ public static class StringUtils
             char c = allText[i];
             if (isAfter13)
             {
-                if (c == 10)
+                if (c == 13)
+                {
+                    // Callback for the previous line
+                    bool continueIteration = callback(
+                        allText.Slice(currentLineStart, currentLineLength),
+                        currentLineIndex, currentLineStart, i, false
+                    );
+                    if (!continueIteration)
+                        return;
+
+                    currentLineIndex++;
+                    currentLineStart = i;
+                    currentLineLength = 0;
+                    // Stay in current state
+                }
+                else if (c == 10)
                 {
                     bool continueIteration = callback(
                         allText.Slice(currentLineStart, currentLineLength),
@@ -282,21 +402,29 @@ public static class StringUtils
                     currentLineLength = 0;
                     isAfter13 = false;
                 }
-                else if (c == 13)
-                {
-                    // Prev 13 goes into the current line, current 13 - pending.
-                    currentLineLength++;
-                }
                 else
                 {
-                    // No line break, just stray 13
-                    currentLineLength += 2;
+                    // Callback for the previous line
+                    bool continueIteration = callback(
+                        allText.Slice(currentLineStart, currentLineLength),
+                        currentLineIndex, currentLineStart, i, false
+                    );
+                    if (!continueIteration)
+                        return;
+
+                    currentLineIndex++;
+                    currentLineStart = i;
+                    currentLineLength = 1;
                     isAfter13 = false;
                 }
             }
             else
             {
-                if (c == 10)
+                if (c == 13)
+                {
+                    isAfter13 = true;
+                }
+                else if (c == 10)
                 {
                     bool continueIteration = callback(
                         allText.Slice(currentLineStart, currentLineLength),
@@ -309,15 +437,26 @@ public static class StringUtils
                     currentLineStart = i + 1;
                     currentLineLength = 0;
                 }
-                else if (c == 13)
-                {
-                    isAfter13 = true;
-                }
                 else
                 {
                     currentLineLength++;
                 }
             }
+        }
+
+        if (isAfter13)
+        {
+            // Add prev line
+            bool continueIteration = callback(
+                allText.Slice(currentLineStart, currentLineLength),
+                currentLineIndex, currentLineStart, allText.Length, false
+            );
+            if (!continueIteration)
+                return;
+
+            currentLineIndex++;
+            currentLineStart = allText.Length;
+            currentLineLength = 0;
         }
 
         callback(allText[currentLineStart..], currentLineIndex, currentLineStart, allText.Length, true);
@@ -382,17 +521,18 @@ public static class StringUtils
             char c = str[i];
             if (isAfter13)
             {
-                if (c == 10)
+                if (c == 13)
+                {
+                    result |= LineBreaks.Macintosh;
+                }
+                else if (c == 10)
                 {
                     result |= LineBreaks.Windows;
                     isAfter13 = false;
                 }
-                else if (c == 13)
-                {
-                    // Nothing changes
-                }
                 else
                 {
+                    result |= LineBreaks.Macintosh;
                     isAfter13 = false;
                 }
             }
@@ -407,6 +547,11 @@ public static class StringUtils
                     result |= LineBreaks.Unix;
                 }
             }
+        }
+
+        if (isAfter13)
+        {
+            result |= LineBreaks.Macintosh;
         }
 
         return result;
@@ -448,11 +593,24 @@ public static class StringUtils
                 return true;
             });
         }
+        else if (targetLineBreaks == LineBreaks.Macintosh)
+        {
+            IterateOverSplitByLines(str, (lineSpan, _, _, _, isLastLine) =>
+            {
+                sb.Append(lineSpan);
+                if (!isLastLine)
+                {
+                    sb.Append((char)13);
+                }
+
+                return true;
+            });
+        }
         else if (targetLineBreaks == LineBreaks.None)
         {
             throw new ArgumentException($"Need to specify a value for {nameof(targetLineBreaks)} parameter.");
         }
-        else if ((int)targetLineBreaks >= 4)
+        else if ((int)targetLineBreaks >= 8)
         {
             throw new NotSupportedException();
         }

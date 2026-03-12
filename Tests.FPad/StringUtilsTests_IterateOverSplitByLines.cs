@@ -12,7 +12,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -35,7 +35,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "hello world";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -58,7 +58,36 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "line1\nline2";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
+
+        // Act
+        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
+        {
+            lines.Add((line.ToString(), lineIndex, lineStartPosition, nextLineStartPosition, isLastLine));
+            return true;
+        });
+
+        // Assert
+        Assert.Equal(2, lines.Count);
+        Assert.Equal("line1", lines[0].line);
+        Assert.Equal(0, lines[0].lineIndex);
+        Assert.Equal(0, lines[0].lineStartPosition);
+        Assert.Equal(6, lines[0].nextLineStartPosition);
+        Assert.False(lines[0].isLastLine);
+
+        Assert.Equal("line2", lines[1].line);
+        Assert.Equal(1, lines[1].lineIndex);
+        Assert.Equal(6, lines[1].lineStartPosition);
+        Assert.Equal(11, lines[1].nextLineStartPosition);
+        Assert.True(lines[1].isLastLine);
+    }
+
+    [Fact]
+    public void IterateOverSplitByLines_TwoLinesWithCR_ReturnsTwoLines()
+    {
+        // Arrange
+        string text = "line1\rline2";
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -87,7 +116,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "line1\r\nline2";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -116,7 +145,42 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "line1\nline2\r\nline3";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
+
+        // Act
+        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
+        {
+            lines.Add((line.ToString(), lineIndex, lineStartPosition, nextLineStartPosition, isLastLine));
+            return true;
+        });
+
+        // Assert
+        Assert.Equal(3, lines.Count);
+        Assert.Equal("line1", lines[0].line);
+        Assert.Equal(0, lines[0].lineIndex);
+        Assert.Equal(0, lines[0].lineStartPosition);
+        Assert.Equal(6, lines[0].nextLineStartPosition);
+        Assert.False(lines[0].isLastLine);
+
+        Assert.Equal("line2", lines[1].line);
+        Assert.Equal(1, lines[1].lineIndex);
+        Assert.Equal(6, lines[1].lineStartPosition);
+        Assert.Equal(13, lines[1].nextLineStartPosition);
+        Assert.False(lines[1].isLastLine);
+
+        Assert.Equal("line3", lines[2].line);
+        Assert.Equal(2, lines[2].lineIndex);
+        Assert.Equal(13, lines[2].lineStartPosition);
+        Assert.Equal(18, lines[2].nextLineStartPosition);
+        Assert.True(lines[2].isLastLine);
+    }
+
+    [Fact]
+    public void IterateOverSplitByLines_ThreeLinesWithMixedLineEndings_ReturnsThreeLines_R()
+    {
+        // Arrange
+        string text = "line1\rline2\r\nline3";
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -151,7 +215,65 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "\n\n";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
+
+        // Act
+        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
+        {
+            lines.Add((line.ToString(), lineIndex, lineStartPosition, nextLineStartPosition, isLastLine));
+            return true;
+        });
+
+        // Assert
+        Assert.Equal(3, lines.Count);
+        Assert.Equal("", lines[0].line);
+        Assert.Equal(0, lines[0].lineIndex);
+        Assert.False(lines[0].isLastLine);
+
+        Assert.Equal("", lines[1].line);
+        Assert.Equal(1, lines[1].lineIndex);
+        Assert.False(lines[1].isLastLine);
+
+        Assert.Equal("", lines[2].line);
+        Assert.Equal(2, lines[2].lineIndex);
+        Assert.True(lines[2].isLastLine);
+    }
+
+    [Fact]
+    public void IterateOverSplitByLines_EmptyLines_ReturnsAllLines_R()
+    {
+        // Arrange
+        string text = "\r\r";
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
+
+        // Act
+        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
+        {
+            lines.Add((line.ToString(), lineIndex, lineStartPosition, nextLineStartPosition, isLastLine));
+            return true;
+        });
+
+        // Assert
+        Assert.Equal(3, lines.Count);
+        Assert.Equal("", lines[0].line);
+        Assert.Equal(0, lines[0].lineIndex);
+        Assert.False(lines[0].isLastLine);
+
+        Assert.Equal("", lines[1].line);
+        Assert.Equal(1, lines[1].lineIndex);
+        Assert.False(lines[1].isLastLine);
+
+        Assert.Equal("", lines[2].line);
+        Assert.Equal(2, lines[2].lineIndex);
+        Assert.True(lines[2].isLastLine);
+    }
+
+    [Fact]
+    public void IterateOverSplitByLines_EmptyLines_ReturnsAllLines_RN()
+    {
+        // Arrange
+        string text = "\r\n\r\n";
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -180,7 +302,29 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "line1\nline2\n";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
+
+        // Act
+        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
+        {
+            lines.Add((line.ToString(), lineIndex, lineStartPosition, nextLineStartPosition, isLastLine));
+            return true;
+        });
+
+        // Assert
+        Assert.Equal(3, lines.Count);
+        Assert.Equal("line1", lines[0].line);
+        Assert.Equal("line2", lines[1].line);
+        Assert.Equal("", lines[2].line);
+        Assert.True(lines[2].isLastLine);
+    }
+
+    [Fact]
+    public void IterateOverSplitByLines_EndsWithCR_ReturnsEmptyLastLine()
+    {
+        // Arrange
+        string text = "line1\rline2\r";
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -202,7 +346,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     {
         // Arrange
         string text = "line1\r\nline2\r\n";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
+        List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)> lines = new();
 
         // Act
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
@@ -217,71 +361,6 @@ public class StringUtilsTests_IterateOverSplitByLines
         Assert.Equal("line2", lines[1].line);
         Assert.Equal("", lines[2].line);
         Assert.True(lines[2].isLastLine);
-    }
-
-    [Fact]
-    public void IterateOverSplitByLines_StrayCarriageReturn_IncludesInLine()
-    {
-        // Arrange
-        string text = "line1\rline2";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
-
-        // Act
-        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
-        {
-            lines.Add((line.ToString(), lineIndex, lineStartPosition, nextLineStartPosition, isLastLine));
-            return true;
-        });
-
-        // Assert
-        Assert.Single(lines);
-        Assert.Equal("line1\rline2", lines[0].line);
-        Assert.Equal(0, lines[0].lineIndex);
-        Assert.True(lines[0].isLastLine);
-    }
-
-    [Fact]
-    public void IterateOverSplitByLines_MultipleConsecutiveCR_IncludesInLine()
-    {
-        // Arrange
-        string text = "line1\r\r\rline2";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
-
-        // Act
-        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
-        {
-            lines.Add((line.ToString(), lineIndex, lineStartPosition, nextLineStartPosition, isLastLine));
-            return true;
-        });
-
-        // Assert
-        Assert.Single(lines);
-        Assert.Equal("line1\r\r\rline2", lines[0].line);
-    }
-
-    [Fact]
-    public void IterateOverSplitByLines_MixedStrayAndProperCR_HandlesCorrectly()
-    {
-        // Arrange
-        string text = "line1\ra\r\nline2";
-        var lines = new List<(string line, int lineIndex, int lineStartPosition, int nextLineStartPosition, bool isLastLine)>();
-
-        // Act
-        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
-        {
-            lines.Add((line.ToString(), lineIndex, lineStartPosition, nextLineStartPosition, isLastLine));
-            return true;
-        });
-
-        // Assert
-        Assert.Equal(2, lines.Count);
-        Assert.Equal("line1\ra", lines[0].line);
-        Assert.Equal(0, lines[0].lineIndex);
-        Assert.False(lines[0].isLastLine);
-
-        Assert.Equal("line2", lines[1].line);
-        Assert.Equal(1, lines[1].lineIndex);
-        Assert.True(lines[1].isLastLine);
     }
 
     [Fact]
@@ -351,10 +430,54 @@ public class StringUtilsTests_IterateOverSplitByLines
     }
 
     [Fact]
+    public void IterateOverSplitByLines_OnlyCR_ReturnsEmptyLines()
+    {
+        // Arrange
+        string text = "\r\r\r";
+        var lines = new List<(string line, int lineIndex)>();
+
+        // Act
+        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
+        {
+            lines.Add((line.ToString(), lineIndex));
+            return true;
+        });
+
+        // Assert
+        Assert.Equal(4, lines.Count);
+        for (int i = 0; i < 4; i++)
+        {
+            Assert.Equal("", lines[i].line);
+            Assert.Equal(i, lines[i].lineIndex);
+        }
+    }
+
+    [Fact]
     public void IterateOverSplitByLines_LineStartPositions_AreCorrect()
     {
         // Arrange
         string text = "abc\nde\nf";
+        var positions = new List<(int lineStartPosition, int nextLineStartPosition)>();
+
+        // Act
+        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
+        {
+            positions.Add((lineStartPosition, nextLineStartPosition));
+            return true;
+        });
+
+        // Assert
+        Assert.Equal(3, positions.Count);
+        Assert.Equal((0, 4), positions[0]); // "abc\n" -> next starts at 4
+        Assert.Equal((4, 7), positions[1]); // "de\n" -> next starts at 7
+        Assert.Equal((7, 8), positions[2]); // "f" -> next starts at 8 (text.Length)
+    }
+
+    [Fact]
+    public void IterateOverSplitByLines_LineStartPositions_AreCorrect_R()
+    {
+        // Arrange
+        string text = "abc\rde\rf";
         var positions = new List<(int lineStartPosition, int nextLineStartPosition)>();
 
         // Act
@@ -393,49 +516,10 @@ public class StringUtilsTests_IterateOverSplitByLines
     }
 
     [Fact]
-    public void IterateOverSplitByLines_TextWithCRCR_HandlesCorrectly()
-    {
-        // Arrange
-        string text = "line1\r\rline2";
-        var lines = new List<string>();
-
-        // Act
-        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
-        {
-            lines.Add(line.ToString());
-            return true;
-        });
-
-        // Assert
-        Assert.Single(lines);
-        Assert.Equal("line1\r\rline2", lines[0]);
-    }
-
-    [Fact]
-    public void IterateOverSplitByLines_EndsWithCR_IncludesInLastLine()
-    {
-        // Arrange
-        string text = "line1\nline2\r";
-        var lines = new List<string>();
-
-        // Act
-        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
-        {
-            lines.Add(line.ToString());
-            return true;
-        });
-
-        // Assert
-        Assert.Equal(2, lines.Count);
-        Assert.Equal("line1", lines[0]);
-        Assert.Equal("line2\r", lines[1]);
-    }
-
-    [Fact]
     public void IterateOverSplitByLines_ComplexMixedLineEndings_HandlesCorrectly()
     {
         // Arrange
-        string text = "a\nb\r\nc\rd\r\re\r\r\nf";
+        string text = "a\rb\r\ncRdRReR\nf";
         var lines = new List<(string line, int lineIndex, bool isLastLine)>();
 
         // Act
@@ -449,15 +533,15 @@ public class StringUtilsTests_IterateOverSplitByLines
         Assert.Equal(4, lines.Count);
         Assert.Equal(("a", 0, false), lines[0]);
         Assert.Equal(("b", 1, false), lines[1]);
-        Assert.Equal(("c\rd\r\re\r", 2, false), lines[2]);
+        Assert.Equal(("cRdRReR", 2, false), lines[2]);
         Assert.Equal(("f", 3, true), lines[3]);
     }
 
     [Fact]
-    public void IterateOverSplitByLines_LinesWithCRInMiddle_PreserveCR()
+    public void IterateOverSplitByLines_SingleLF_CreatesTwoLines()
     {
         // Arrange
-        string text = "line1\ra\r\rb\r\nline2";
+        string text = "\n";
         var lines = new List<string>();
 
         // Act
@@ -469,34 +553,15 @@ public class StringUtilsTests_IterateOverSplitByLines
 
         // Assert
         Assert.Equal(2, lines.Count);
-        Assert.Equal("line1\ra\r\rb", lines[0]);
-        Assert.Equal("line2", lines[1]);
+        Assert.Equal("", lines[0]);
+        Assert.Equal("", lines[1]);
     }
 
     [Fact]
-    public void IterateOverSplitByLines_SingleCR_NoLineBreak()
+    public void IterateOverSplitByLines_SingleCR_CreatesTwoLines()
     {
         // Arrange
         string text = "\r";
-        var lines = new List<string>();
-
-        // Act
-        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
-        {
-            lines.Add(line.ToString());
-            return true;
-        });
-
-        // Assert
-        Assert.Single(lines);
-        Assert.Equal("\r", lines[0]);
-    }
-
-    [Fact]
-    public void IterateOverSplitByLines_SingleLF_CreatesTwoLines()
-    {
-        // Arrange
-        string text = "\n";
         var lines = new List<string>();
 
         // Act
@@ -578,7 +643,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     public void IterateOverSplitByLines_LineIndices_AreSequential()
     {
         // Arrange
-        string text = "a\nb\nc\nd\ne";
+        string text = "a\rb\nc\rd\ne";
         var indices = new List<int>();
 
         // Act
@@ -621,7 +686,7 @@ public class StringUtilsTests_IterateOverSplitByLines
     public void IterateOverSplitByLines_NextLineStartPosition_MatchesExpected()
     {
         // Arrange
-        string text = "abc\ndefgh\ni";
+        string text = "abc\rdefgh\ri";
         var actualPositions = new List<int>();
         var expectedPositions = new List<int> { 4, 10, 11 }; // After each line break or at end
 
@@ -651,9 +716,10 @@ public class StringUtilsTests_IterateOverSplitByLines
         });
 
         // Assert
-        Assert.Equal(2, lines.Count);
-        Assert.Equal("line1\r", lines[0]);
-        Assert.Equal("line2", lines[1]);
+        Assert.Equal(3, lines.Count);
+        Assert.Equal("line1", lines[0]);
+        Assert.Equal("", lines[1]);
+        Assert.Equal("line2", lines[2]);
     }
 
     [Fact]
@@ -671,9 +737,11 @@ public class StringUtilsTests_IterateOverSplitByLines
         });
 
         // Assert
-        Assert.Equal(2, lines.Count);
-        Assert.Equal("a\r", lines[0]);
-        Assert.Equal("\rb", lines[1]);
+        Assert.Equal(4, lines.Count);
+        Assert.Equal("a", lines[0]);
+        Assert.Equal("", lines[1]);
+        Assert.Equal("", lines[2]);
+        Assert.Equal("b", lines[3]);
     }
 
     [Fact]
@@ -698,29 +766,54 @@ public class StringUtilsTests_IterateOverSplitByLines
     }
 
     [Fact]
-    public void IterateOverSplitByLines_ConsecutiveCRs_ThenOtherChar()
-    {
-        // Arrange
-        string text = "\r\rx";
-        var lines = new List<string>();
-
-        // Act
-        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
-        {
-            lines.Add(line.ToString());
-            return true;
-        });
-
-        // Assert
-        Assert.Single(lines);
-        Assert.Equal("\r\rx", lines[0]);
-    }
-
-    [Fact]
     public void IterateOverSplitByLines_ValidateSlicing_LineContentMatchesOriginal()
     {
         // Arrange
         string text = "first\nsecond\nthird";
+
+        // Act & Assert
+        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
+        {
+            // Verify that the line content matches the slice of the original text
+            string expectedLine = lineIndex switch
+            {
+                0 => "first",
+                1 => "second",
+                2 => "third",
+                _ => throw new Exception("Unexpected line index")
+            };
+            Assert.Equal(expectedLine, line.ToString());
+            return true;
+        });
+    }
+
+    [Fact]
+    public void IterateOverSplitByLines_ValidateSlicing_LineContentMatchesOriginal_R()
+    {
+        // Arrange
+        string text = "first\rsecond\rthird";
+
+        // Act & Assert
+        StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>
+        {
+            // Verify that the line content matches the slice of the original text
+            string expectedLine = lineIndex switch
+            {
+                0 => "first",
+                1 => "second",
+                2 => "third",
+                _ => throw new Exception("Unexpected line index")
+            };
+            Assert.Equal(expectedLine, line.ToString());
+            return true;
+        });
+    }
+
+    [Fact]
+    public void IterateOverSplitByLines_ValidateSlicing_LineContentMatchesOriginal_RN()
+    {
+        // Arrange
+        string text = "first\r\nsecond\r\nthird";
 
         // Act & Assert
         StringUtils.IterateOverSplitByLines(text, (line, lineIndex, lineStartPosition, nextLineStartPosition, isLastLine) =>

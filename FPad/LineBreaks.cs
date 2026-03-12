@@ -12,5 +12,5 @@ public enum LineBreaks
     None = 0,
     Windows = 1,
     Unix = 2,
-    Mixed = 3
+    Macintosh = 4
 }
