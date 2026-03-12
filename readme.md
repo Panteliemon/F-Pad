@@ -2,13 +2,13 @@
 
 A minimalist text editor for Windows inspired by the classic Notepad.
 
-![F-Pad Screenshot](Img/screenshot02.png)
+![F-Pad Screenshot](Img/screenshot03.png)
 
 ## Features
 - **Unformatted Text Editing**: Every one of us needs pureness of unformatted *.txt files once in a while, F-Pad makes sure the text you put in stays unformatted.
 - **Single Document Interface**: We ain't need no tabs in our app, we wanna scatter individual windows all over the place, like back in ye olde days.
-- **Encoding Detection**: Classic Notepad used to annoy you with no way of using different ANSI pages for different files on the same machine - we fixed that.
-- **Change Encoding**: You know this, you create empty text file in Explorer, you open it in Notepad and wanna switch encoding to Unicode - you have to overwrite the file you've just created, you have to answer stupid questions - we fixed that as well. Btw Unicode is default, sue me. (Don't sue me)
+- **Encoding Detection**: Classic Notepad used to annoy you with no way of using different ANSI pages for different files on the same machine - I fixed that.
+- **Change Encoding**: You know this, you create empty text file in Explorer, you open it in Notepad and wanna switch encoding to Unicode - you have to overwrite the file you've just created, you have to answer stupid questions - I fixed that as well. Btw Unicode is default, sue me. (Don't sue me)
 - **Double-Click Whole Word Selection**: Made it less annoying than in the original Notepad.
 
 ## Technical Details
